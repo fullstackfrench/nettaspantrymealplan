@@ -1,20 +1,19 @@
 import MenuBrowser from '@/components/MenuBrowser';
-import { createServerClient } from '@/lib/supabase/server';
-import type { Meal } from '@/lib/types';
+import { getActiveSubscriptionPlans, getPublicMeals } from '@/lib/catalog';
+import type { Meal, PublicSubscriptionPlan } from '@/lib/types';
 
 // Re-fetch every 60s so the chef's edits show up without a redeploy.
 export const revalidate = 60;
 
 export default async function MenuPage() {
-  const supabase = createServerClient();
-
-  const { data, error } = await supabase
-    .from('meals')
-    .select('*')
-    .eq('is_active', true)
-    .order('created_at', { ascending: false });
-
-  const meals = (data ?? []) as Meal[];
+  let meals: Meal[] = [];
+  let plans: PublicSubscriptionPlan[] = [];
+  let loadFailed = false;
+  try {
+    [meals, plans] = await Promise.all([getPublicMeals(), getActiveSubscriptionPlans()]);
+  } catch {
+    loadFailed = true;
+  }
 
   return (
     <>
@@ -30,7 +29,7 @@ export default async function MenuPage() {
         </div>
       </div>
 
-      {error && (
+      {loadFailed && (
         <div className="mx-auto max-w-7xl px-6 pt-8">
           <p className="rounded-xl bg-clay-100 p-4 text-sm">
             Could not load the menu. Check that your Supabase environment variables are set
@@ -39,7 +38,7 @@ export default async function MenuPage() {
         </div>
       )}
 
-      <MenuBrowser meals={meals} />
+      <MenuBrowser meals={meals} plans={plans} />
     </>
   );
 }

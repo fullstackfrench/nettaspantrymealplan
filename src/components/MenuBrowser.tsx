@@ -6,9 +6,9 @@ import MealCard from './MealCard';
 import MealModal from './MealModal';
 import PlanPicker from './PlanPicker';
 import { useCart } from '@/lib/cart';
-import type { Meal } from '@/lib/types';
+import type { Meal, PublicSubscriptionPlan } from '@/lib/types';
 
-export default function MenuBrowser({ meals }: { meals: Meal[] }) {
+export default function MenuBrowser({ meals, plans }: { meals: Meal[]; plans: PublicSubscriptionPlan[] }) {
   const [active, setActive] = useState('all');
   const [selected, setSelected] = useState<Meal | null>(null);
   const { totalMeals, remaining, mode } = useCart();
@@ -26,7 +26,7 @@ export default function MenuBrowser({ meals }: { meals: Meal[] }) {
 
   return (
     <div className="mx-auto max-w-7xl px-6 py-10">
-      <PlanPicker />
+      <PlanPicker plans={plans} />
 
       <div className="mt-8">
         <FilterBar active={active} onChange={setActive} counts={counts} />
@@ -52,7 +52,7 @@ export default function MenuBrowser({ meals }: { meals: Meal[] }) {
       ) : (
         <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {filtered.map((meal) => (
-            <MealCard key={meal.id} meal={meal} onSelect={setSelected} />
+            <MealCard key={meal.id} meal={meal} onSelect={setSelected} mode={mode} />
           ))}
         </div>
       )}

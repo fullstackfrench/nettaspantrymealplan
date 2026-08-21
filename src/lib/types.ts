@@ -16,7 +16,10 @@ export interface Meal {
   allergen_free: string[];
   tags: string[];
   is_active: boolean;
+  is_available_for_one_time: boolean;
+  is_available_for_subscription: boolean;
   created_at: string;
+  updated_at: string;
   meal_sizes?: MealSize[];
 }
 
@@ -24,8 +27,60 @@ export interface MealSize {
   id: string;
   meal_id: string;
   label: string;
+  servings: number | null;
   price_cents: number;
+  is_active: boolean;
+  is_available_for_one_time: boolean;
+  is_available_for_subscription: boolean;
   sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface SubscriptionPlan {
+  id: string;
+  code: string;
+  name: string;
+  blurb: string | null;
+  included_credits: number;
+  price_cents: number;
+  billing_interval: 'day' | 'week' | 'month' | 'year';
+  billing_interval_count: number;
+  is_active: boolean;
+  sort_order: number;
+  stripe_product_id: string | null;
+  current_stripe_price_id: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export type PublicSubscriptionPlan = Pick<
+  SubscriptionPlan,
+  | 'id'
+  | 'code'
+  | 'name'
+  | 'blurb'
+  | 'included_credits'
+  | 'price_cents'
+  | 'billing_interval'
+  | 'billing_interval_count'
+>;
+
+export interface Subscription {
+  id: string;
+  customer_id: string;
+  subscription_plan_id: string | null;
+  plan_size: number;
+  plan_code_snapshot: string | null;
+  plan_name_snapshot: string | null;
+  included_credits_snapshot: number | null;
+  price_cents_snapshot: number | null;
+  billing_interval_snapshot: string | null;
+  billing_interval_count_snapshot: number | null;
+  stripe_price_id: string | null;
+  status: string;
+  stripe_subscription_id: string | null;
+  created_at: string;
 }
 
 export interface Customer {
@@ -83,6 +138,10 @@ export interface OrderItem {
   id: string;
   order_id: string;
   meal_id: string;
+  meal_size_id: string | null;
+  meal_name_snapshot: string | null;
+  size_label_snapshot: string | null;
+  servings_snapshot: number | null;
   quantity: number;
   unit_price_cents: number;
   meals?: Meal;

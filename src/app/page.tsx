@@ -1,7 +1,11 @@
 import Link from 'next/link';
-import { PLANS, formatCents, DEPOSIT_PER_CONTAINER_CENTS } from '@/lib/constants';
+import { formatCents, DEPOSIT_PER_CONTAINER_CENTS } from '@/lib/constants';
+import { getActiveSubscriptionPlans } from '@/lib/catalog';
 
-export default function HomePage() {
+export const revalidate = 60;
+
+export default async function HomePage() {
+  const plans = await getActiveSubscriptionPlans();
   return (
     <>
       <section className="border-b border-black/10 bg-white">
@@ -67,19 +71,20 @@ export default function HomePage() {
             Skip, pause, or cancel any week.
           </p>
           <div className="mt-10 grid gap-6 md:grid-cols-3">
-            {PLANS.map((p) => (
-              <div key={p.size} className="rounded-2xl p-8 ring-1 ring-black/10">
-                <div className="font-display text-2xl font-bold">{p.label}</div>
+            {plans.map((p) => (
+              <div key={p.id} className="rounded-2xl p-8 ring-1 ring-black/10">
+                <div className="font-display text-2xl font-bold">{p.name}</div>
                 <div className="mt-2 text-3xl font-bold">
-                  {formatCents(p.subscriptionPriceCents)}
-                  <span className="text-base font-normal text-black/50"> / meal</span>
+                  {formatCents(p.price_cents)}
+                  <span className="text-base font-normal text-black/50"> / {p.billing_interval}</span>
                 </div>
+                <div className="mt-1 text-sm text-black/50">{formatCents(Math.round(p.price_cents / p.included_credits))} per meal</div>
                 <p className="mt-2 text-sm text-moss-600">{p.blurb}</p>
                 <Link
                   href="/menu"
                   className="mt-6 block rounded-full bg-ink px-5 py-3 text-center text-sm font-semibold text-white hover:bg-black"
                 >
-                  Choose {p.size} meals
+                  Choose {p.included_credits} meals
                 </Link>
               </div>
             ))}

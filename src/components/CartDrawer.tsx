@@ -10,7 +10,7 @@ import { formatCents } from '@/lib/constants';
  * the way on the checkout page itself.
  */
 export default function CartDrawer() {
-  const { totalMeals, subtotalCents, depositCents, mode, remaining } = useCart();
+  const { totalMeals, subtotalCents, depositCents, mode, remaining, selectedPlan } = useCart();
   const pathname = usePathname();
 
   if (totalMeals === 0) return null;
@@ -30,6 +30,9 @@ export default function CartDrawer() {
           </span>
           {mode === 'subscription' && remaining > 0 && (
             <span className="ml-2 text-clay-500">{remaining} more to fill your plan</span>
+          )}
+          {mode === 'subscription' && selectedPlan && (
+            <span className="ml-2 text-black/50">{selectedPlan.name}</span>
           )}
         </div>
 

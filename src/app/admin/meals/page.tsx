@@ -167,7 +167,11 @@ function MealForm({ meal, sizes }: { meal: Meal | null; sizes: MealSize[] }) {
           <Input name="fat_g" label="Fat" type="number" defaultValue={meal?.fat_g ?? ''} />
         </div>
 
-        <MealSizesEditor sizes={sizes} />
+        <MealSizesEditor
+          sizes={sizes}
+          mealOneTimeEligible={meal?.is_available_for_one_time ?? true}
+          mealSubscriptionEligible={meal?.is_available_for_subscription ?? true}
+        />
 
         <Textarea
           name="ingredients"

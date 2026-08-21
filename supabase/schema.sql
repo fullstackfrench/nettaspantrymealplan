@@ -24,7 +24,10 @@ create table if not exists meals (
   allergen_free   text[] not null default '{}', -- e.g. {'Gluten Free','Dairy Free'}
   tags            text[] not null default '{}', -- filter chips: seafood, vegetarian, etc.
   is_active       boolean not null default true,
-  created_at      timestamptz not null default now()
+  is_available_for_one_time boolean not null default true,
+  is_available_for_subscription boolean not null default true,
+  created_at      timestamptz not null default now(),
+  updated_at      timestamptz not null default now()
 );
 
 create index if not exists meals_tags_idx on meals using gin (tags);
@@ -37,12 +40,22 @@ create table if not exists meal_sizes (
   id          uuid primary key default uuid_generate_v4(),
   meal_id     uuid not null references meals(id) on delete cascade,
   label       text not null,
+  servings    integer check (servings is null or servings > 0),
   price_cents integer not null,
+  is_active   boolean not null default true,
+  is_available_for_one_time boolean not null default true,
+  is_available_for_subscription boolean not null default false,
   sort_order  integer not null default 0,
-  created_at  timestamptz not null default now()
+  created_at  timestamptz not null default now(),
+  updated_at  timestamptz not null default now(),
+  unique (meal_id, label),
+  check (price_cents > 0)
 );
 
 create index if not exists meal_sizes_meal_idx on meal_sizes (meal_id);
+create unique index if not exists meal_sizes_one_subscription_size_per_meal_uidx
+  on meal_sizes (meal_id)
+  where is_active = true and is_available_for_subscription = true;
 
 -- ---------- PROFILES ----------
 -- Mirrors auth.users 1:1 so we have somewhere to put a role. Admin promotion
@@ -110,11 +123,54 @@ create table if not exists customers (
   created_at          timestamptz not null default now()
 );
 
+-- ---------- SUBSCRIPTION PLANS ----------
+-- The total recurring plan price is authoritative for new subscribers. When
+-- it changes, later Stripe integration will create a new Stripe Price while
+-- existing subscriptions retain their original price snapshot.
+create table if not exists subscription_plans (
+  id                      uuid primary key default uuid_generate_v4(),
+  code                    text unique not null,
+  name                    text not null,
+  blurb                   text,
+  included_credits        integer not null check (included_credits > 0),
+  price_cents             integer not null check (price_cents > 0),
+  billing_interval        text not null default 'week'
+                          check (billing_interval in ('day','week','month','year')),
+  billing_interval_count  integer not null default 1 check (billing_interval_count > 0),
+  is_active               boolean not null default true,
+  sort_order              integer not null default 0,
+  stripe_product_id       text,
+  current_stripe_price_id text,
+  created_at              timestamptz not null default now(),
+  updated_at              timestamptz not null default now()
+);
+
+create unique index if not exists subscription_plans_stripe_product_uidx
+  on subscription_plans (stripe_product_id) where stripe_product_id is not null;
+create unique index if not exists subscription_plans_stripe_price_uidx
+  on subscription_plans (current_stripe_price_id) where current_stripe_price_id is not null;
+
+insert into subscription_plans
+  (code, name, blurb, included_credits, price_cents, billing_interval, billing_interval_count, sort_order)
+values
+  ('weekly-6', '6 meals / week', 'Lunches sorted.', 6, 8100, 'week', 1, 0),
+  ('weekly-8', '8 meals / week', 'Most popular.', 8, 10200, 'week', 1, 1),
+  ('weekly-12', '12 meals / week', 'Best value, feeds two.', 12, 14340, 'week', 1, 2)
+on conflict (code) do nothing;
+
 -- ---------- SUBSCRIPTIONS ----------
 create table if not exists subscriptions (
   id                     uuid primary key default uuid_generate_v4(),
   customer_id            uuid not null references customers(id) on delete cascade,
+  subscription_plan_id   uuid references subscription_plans(id) on delete restrict,
   plan_size              integer not null,    -- meals per week: 6, 8, 12
+  plan_code_snapshot     text,
+  plan_name_snapshot     text,
+  included_credits_snapshot integer,
+  price_cents_snapshot   integer,
+  billing_interval_snapshot text,
+  billing_interval_count_snapshot integer,
+  stripe_price_id        text,
   status                 text not null default 'active',  -- active | paused | canceled
   stripe_subscription_id text,
   created_at             timestamptz not null default now()
@@ -157,6 +213,10 @@ create table if not exists order_items (
   id               uuid primary key default uuid_generate_v4(),
   order_id         uuid not null references orders(id) on delete cascade,
   meal_id          uuid not null references meals(id) on delete restrict,
+  meal_size_id     uuid references meal_sizes(id) on delete set null,
+  meal_name_snapshot text,
+  size_label_snapshot text,
+  servings_snapshot integer check (servings_snapshot is null or servings_snapshot > 0),
   quantity         integer not null default 1,
   unit_price_cents integer not null
 );
@@ -218,6 +278,7 @@ alter table profiles          enable row level security;
 alter table weekly_menus      enable row level security;
 alter table weekly_menu_items enable row level security;
 alter table customers         enable row level security;
+alter table subscription_plans enable row level security;
 alter table subscriptions     enable row level security;
 alter table orders            enable row level security;
 alter table order_items       enable row level security;
@@ -248,6 +309,10 @@ create policy "public reads published menu items" on weekly_menu_items
   for select using (
     exists (select 1 from weekly_menus m where m.id = menu_id and m.is_published)
   );
+
+drop policy if exists "public reads active subscription plans" on subscription_plans;
+create policy "public reads active subscription plans" on subscription_plans
+  for select using (is_active = true);
 
 -- Customers see only their own records.
 drop policy if exists "customer reads self" on customers;
