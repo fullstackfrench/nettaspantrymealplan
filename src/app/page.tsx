@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { formatCents, DEPOSIT_PER_CONTAINER_CENTS } from '@/lib/constants';
 import { getActiveSubscriptionPlans } from '@/lib/catalog';
 
@@ -21,11 +22,15 @@ export default async function HomePage() {
           </div>
           <div className="relative mx-auto w-full max-w-xl lg:mx-0">
             <div className="absolute -left-5 -top-5 h-full w-full rounded-[2rem] border border-brand-gold/30" aria-hidden />
-            <div className="relative flex aspect-[4/4.25] min-h-[360px] flex-col justify-end overflow-hidden rounded-[2rem] bg-brand-plum p-6 text-white shadow-lift sm:p-8">
-              <div className="absolute inset-0 opacity-35 [background-image:radial-gradient(circle_at_20%_20%,rgba(255,255,255,.22)_0_1px,transparent_1.5px)] [background-size:18px_18px]" aria-hidden />
-              <div className="absolute inset-x-0 top-0 h-2/3 bg-[radial-gradient(circle_at_55%_25%,rgba(168,139,67,.55),transparent_42%),radial-gradient(circle_at_20%_70%,rgba(203,84,57,.45),transparent_35%)]" aria-hidden />
-              <div className="relative max-w-sm rounded-panel border border-white/20 bg-black/20 p-5 backdrop-blur-sm"><p className="text-xs font-bold uppercase tracking-[0.18em] text-[#eadcae]">A note from the kitchen</p><p className="mt-3 font-brand text-3xl leading-tight">Food should nourish more than the moment.</p><p className="mt-3 text-sm leading-6 text-white/80">Cooked with intention, packed with care, and connected to the community we call home.</p></div>
-            </div>
+            <Image
+              src="/hero-image.png"
+              alt="Chef Netta's fried chicken"
+              width={5712}
+              height={4284}
+              priority
+              sizes="(max-width: 1023px) 100vw, 48vw"
+              className="relative aspect-[4/3] h-auto w-full rounded-[2rem] object-contain shadow-lift"
+            />
           </div>
         </div>
       </section>
