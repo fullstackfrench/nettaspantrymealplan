@@ -38,55 +38,60 @@ export default function AuthForm({ redirectTo }: { redirectTo?: string }) {
 
   if (status === 'sent') {
     return (
-      <p className="rounded-xl bg-moss-50 p-4 text-sm">
+      <p className="rounded-control border border-moss-600/15 bg-moss-50 p-4 text-sm leading-6 text-moss-700" role="status">
         Check your email — we sent a sign-in link to <strong>{email}</strong>.
       </p>
     );
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <div className="space-y-2">
         <button
           type="button"
           onClick={() => signInWithProvider('google')}
-          className="w-full rounded-full px-5 py-3 text-sm font-semibold ring-1 ring-black/15 hover:bg-black/5"
+          className="admin-secondary-button w-full"
         >
           Continue with Google
         </button>
         <button
           type="button"
           onClick={() => signInWithProvider('apple')}
-          className="w-full rounded-full px-5 py-3 text-sm font-semibold ring-1 ring-black/15 hover:bg-black/5"
+          className="admin-secondary-button w-full"
         >
           Continue with Apple
         </button>
       </div>
 
-      <div className="flex items-center gap-3 text-xs text-black/40">
-        <div className="h-px flex-1 bg-black/10" />
+      <div className="flex items-center gap-3 text-xs font-medium text-ink/45">
+        <div className="h-px flex-1 bg-brand-plum/10" />
         or
-        <div className="h-px flex-1 bg-black/10" />
+        <div className="h-px flex-1 bg-brand-plum/10" />
       </div>
 
-      <form onSubmit={sendMagicLink} className="space-y-2">
+      <form onSubmit={sendMagicLink} className="space-y-3">
+        <label htmlFor="sign-in-email" className="admin-label">Email address</label>
         <input
+          id="sign-in-email"
           type="email"
           required
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="you@example.com"
-          className="w-full rounded-lg px-3 py-2 text-sm ring-1 ring-black/15 focus:outline-none focus:ring-2 focus:ring-moss-600"
+          autoComplete="email"
+          aria-describedby={status === 'error' ? 'sign-in-error' : undefined}
+          aria-invalid={status === 'error'}
+          className="admin-field mt-0"
         />
         <button
           type="submit"
           disabled={status === 'sending'}
-          className="w-full rounded-full bg-moss-600 px-5 py-3 text-sm font-semibold text-white hover:bg-moss-700 disabled:opacity-60"
+          className="admin-primary-button w-full"
         >
           {status === 'sending' ? 'Sending…' : 'Send magic link'}
         </button>
         {status === 'error' && (
-          <p className="text-xs text-clay-500">{errorMessage || 'Something went wrong — try again.'}</p>
+          <p id="sign-in-error" className="rounded-control bg-[#fff1ed] p-3 text-sm text-[#8f3020]" role="alert">{errorMessage || 'Something went wrong—try again.'}</p>
         )}
       </form>
     </div>

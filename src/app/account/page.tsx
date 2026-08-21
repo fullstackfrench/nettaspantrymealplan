@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation';
+import Link from 'next/link';
 import { createSessionClient, createAdminClient } from '@/lib/supabase/server';
 import { signOut } from '../auth/actions';
 import { formatCents } from '@/lib/constants';
@@ -35,45 +36,62 @@ export default async function AccountPage() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl px-6 py-16">
-      <div className="flex items-center justify-between">
-        <h1 className="font-display text-2xl font-bold">Your account</h1>
+    <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6 sm:py-14">
+      <div className="flex flex-col gap-4 border-b border-brand-plum/10 pb-7 min-[420px]:flex-row min-[420px]:items-end min-[420px]:justify-between">
+        <div>
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-brand-gold">Netta&apos;s Pantry</p>
+          <h1 className="mt-2 font-display text-3xl font-bold text-brand-plum sm:text-4xl">Your account</h1>
+          <p className="mt-2 text-sm text-ink/55">{user.email}</p>
+        </div>
         <form action={signOut}>
-          <button className="text-sm text-black/50 hover:text-black">Sign out</button>
+          <button className="admin-secondary-button">Sign out</button>
         </form>
       </div>
 
-      <p className="mt-1 text-sm text-black/50">{user.email}</p>
-
-      <h2 className="mt-10 font-display text-lg font-bold">Order history</h2>
+      <div className="mt-9 flex items-end justify-between gap-4">
+        <div><p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-gold">From your table</p><h2 className="mt-1 font-display text-2xl font-bold text-brand-plum">Order history</h2></div>
+        {orders.length > 0 && <span className="text-sm text-ink/50">{orders.length} order{orders.length === 1 ? '' : 's'}</span>}
+      </div>
 
       {orders.length === 0 && (
-        <p className="mt-3 rounded-2xl bg-white p-6 text-sm text-black/50 ring-1 ring-black/5">
-          No orders yet.
-        </p>
+        <div className="admin-empty-state mt-5">
+          <p className="font-display text-xl font-bold text-brand-plum">Your first meal is waiting</p>
+          <p className="mx-auto mt-2 max-w-sm">Once you place an order, its meals, total, and fulfillment status will appear here.</p>
+          <Link href="/menu" className="admin-primary-button mt-5">Browse this week&apos;s menu</Link>
+        </div>
       )}
 
-      <div className="mt-3 space-y-4">
+      <div className="mt-5 space-y-4">
         {orders.map((o) => (
-          <div key={o.id} className="rounded-2xl bg-white p-5 ring-1 ring-black/5">
-            <div className="flex items-center justify-between">
-              <div className="text-sm font-semibold">
-                {new Date(o.created_at).toLocaleDateString()} ·{' '}
-                {o.order_type === 'subscription' ? 'Subscription' : 'One-time'}
+          <article key={o.id} className="admin-card overflow-hidden">
+            <div className="flex flex-col gap-3 border-b border-brand-plum/10 bg-white px-5 py-4 min-[420px]:flex-row min-[420px]:items-center min-[420px]:justify-between">
+              <div>
+                <div className="text-sm font-bold text-brand-plum">{new Date(o.created_at).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}</div>
+                <div className="mt-1 text-xs font-medium text-ink/50">{o.order_type === 'subscription' ? 'Weekly subscription' : 'One-time order'}</div>
               </div>
-              <div className="text-sm font-semibold">{formatCents(o.total_cents)}</div>
+              <div className="flex items-center justify-between gap-4 min-[420px]:justify-end">
+                <StatusBadge status={o.status} />
+                <div className="text-lg font-bold text-brand-plum">{formatCents(o.total_cents)}</div>
+              </div>
             </div>
-            <ul className="mt-2 space-y-1 text-sm text-black/70">
+            <ul className="space-y-2 px-5 py-4 text-sm text-ink/70">
               {o.order_items?.map((it) => (
-                <li key={it.id}>
-                  {it.quantity} × {it.meals?.name ?? 'Meal'}
+                <li key={it.id} className="flex gap-3"><span className="font-bold text-brand-gold">{it.quantity}×</span><span>{it.meals?.name ?? 'Meal'}</span>
                 </li>
               ))}
             </ul>
-            <div className="mt-2 text-xs text-black/50">Status: {o.status}</div>
-          </div>
+          </article>
         ))}
       </div>
     </div>
   );
+}
+
+const STATUS_LABEL: Record<string, string> = {
+  pending: 'Awaiting payment', paid: 'Paid', packing: 'Being packed', out_for_delivery: 'Out for delivery', delivered: 'Delivered', canceled: 'Canceled',
+};
+
+function StatusBadge({ status }: { status: string }) {
+  const color = status === 'delivered' ? 'bg-moss-50 text-moss-700 ring-1 ring-moss-600/15' : status === 'canceled' ? 'bg-[#fff1ed] text-[#8f3020]' : status === 'pending' ? 'bg-brand-gold/15 text-[#6e5925]' : 'bg-brand-plum/10 text-brand-plum';
+  return <span className={`status-badge ${color}`}>{STATUS_LABEL[status] ?? status}</span>;
 }

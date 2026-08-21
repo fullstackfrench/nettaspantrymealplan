@@ -3,13 +3,97 @@
 @tailwind utilities;
 
 :root {
-  --font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --brand-plum: #682952;
+  --brand-gold: #a88b43;
+  --brand-brick: #cb5439;
+  --brand-muted: #7a7a7a;
+  --surface-warm: #faf8f4;
+  --text-primary: #1a1a1a;
+  --font-body: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
   --font-display: Georgia, 'Times New Roman', serif;
+  --font-brand: 'Lobster Two', Georgia, serif;
 }
 
 body {
-  background: #faf8f4;
-  color: #1a1a1a;
+  background: var(--surface-warm);
+  color: var(--text-primary);
+}
+
+html {
+  scroll-padding-top: 6rem;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--brand-gold) 38%, white);
+  color: var(--brand-plum);
+}
+
+:where(a) {
+  text-underline-offset: 0.18em;
+  text-decoration-thickness: 0.08em;
+}
+
+:where(a, button, input, select, textarea, summary):focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--brand-gold) 72%, white);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
+@layer components {
+  .admin-card {
+    @apply rounded-panel border border-brand-plum/10 bg-white shadow-soft;
+  }
+
+  .admin-field {
+    @apply mt-1.5 w-full rounded-control border border-brand-plum/20 bg-white px-3.5 py-2.5 text-sm text-ink shadow-sm outline-none transition placeholder:text-ink/35 hover:border-brand-plum/35 focus:border-brand-plum focus:ring-2 focus:ring-brand-plum/15;
+  }
+
+  .admin-label {
+    @apply block text-sm font-bold text-brand-plum;
+  }
+
+  .admin-help {
+    @apply mt-1.5 text-xs leading-5 text-ink/55;
+  }
+
+  .admin-primary-button {
+    @apply inline-flex min-h-11 items-center justify-center rounded-full bg-brand-plum px-5 py-2.5 text-sm font-bold text-white shadow-soft transition hover:bg-[#542043] disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .admin-secondary-button {
+    @apply inline-flex min-h-11 items-center justify-center rounded-full border border-brand-plum/20 bg-white px-5 py-2.5 text-sm font-bold text-brand-plum transition hover:bg-brand-plum/5 hover:border-brand-plum/35;
+  }
+
+  .admin-quiet-action {
+    @apply inline-flex min-h-10 items-center rounded-control px-3 py-2 text-sm font-bold text-brand-plum transition hover:bg-brand-plum/5;
+  }
+
+  .admin-danger-action {
+    @apply inline-flex min-h-10 items-center rounded-control px-3 py-2 text-sm font-bold text-[#a73c29] transition hover:bg-[#fff1ed];
+  }
+
+  .status-badge {
+    @apply inline-flex min-h-7 items-center rounded-full px-3 py-1 text-xs font-bold;
+  }
+
+  .admin-empty-state {
+    @apply rounded-panel border border-dashed border-brand-plum/15 bg-white px-5 py-10 text-center text-sm leading-6 text-ink/60 shadow-soft;
+  }
 }
 
 /* Hide the scrollbar on the horizontal filter bar without losing scrollability. */

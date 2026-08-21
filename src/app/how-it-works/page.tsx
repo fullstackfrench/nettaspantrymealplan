@@ -3,10 +3,15 @@ import { DEPOSIT_PER_CONTAINER_CENTS, formatCents } from '@/lib/constants';
 
 export default function HowItWorksPage() {
   return (
-    <div className="mx-auto max-w-3xl px-6 py-16">
-      <h1 className="font-display text-4xl font-bold">How it works</h1>
+    <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6 sm:py-14">
+      <div className="rounded-[1.5rem] border border-brand-plum/10 bg-white p-6 shadow-soft sm:p-9">
+        <p className="text-xs font-bold uppercase tracking-[0.18em] text-brand-gold">From kitchen to doorstep</p>
+        <h1 className="mt-3 font-display text-4xl font-bold text-brand-plum sm:text-5xl">How it works</h1>
+        <p className="mt-4 max-w-2xl leading-7 text-ink/65">A simple weekly rhythm built around fresh food, reusable glass, and the care you expect from Chef Netta.</p>
+      </div>
 
-      <Section title="The glass, explained">
+      <div className="mt-8 grid gap-5">
+      <Section n="01" title="The glass, explained">
         <p>
           Every meal comes in an oven- and dishwasher-safe glass container. Glass keeps food
           tasting like food, and it can be reused hundreds of times instead of thrown away
@@ -24,14 +29,14 @@ export default function HowItWorksPage() {
         </p>
       </Section>
 
-      <Section title="Delivery">
+      <Section n="02" title="Delivery">
         <p>
           We deliver across North Carolina. Meals arrive chilled, not frozen, and keep in the
           fridge for up to five days. Reheat in the oven or microwave right in the container.
         </p>
       </Section>
 
-      <Section title="Subscriptions vs. one-time boxes">
+      <Section n="03" title="Subscriptions vs. one-time boxes">
         <p>
           A weekly subscription gets you the lowest per-meal price and a standing delivery
           slot. You choose your meals each week, and you can skip, pause, or cancel any time
@@ -42,10 +47,11 @@ export default function HowItWorksPage() {
           way — it comes back when the glass does.
         </p>
       </Section>
+      </div>
 
       <Link
         href="/menu"
-        className="mt-10 inline-block rounded-full bg-moss-600 px-7 py-3.5 font-semibold text-white hover:bg-moss-700"
+        className="mt-8 inline-flex min-h-12 items-center rounded-full bg-brand-plum px-7 py-3.5 font-bold text-white shadow-soft transition hover:bg-[#542043]"
       >
         See this week&apos;s menu
       </Link>
@@ -53,11 +59,12 @@ export default function HowItWorksPage() {
   );
 }
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function Section({ n, title, children }: { n: string; title: string; children: React.ReactNode }) {
   return (
-    <section className="mt-10">
-      <h2 className="font-display text-2xl font-bold">{title}</h2>
-      <div className="mt-3 space-y-4 leading-relaxed text-black/70">{children}</div>
+    <section className="admin-card p-6 sm:p-8">
+      <div className="text-xs font-bold tracking-[0.18em] text-brand-gold">{n}</div>
+      <h2 className="mt-3 font-display text-2xl font-bold text-brand-plum">{title}</h2>
+      <div className="mt-4 space-y-4 leading-7 text-ink/70">{children}</div>
     </section>
   );
 }
