@@ -13,17 +13,19 @@ export default function MealSizesEditor({ sizes }: { sizes: MealSize[] }) {
   );
 
   return (
-    <div>
-      <label className="text-sm font-medium">Sizes &amp; prices</label>
-      <p className="mt-1 text-xs text-black/45">
+    <fieldset className="rounded-panel border border-brand-plum/10 bg-cream/60 p-4">
+      <legend className="px-1 text-sm font-bold text-brand-plum">Sizes &amp; prices</legend>
+      <p className="admin-help mt-0">
         Optional. Add a size for each portion you offer (e.g. Regular, Family). Leave empty to
         use the single price above.
       </p>
 
-      <div className="mt-2 space-y-2">
+      <div className="mt-4 space-y-3">
         {rows.map((row, i) => (
-          <div key={row.key} className="flex items-center gap-2">
+          <div key={row.key} className="grid gap-2 rounded-control border border-brand-plum/10 bg-white p-3 min-[420px]:grid-cols-[minmax(0,1fr)_112px_auto] min-[420px]:items-center">
+            <label htmlFor={`size-label-${row.key}`} className="sr-only">Size {i + 1} label</label>
             <input
+              id={`size-label-${row.key}`}
               name="size_label"
               placeholder="Label, e.g. Regular"
               value={row.label}
@@ -32,9 +34,11 @@ export default function MealSizesEditor({ sizes }: { sizes: MealSize[] }) {
                 next[i] = { ...row, label: e.target.value };
                 setRows(next);
               }}
-              className="min-w-0 flex-1 rounded-lg px-3 py-2 text-sm ring-1 ring-black/15 focus:outline-none focus:ring-2 focus:ring-moss-600"
+              className="admin-field mt-0 min-w-0"
             />
+            <label htmlFor={`size-price-${row.key}`} className="sr-only">Size {i + 1} price</label>
             <input
+              id={`size-price-${row.key}`}
               name="size_price"
               type="number"
               step="0.01"
@@ -45,12 +49,12 @@ export default function MealSizesEditor({ sizes }: { sizes: MealSize[] }) {
                 next[i] = { ...row, price: e.target.value };
                 setRows(next);
               }}
-              className="w-24 rounded-lg px-3 py-2 text-sm ring-1 ring-black/15 focus:outline-none focus:ring-2 focus:ring-moss-600"
+              className="admin-field mt-0 w-full"
             />
             <button
               type="button"
               onClick={() => setRows(rows.filter((_, j) => j !== i))}
-              className="text-sm text-clay-500 hover:underline"
+              className="admin-danger-action justify-center min-[420px]:px-2"
             >
               Remove
             </button>
@@ -61,10 +65,10 @@ export default function MealSizesEditor({ sizes }: { sizes: MealSize[] }) {
       <button
         type="button"
         onClick={() => setRows([...rows, { key: nextKey++, label: '', price: '' }])}
-        className="mt-2 text-sm font-semibold text-moss-600 hover:underline"
+        className="admin-secondary-button mt-4 w-full sm:w-auto"
       >
         + Add a size
       </button>
-    </div>
+    </fieldset>
   );
 }
