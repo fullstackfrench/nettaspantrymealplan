@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useCart } from '@/lib/cart';
@@ -85,16 +86,16 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-40 border-b border-brand-plum/10 bg-cream/95 shadow-[0_1px_0_rgba(104,41,82,0.04)] backdrop-blur-md">
       <div className="mx-auto flex min-h-[72px] max-w-7xl items-center gap-3 px-4 sm:px-6">
-        <Link href="/" className="group mr-auto flex min-w-0 items-center gap-3" aria-label="Netta's Pantry home">
-          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-brand-plum font-brand text-xl text-white shadow-soft transition-transform group-hover:-rotate-2">
-            N
-          </span>
-          <span className="min-w-0 leading-none">
-            <span className="block truncate font-brand text-[1.55rem] text-brand-plum">Netta&apos;s Pantry</span>
-            <span className="mt-1 block text-[0.62rem] font-bold uppercase tracking-[0.18em] text-brand-gold">
-              by Your Southern Foodie
-            </span>
-          </span>
+        <Link href="/" className="mr-auto flex min-w-0 shrink items-center" aria-label="Netta's Pantry home">
+          <Image
+            src="/nettas-pantry-logo.png"
+            alt="Netta's Pantry"
+            width={970}
+            height={387}
+            priority
+            sizes="(max-width: 359px) 112px, (max-width: 639px) 138px, 170px"
+            className="h-auto w-[112px] shrink-0 object-contain min-[360px]:w-[138px] sm:w-[170px]"
+          />
         </Link>
 
         <nav className="hidden items-center gap-1 lg:flex" aria-label="Primary navigation">
