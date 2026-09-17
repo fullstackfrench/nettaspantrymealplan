@@ -166,3 +166,5 @@ See `CLAUDE.md` for the full list. The big ones:
 5. Customer accounts — order history, skipping a week, managing a subscription
 6. Letting customers actually pick a meal size — sizes/prices can be set per meal in
    `/admin` now, but `/menu` and checkout still only charge the meal's single price
+
+# nettaspantrymealplan
