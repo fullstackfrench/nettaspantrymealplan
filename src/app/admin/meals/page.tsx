@@ -2,6 +2,7 @@ import { createAdminClient } from '@/lib/supabase/server';
 import { formatCents, FILTERS } from '@/lib/constants';
 import { deleteMeal, toggleMealActive } from '../actions';
 import MealSaveForm from '@/components/admin/MealSaveForm';
+import MealSaveNotice from '@/components/admin/MealSaveNotice';
 import MealSizesEditor from '@/components/admin/MealSizesEditor';
 import type { Meal, MealSize } from '@/lib/types';
 
@@ -10,7 +11,7 @@ export const dynamic = 'force-dynamic';
 export default async function MealsAdmin({
   searchParams,
 }: {
-  searchParams: { edit?: string };
+  searchParams: { edit?: string; saved?: string };
 }) {
   const supabase = createAdminClient();
   const { data } = await supabase
@@ -33,6 +34,9 @@ export default async function MealsAdmin({
 
   return (
     <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_440px]">
+      {(searchParams.saved === 'updated' || searchParams.saved === 'created') && (
+        <MealSaveNotice key={searchParams.saved} kind={searchParams.saved} />
+      )}
       <div>
         <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-gold">Kitchen catalog</p>
         <h2 className="mt-1 font-display text-2xl font-bold text-brand-plum">Meal library</h2>
@@ -89,7 +93,7 @@ export default async function MealsAdmin({
         </div>
       </div>
 
-      <MealForm meal={editing} sizes={editingSizes} />
+      <MealForm key={editing?.id ?? 'new'} meal={editing} sizes={editingSizes} />
     </div>
   );
 }
