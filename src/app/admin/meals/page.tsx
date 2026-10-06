@@ -1,6 +1,7 @@
 import { createAdminClient } from '@/lib/supabase/server';
 import { formatCents, FILTERS } from '@/lib/constants';
-import { deleteMeal, saveMeal, toggleMealActive } from '../actions';
+import { deleteMeal, toggleMealActive } from '../actions';
+import MealSaveForm from '@/components/admin/MealSaveForm';
 import MealSizesEditor from '@/components/admin/MealSizesEditor';
 import type { Meal, MealSize } from '@/lib/types';
 
@@ -108,7 +109,7 @@ function MealForm({ meal, sizes }: { meal: Meal | null; sizes: MealSize[] }) {
         </a>
       )}
 
-      <form action={saveMeal} encType="multipart/form-data" className="mt-6 space-y-5">
+      <MealSaveForm key={meal?.id ?? 'new'}>
         {meal && <input type="hidden" name="id" value={meal.id} />}
 
         <Input name="name" label="Meal name" defaultValue={meal?.name} required />
@@ -204,7 +205,7 @@ function MealForm({ meal, sizes }: { meal: Meal | null; sizes: MealSize[] }) {
         <button className="admin-primary-button w-full">
           {meal ? 'Save changes' : 'Add meal'}
         </button>
-      </form>
+      </MealSaveForm>
     </aside>
   );
 }

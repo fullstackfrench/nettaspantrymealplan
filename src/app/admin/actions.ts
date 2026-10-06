@@ -105,6 +105,7 @@ function parseSubmittedSizes(
   const selectedKey = selectedKeys[0] ?? null;
   const seenIds = new Set<string>();
   const seenKeys = new Set<string>();
+  const seenLabels = new Set<string>();
 
   const rows = ids.map((rawId, index): SubmittedSize => {
     const id = rawId.trim() || null;
@@ -125,6 +126,8 @@ function parseSubmittedSizes(
       seenIds.add(id);
     }
     if (!label) throw new Error('Each size must have a label.');
+    if (seenLabels.has(label)) throw new Error('Each size must have a unique label.');
+    seenLabels.add(label);
     if (servings !== null && (!Number.isSafeInteger(servings) || servings <= 0)) {
       throw new Error('Servings must be a positive whole number.');
     }
@@ -167,11 +170,27 @@ function throwIfError(error: { message: string } | null, operation: string) {
 
 // ---------------- MEALS ----------------
 
+export async function saveMealWithFeedback(
+  _previous: { error: string | null; saved: boolean },
+  formData: FormData
+): Promise<{ error: string | null; saved: boolean }> {
+  try {
+    await saveMeal(formData);
+    return { error: null, saved: true };
+  } catch (error) {
+    console.error('Meal save failed', error);
+    return {
+      error: error instanceof Error ? error.message : 'Unable to save this meal. Please try again.',
+      saved: false,
+    };
+  }
+}
+
 export async function saveMeal(formData: FormData) {
   const supabase = await requireAdmin();
   const id = formData.get('id') as string | null;
   const name = String(formData.get('name') ?? '').trim();
-  if (!name) return;
+  if (!name) throw new Error('Enter a meal name.');
 
   const mealOneTimeEligible = formData.get('is_available_for_one_time') === 'on';
   const mealSubscriptionEligible = formData.get('is_available_for_subscription') === 'on';
@@ -183,7 +202,7 @@ export async function saveMeal(formData: FormData) {
 
   if (id && !UUID_PATTERN.test(id)) throw new Error('Invalid meal ID.');
 
-  let existingSizes: { id: string }[] = [];
+  let existingSizes: { id: string; label: string }[] = [];
   if (id) {
     const { data: meal, error: mealLookupError } = await supabase
       .from('meals')
@@ -193,12 +212,24 @@ export async function saveMeal(formData: FormData) {
     throwIfError(mealLookupError, 'Meal lookup');
     if (!meal) throw new Error('Meal not found.');
 
-    const { data, error } = await supabase.from('meal_sizes').select('id').eq('meal_id', id);
+    const { data, error } = await supabase.from('meal_sizes').select('id, label').eq('meal_id', id);
     throwIfError(error, 'Meal-size lookup');
     existingSizes = data ?? [];
     const existingIds = new Set(existingSizes.map((size) => size.id));
     if (submittedSizes.some((size) => size.id && !existingIds.has(size.id))) {
       throw new Error('A submitted meal size does not belong to this meal.');
+    }
+    // Removed rows remain in the database for order history. Reuse their IDs
+    // when a replacement has the same label, which is unique even when inactive.
+    const retainedIds = new Set(submittedSizes.map((size) => size.id).filter(Boolean));
+    for (const size of submittedSizes) {
+      const previous = existingSizes.find((existing) => existing.label === size.label);
+      if (!previous || retainedIds.has(previous.id)) continue;
+      if (size.id) {
+        throw new Error(`The size label "${size.label}" belongs to a removed size. Restore that size or choose a different label.`);
+      }
+      size.id = previous.id;
+      retainedIds.add(previous.id);
     }
   } else if (submittedSizes.some((size) => size.id)) {
     throw new Error('New meals cannot reference existing size IDs.');
