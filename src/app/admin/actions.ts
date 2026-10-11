@@ -5,6 +5,7 @@ import { revalidatePath } from 'next/cache';
 import { createAdminClient } from '@/lib/supabase/server';
 import { requireAdmin } from '@/lib/auth/require-admin';
 import { DEPOSIT_PER_CONTAINER_CENTS } from '@/lib/constants';
+import { ADMIN_MEAL_CATEGORIES, isAdminMealCategoryTag } from '@/lib/admin-meal-categories';
 
 const MEAL_PHOTOS_BUCKET = 'meal-photos';
 
@@ -236,6 +237,15 @@ export async function saveMeal(formData: FormData) {
   }
 
   const dollars = String(formData.get('price') ?? '0');
+  const category = formData.get('category');
+  if (category != null && category !== 'uncategorized' && !ADMIN_MEAL_CATEGORIES.some((item) => item.id === category)) {
+    throw new Error('Choose a valid meal category.');
+  }
+  const tags = splitList(formData.get('tags'));
+  const categorizedTags = category == null ? tags : [
+    ...tags.filter((tag) => !isAdminMealCategoryTag(tag)),
+    String(category),
+  ];
 
   const photo = formData.get('photo') as File | null;
   const uploadedUrl = photo && photo.size > 0 ? await uploadMealPhoto(supabase, photo) : null;
@@ -254,7 +264,7 @@ export async function saveMeal(formData: FormData) {
     fat_g: toInt(formData.get('fat_g')),
     ingredients: splitList(formData.get('ingredients')),
     allergen_free: splitList(formData.get('allergen_free')),
-    tags: splitList(formData.get('tags')),
+    tags: categorizedTags,
     is_active: formData.get('is_active') === 'on',
     is_available_for_one_time: mealOneTimeEligible,
     is_available_for_subscription: mealSubscriptionEligible,

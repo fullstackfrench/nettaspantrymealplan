@@ -4,6 +4,8 @@ import { deleteMeal, toggleMealActive } from '../actions';
 import MealSaveForm from '@/components/admin/MealSaveForm';
 import MealSaveNotice from '@/components/admin/MealSaveNotice';
 import MealSizesEditor from '@/components/admin/MealSizesEditor';
+import MealLibraryBrowser from '@/components/admin/MealLibraryBrowser';
+import { ADMIN_MEAL_CATEGORIES, getAdminMealCategory, isAdminMealCategoryTag } from '@/lib/admin-meal-categories';
 import type { Meal, MealSize } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
@@ -45,13 +47,7 @@ export default async function MealsAdmin({
           library but disappear from the customer menu.
         </p>
 
-        <div className="admin-card mt-5 divide-y divide-brand-plum/10 overflow-hidden">
-          {meals.length === 0 && (
-            <p className="p-8 text-center text-sm text-ink/55">
-              No meals yet. Add your first one using the form.
-            </p>
-          )}
-
+        <MealLibraryBrowser meals={meals.map(({ id, name, subtitle, description, ingredients, tags, is_active }) => ({ id, name, subtitle, description, ingredients, tags, is_active }))}>
           {meals.map((m) => (
             <div key={m.id} className="grid gap-4 p-4 sm:grid-cols-[64px_minmax(0,1fr)_auto] sm:items-center">
               <div className="h-16 w-16 shrink-0 overflow-hidden rounded-control bg-cream">
@@ -90,7 +86,7 @@ export default async function MealsAdmin({
               </div>
             </div>
           ))}
-        </div>
+        </MealLibraryBrowser>
       </div>
 
       <MealForm key={editing?.id ?? 'new'} meal={editing} sizes={editingSizes} />
@@ -117,6 +113,13 @@ function MealForm({ meal, sizes }: { meal: Meal | null; sizes: MealSize[] }) {
         {meal && <input type="hidden" name="id" value={meal.id} />}
 
         <Input name="name" label="Meal name" defaultValue={meal?.name} required />
+        <label className="admin-label">Category
+          <select name="category" defaultValue={meal ? getAdminMealCategory(meal) : 'uncategorized'} className="admin-field">
+            <option value="uncategorized">Uncategorized</option>
+            {ADMIN_MEAL_CATEGORIES.map((category) => <option key={category.id} value={category.id}>{category.label}</option>)}
+          </select>
+        </label>
+        <p className="admin-help">Existing meals without an assigned category are grouped by name. Choose a category and save to confirm or change it.</p>
         <Input
           name="subtitle"
           label="Subtitle"
@@ -192,7 +195,7 @@ function MealForm({ meal, sizes }: { meal: Meal | null; sizes: MealSize[] }) {
           name="tags"
           label="Filter tags"
           hint={`Comma separated. Valid: ${tagOptions.join(', ')}`}
-          defaultValue={meal?.tags.join(', ') ?? ''}
+          defaultValue={meal?.tags.filter((tag) => !isAdminMealCategoryTag(tag)).join(', ') ?? ''}
         />
         <Input name="slug" label="URL slug" hint="Leave blank to generate from the name" defaultValue={meal?.slug ?? ''} />
 
