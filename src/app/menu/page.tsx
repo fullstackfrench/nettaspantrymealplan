@@ -1,5 +1,5 @@
 import MenuBrowser from '@/components/MenuBrowser';
-import { getActiveSubscriptionPlans, getPublicMeals } from '@/lib/catalog';
+import { getActiveSubscriptionPlans, getWeeklyMenuMeals } from '@/lib/catalog';
 import type { Meal, PublicSubscriptionPlan } from '@/lib/types';
 
 // Re-fetch every 60s so the chef's edits show up without a redeploy.
@@ -10,7 +10,7 @@ export default async function MenuPage() {
   let plans: PublicSubscriptionPlan[] = [];
   let loadFailed = false;
   try {
-    [meals, plans] = await Promise.all([getPublicMeals(), getActiveSubscriptionPlans()]);
+    [meals, plans] = await Promise.all([getWeeklyMenuMeals(), getActiveSubscriptionPlans()]);
   } catch {
     loadFailed = true;
   }

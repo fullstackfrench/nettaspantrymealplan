@@ -6,22 +6,27 @@ import MealCard from './MealCard';
 import MealModal from './MealModal';
 import PlanPicker from './PlanPicker';
 import { useCart } from '@/lib/cart';
+import { getAvailableMealSizes } from '@/lib/meal-availability';
 import type { Meal, PublicSubscriptionPlan } from '@/lib/types';
 
 export default function MenuBrowser({ meals, plans }: { meals: Meal[]; plans: PublicSubscriptionPlan[] }) {
   const [active, setActive] = useState('all');
   const [selected, setSelected] = useState<Meal | null>(null);
   const { totalMeals, remaining, mode } = useCart();
+  const availableMeals = useMemo(
+    () => meals.filter((meal) => getAvailableMealSizes(meal, mode).length > 0),
+    [meals, mode]
+  );
 
   const counts = useMemo(() => {
     const c: Record<string, number> = {};
-    for (const m of meals) for (const t of m.tags) c[t] = (c[t] ?? 0) + 1;
+    for (const m of availableMeals) for (const t of m.tags) c[t] = (c[t] ?? 0) + 1;
     return c;
-  }, [meals]);
+  }, [availableMeals]);
 
   const filtered = useMemo(
-    () => (active === 'all' ? meals : meals.filter((m) => m.tags.includes(active))),
-    [meals, active]
+    () => (active === 'all' ? availableMeals : availableMeals.filter((m) => m.tags.includes(active))),
+    [availableMeals, active]
   );
 
   return (
@@ -51,7 +56,9 @@ export default function MenuBrowser({ meals, plans }: { meals: Meal[]; plans: Pu
 
       {filtered.length === 0 ? (
         <p className="rounded-panel border border-dashed border-brand-plum/20 bg-white py-20 text-center text-ink/55">
-          No meals match that filter this week.
+          {availableMeals.length === 0
+            ? `No meals are currently available for ${mode === 'subscription' ? 'weekly subscriptions' : 'one-time boxes'}.`
+            : 'No meals match that filter this week.'}
         </p>
       ) : (
         <div className="mt-7 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -61,7 +68,7 @@ export default function MenuBrowser({ meals, plans }: { meals: Meal[]; plans: Pu
         </div>
       )}
 
-      <MealModal meal={selected} onClose={() => setSelected(null)} />
+      <MealModal meal={selected && availableMeals.some((meal) => meal.id === selected.id) ? selected : null} onClose={() => setSelected(null)} />
     </div>
   );
 }
