@@ -13,8 +13,14 @@ export async function GET(request: Request) {
     const supabase = createSessionClient();
     const { data, error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error && data.user) {
-      const role = await afterAuth(data.user);
-      return NextResponse.redirect(`${origin}${next || (role === 'admin' ? '/admin' : '/menu')}`);
+      try {
+        const role = await afterAuth(data.user);
+        return NextResponse.redirect(
+          `${origin}${next || (role === 'admin' ? '/admin' : '/account')}`,
+        );
+      } catch (error) {
+        console.error('Account initialization failed', error);
+      }
     }
   }
 

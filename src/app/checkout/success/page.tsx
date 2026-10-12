@@ -1,35 +1,26 @@
 import Link from 'next/link';
-
-export default function SuccessPage({
-  searchParams,
-}: {
-  searchParams: { order?: string; demo?: string };
-}) {
+import { ORDER_CHANGE_POLICY } from '@/lib/account/policy';
+export default function SuccessPage() {
   return (
-    <div className="mx-auto max-w-2xl px-6 py-24 text-center">
-      <div className="text-5xl">🫙</div>
-      <h1 className="mt-6 font-display text-3xl font-bold">You&apos;re all set</h1>
-      <p className="mt-4 text-black/60">
-        Chef Netta has your order. You&apos;ll get an email with your delivery day.
+    <div className="mx-auto max-w-2xl px-6 py-20 text-center">
+      <h1 className="font-display text-3xl text-brand-plum">
+        Thank you for your order
+      </h1>
+      <p className="mt-4 text-ink/65">
+        Your payment is being confirmed. Sign in with the email used at checkout
+        to see your order status and manage your meals.
       </p>
-      <p className="mt-4 text-sm text-black/50">
-        When you&apos;ve finished your meals, give the glass a rinse and leave the containers
-        out on your next delivery day. Your deposit comes back automatically.
+      <p className="mt-5 rounded-control bg-cream p-4 text-sm leading-6">
+        {ORDER_CHANGE_POLICY}
       </p>
-
-      {searchParams.demo && (
-        <p className="mt-6 rounded-xl bg-clay-100 p-4 text-sm">
-          Demo mode: the order was recorded but no payment was taken because{' '}
-          <code>STRIPE_SECRET_KEY</code> is not set.
-        </p>
-      )}
-
-      <Link
-        href="/menu"
-        className="mt-8 inline-block rounded-full bg-moss-600 px-6 py-3 text-sm font-semibold text-white hover:bg-moss-700"
-      >
-        Back to the menu
-      </Link>
+      <div className="mt-6 flex flex-wrap justify-center gap-3">
+        <Link href="/login?redirect=/account" className="admin-primary-button">
+          View your account
+        </Link>
+        <Link href="/menu" className="admin-secondary-button">
+          Back to the menu
+        </Link>
+      </div>
     </div>
   );
 }

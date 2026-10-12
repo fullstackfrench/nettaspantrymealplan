@@ -446,7 +446,8 @@ export async function setOrderStatus(formData: FormData) {
   const id = formData.get('id') as string;
   const status = formData.get('status') as string;
 
-  await supabase.from('orders').update({ status }).eq('id', id);
+  const { error: statusError } = await supabase.from('orders').update({ status }).eq('id', id);
+  throwIfError(statusError, 'Order status update');
 
   // Marking an order delivered is the moment containers leave the kitchen, so
   // that's when we log them against the customer.
