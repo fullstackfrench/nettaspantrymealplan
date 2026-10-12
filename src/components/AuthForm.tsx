@@ -194,14 +194,14 @@ export default function AuthForm({
               autoComplete={
                 mode === 'signup' ? 'new-password' : 'current-password'
               }
-              minLength={mode === 'signup' ? 12 : undefined}
+              minLength={mode === 'signup' ? 8 : undefined}
               required
             />
           </label>
         )}
         {mode === 'signup' && (
           <p className="admin-help">
-            Use at least 12 characters. You will receive an email to verify your
+            Use at least 8 characters. You will receive an email to verify your
             account.
           </p>
         )}

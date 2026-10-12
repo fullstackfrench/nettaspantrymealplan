@@ -30,7 +30,7 @@ Under Authentication → URL Configuration:
 - Allowed redirects: `https://mealplan.yoursouthernfoodie.com/auth/confirm` and `https://mealplan.yoursouthernfoodie.com/auth/callback` (include query-string variants according to your dashboard's redirect matching settings).
 - Add equivalent development redirects if testing locally.
 
-Keep email sign-up enabled and require email confirmation. Set the project's minimum password length to at least 12; the signup and reset forms use that minimum. Configure the production SMTP sender and verify delivery of signup, sign-in and recovery emails. Keep the default ConfirmationURL email links or a compatible token_hash/type link supported by `/auth/confirm`.
+Keep email sign-up enabled and require email confirmation. Set the project's minimum password length to 8; the signup and reset forms use that minimum. Configure the production SMTP sender and verify delivery of signup, sign-in and recovery emails. Keep the default ConfirmationURL email links or a compatible token_hash/type link supported by `/auth/confirm`.
 
 Google is currently disabled in the connected Supabase project. To enable it:
 
