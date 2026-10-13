@@ -45,6 +45,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <h2 className="text-xs font-bold uppercase tracking-[0.16em] text-[#d8c487]">Meal prep</h2>
                 <nav className="mt-4 grid gap-3 text-sm text-white/75" aria-label="Footer meal prep navigation">
                   <Link href="/menu" className="w-fit hover:text-white">This Week&apos;s Menu</Link>
+                  <Link href="/holiday-cheat-sheet" className="w-fit hover:text-white">The Holiday Cheat Sheet</Link>
                   <Link href="/how-it-works" className="w-fit hover:text-white">How It Works</Link>
                   <Link href="/login" className="w-fit hover:text-white">Your Account</Link>
                 </nav>
