@@ -98,7 +98,7 @@ function MealForm({ meal, sizes }: { meal: Meal | null; sizes: MealSize[] }) {
   const tagOptions = FILTERS.filter((f) => f.id !== 'all').map((f) => f.id);
 
   return (
-    <aside className="admin-card h-fit p-5 sm:p-6 xl:sticky xl:top-24">
+    <aside className="admin-card h-fit p-5 sm:p-6 xl:sticky xl:top-24 xl:max-h-[calc(100dvh-7rem)] xl:overflow-y-auto">
       <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-gold">Meal details</p>
       <h2 className="mt-1 font-display text-2xl font-bold text-brand-plum">
         {meal ? 'Edit meal' : 'Add a meal'}
