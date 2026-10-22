@@ -664,6 +664,7 @@ function OrderEditor({
         Price increases require an additional payment before changes are saved.
         Price reductions are refunded. Subscription orders must keep the same
         total number of meals, with half sides and half entrées.
+        Food orders must remain at least $55 before delivery fees and refundable container deposits.
       </p>
       <MealChoices
         meals={meals}

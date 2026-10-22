@@ -2,6 +2,7 @@ import 'server-only';
 import { ensurePlanPrice } from './plan-prices';
 import { createAdminClient } from '@/lib/supabase/server';
 import { siteOrigin, stripeClient } from './server';
+import { assertOrderMinimum } from '@/lib/minimum-order';
 
 export async function createOrderCheckout(
   orderId: string,
@@ -18,6 +19,7 @@ export async function createOrderCheckout(
     .single();
   if (error || !order || order.status !== 'pending' || order.customer_change_id)
     throw new Error('This order is not available for payment.');
+  assertOrderMinimum(order.subtotal_cents);
   const stripe = stripeClient();
   if (order.stripe_checkout_session_id) {
     const existing = await stripe.checkout.sessions.retrieve(
@@ -131,6 +133,9 @@ export async function settleOrderChange(changeId: string) {
     return { message: 'Your changes have been saved.' };
   if (!['pending', 'waiting_payment'].includes(change.status))
     throw new Error('This order change is no longer available.');
+  if (change.operation === 'edit') {
+    assertOrderMinimum(change.new_total_cents - Number(change.payload?.deposit_cents) - Number(change.orders.delivery_fee_cents ?? 0));
+  }
   const difference = change.new_total_cents - change.old_total_cents;
   if (change.paid && difference > 0) {
     const stripe = stripeClient();

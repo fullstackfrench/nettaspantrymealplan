@@ -51,7 +51,7 @@ export default function PlanPicker({ plans }: { plans: PublicSubscriptionPlan[] 
           )}
         </>
       ) : (
-        <p className="mt-5 rounded-control bg-cream p-4 text-sm leading-6 text-ink/65">Choose an available size for each meal. Prices vary by size, with no subscription commitment.</p>
+        <p className="mt-5 rounded-control bg-cream p-4 text-sm leading-6 text-ink/65">Choose an available size for each meal. Prices vary by size, with no subscription commitment. Minimum food order: $55 before delivery fees and refundable container deposits.</p>
       )}
     </section>
   );

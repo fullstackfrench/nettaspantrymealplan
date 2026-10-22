@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/client';
 import { ORDER_CHANGE_POLICY } from '@/lib/account/policy';
 import { useCart } from '@/lib/cart';
 import { DEPOSIT_PER_CONTAINER_CENTS, formatCents } from '@/lib/constants';
+import { meetsOrderMinimum, MINIMUM_ORDER_CENTS, MINIMUM_ORDER_MESSAGE } from '@/lib/minimum-order';
 
 export default function CheckoutPage() {
   const {
@@ -78,6 +79,7 @@ export default function CheckoutPage() {
 
   const incomplete =
     mode === 'subscription' && (!selectedPlan || !subscriptionComplete);
+  const belowMinimum = !meetsOrderMinimum(subtotalCents);
   const contactComplete =
     street.trim() !== '' &&
     city.trim() !== '' &&
@@ -86,7 +88,7 @@ export default function CheckoutPage() {
     /^\d{5}$/.test(zip);
 
   async function prepareOrder() {
-    if (submitting || prepared || incomplete || !contactComplete) return;
+    if (submitting || prepared || incomplete || belowMinimum || !contactComplete) return;
     setSubmitting(true);
     setError(null);
     preparationKey.current ??= crypto.randomUUID();
@@ -272,6 +274,11 @@ export default function CheckoutPage() {
             <Row label="Preview total" value={formatCents(totalCents)} bold />
           </div>
         </dl>
+        {belowMinimum && (
+          <p role="status" className="mt-4 rounded-xl bg-clay-100 p-3 text-sm text-clay-500">
+            {MINIMUM_ORDER_MESSAGE} Add {formatCents(Math.max(0, MINIMUM_ORDER_CENTS - subtotalCents))} more food to continue.
+          </p>
+        )}
         {incomplete && (
           <p className="mt-4 text-sm text-clay-500">
             Choose exactly {selectedPlan ? selectedPlan.includedCredits / 2 : 'half'} sides and {selectedPlan ? selectedPlan.includedCredits / 2 : 'half'} entrées.
@@ -298,7 +305,7 @@ export default function CheckoutPage() {
           <button
             type="button"
             onClick={prepareOrder}
-            disabled={submitting || incomplete || !contactComplete}
+            disabled={submitting || incomplete || belowMinimum || !contactComplete}
             className="mt-6 min-h-12 w-full rounded-full bg-brand-plum px-6 py-3 text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-40"
           >
             {submitting ? 'Preparing payment…' : 'Continue to secure payment'}

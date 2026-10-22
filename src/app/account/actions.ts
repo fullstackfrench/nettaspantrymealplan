@@ -5,6 +5,7 @@ import { revalidatePath } from 'next/cache';
 import { accountContext, siteOrigin, stripeClient } from '@/lib/account/server';
 import { createOrderCheckout, settleOrderChange } from '@/lib/account/payments';
 import { isInDeliveryArea } from '@/lib/constants';
+import { assertSelectionMinimum } from '@/lib/account/minimum-order';
 
 function message(error: unknown) {
   return error instanceof Error
@@ -64,6 +65,11 @@ export async function changeOrder(form: FormData) {
       .single();
     if (error || !order) throw new Error('Order not found.');
     const operation = String(form.get('operation'));
+    if (operation === 'edit' && order.order_type === 'one_time') {
+      const items = JSON.parse(String(form.get('items'))) as { meal_id: string; meal_size_id: string; quantity: number }[];
+      if (!Array.isArray(items)) throw new Error('Invalid meal selection.');
+      await assertSelectionMinimum(admin, items.map((item) => ({ mealId: item.meal_id, mealSizeId: item.meal_size_id, quantity: item.quantity })), order.id);
+    }
     if (
       !order.customer_change_id &&
       !(operation === 'cancel' ? canCancelOrder(order) : canEditOrder(order))

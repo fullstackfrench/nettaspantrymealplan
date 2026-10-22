@@ -1,5 +1,7 @@
 import { createOrderCheckout } from '@/lib/account/payments';
 import { afterAuth } from '@/app/auth/after-auth';
+import { meetsOrderMinimum, MINIMUM_ORDER_MESSAGE } from '@/lib/minimum-order';
+import { assertSelectionMinimum } from '@/lib/account/minimum-order';
 import { createHash } from 'crypto';
 import { NextResponse } from 'next/server';
 import { createAdminClient, createSessionClient } from '@/lib/supabase/server';
@@ -192,6 +194,10 @@ export async function POST(request: Request) {
   });
   const fingerprint = createHash('sha256').update(canonical).digest('hex');
   const admin = createAdminClient();
+  if (parsed.mode === 'one_time') {
+    try { await assertSelectionMinimum(admin, parsed.items); }
+    catch (error) { return invalid(error instanceof Error ? error.message : MINIMUM_ORDER_MESSAGE); }
+  }
   const { data, error } = await admin.rpc('prepare_checkout_order', {
     p_checkout_key: parsed.checkoutPreparationId,
     p_request_fingerprint: fingerprint,
@@ -233,6 +239,7 @@ export async function POST(request: Request) {
       { error: 'Order preparation returned no result.' },
       { status: 500 },
     );
+  if (!meetsOrderMinimum(prepared.subtotal_cents)) return invalid(MINIMUM_ORDER_MESSAGE);
   const lookup = await admin
     .from('orders')
     .select('customer_id')

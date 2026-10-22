@@ -6,8 +6,8 @@ const test = require('node:test'),
   ts = require('typescript');
 function scenario({
   paid = true,
-  oldTotal = 1000,
-  newTotal = 500,
+  oldTotal = 10000,
+  newTotal = 6000,
   failFinalizeOnce = false,
   session = null,
 } = {}) {
@@ -21,7 +21,8 @@ function scenario({
     old_total_cents: oldTotal,
     new_total_cents: newTotal,
     operation: newTotal === 0 ? 'cancel' : 'edit',
-    orders: { id: 'order-1', stripe_payment_intent_id: 'pi_test' },
+    orders: { id: 'order-1', stripe_payment_intent_id: 'pi_test', delivery_fee_cents: 0 },
+    payload: { deposit_cents: 0 },
     stripe_checkout_session_id: session,
   };
   const stripe = {
@@ -42,7 +43,7 @@ function scenario({
     paymentIntents: {
       retrieve: async () => ({
         latest_charge: {
-          amount: 1000,
+          amount: oldTotal,
           amount_refunded: refunds.reduce((sum, r) => sum + r.amount, 0),
         },
       }),
@@ -109,6 +110,7 @@ function scenario({
       exports,
       require(name) {
         if (name === 'server-only') return {};
+        if (name === '@/lib/minimum-order') { const minimum = {}; vm.runInNewContext(ts.transpileModule(fs.readFileSync(path.join(__dirname, '../src/lib/minimum-order.ts'), 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS } }).outputText, { exports: minimum, Error, Number }); return minimum; }
         if (name.includes('supabase/server'))
           return { createAdminClient: () => admin };
         if (name === './server')
@@ -149,7 +151,7 @@ test('unpaid changes do not create refunds', async () => {
   assert.equal(s.counts().finalizeCalls, 1);
 });
 test('extra payment is not applied until its webhook confirms it', async () => {
-  const s = scenario({ newTotal: 1500, session: 'cs_test' });
+  const s = scenario({ newTotal: 15000, session: 'cs_test' });
   const result = await s.settle();
   assert.match(result.message, /processing/);
   assert.equal(s.counts().finalizeCalls, 0);
@@ -159,6 +161,13 @@ test('discarded changes cannot trigger another refund or payment', async () => {
   const s = scenario();
   s.change.status = 'failed';
   await assert.rejects(s.settle(), /no longer available/);
+  assert.equal(s.counts().refundCalls, 0);
+  assert.equal(s.counts().finalizeCalls, 0);
+});
+
+test('an edit below the food minimum cannot trigger a payment or refund', async () => {
+  const s = scenario({ newTotal: 5499 });
+  await assert.rejects(s.settle(), /minimum food order/);
   assert.equal(s.counts().refundCalls, 0);
   assert.equal(s.counts().finalizeCalls, 0);
 });

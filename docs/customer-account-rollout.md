@@ -4,6 +4,7 @@ The account implementation adds password registration and sign-in, emailed sign-
 
 ## Business rules
 
+- The minimum food subtotal is $55, excluding delivery fees and refundable container deposits. Checkout validates server-side meal prices and the database-prepared subtotal before opening Stripe. One-time order edits also preserve this minimum; cancellations remain allowed.
 - Customers can cancel an order only within 24 hours of its creation. The cutoff is enforced using the database clock, even if a customer changes their browser clock.
 - Meal, quantity and address edits use the same 24-hour window and close once preparation begins. Cancellation remains available during preparation within the window; shipped or delivered orders cannot be canceled.
 - The policy is visible at checkout, on the payment-return page, and in the account dashboard. Eligible orders show their exact cancellation deadline.
@@ -91,8 +92,12 @@ The original database rollout was reported applied by the owner. For that existi
 
 The migration updates the 8-meal plan to $105/week and the 12-meal plan to $165/week; the 6-meal price is unchanged. It validates the half-side, half-entrée rule in checkout, customer order edits, and saved weekly choices. Renewal invoices with old or reclassified choices that fail the rule create an order requiring meal selection and remain blocked from preparation.
 
-New subscriptions and voluntary plan changes use the new prices. Existing Stripe subscriptions and historical order price snapshots are retained; automatically changing existing subscribers' renewal prices requires the owner's outstanding pricing-scope decision and a separate Stripe update. `ensurePlanPrice` creates/reuses a matching Stripe recurring price when a customer checks out or changes plans.
+New subscriptions and voluntary plan changes use the new prices. Existing Stripe subscriptions and historical order price snapshots are retained; there were no existing subscription records after the owner-requested test cleanup, so no subscriber repricing was required. `ensurePlanPrice` creates/reuses a matching Stripe recurring price when a customer checks out or changes plans.
 
-Validation: TypeScript, subscription category/count tests, existing customer regression tests, and actual isolated PostgreSQL tests of checkout, order edits, weekly choices, renewals, duplicate invoice handling, and authoritative prices. The owner reported applying the production mix migration. This application update is awaiting deployment.
+Validation: TypeScript, subscription category/count tests, existing customer regression tests, and actual isolated PostgreSQL tests of checkout, order edits, weekly choices, renewals, duplicate invoice handling, and authoritative prices. The owner reported applying the production mix migration. The subscription application update was deployed successfully to production from commit `af7cd6a` (Vercel deployment `dpl_C9vzKLAZq53Rt9P5euGZkiJAUHsP`). The GitHub commit status also showed a failed branch preview because preview Supabase credentials were absent; that preview was separate from the successful production release.
 
 The owner requested removal of test orders and subscriptions after applying the migration. Two one-time test orders and their four line items were backed up locally and removed; verification found zero orders and zero subscriptions afterward. Customer accounts and menu data were retained. The configured Stripe test key could not access those checkout sessions, so Stripe records were not changed.
+
+## Minimum food order
+
+The follow-up application release adds a $55 minimum food subtotal. The menu, cart, checkout, and account editor explain the rule. Server-side checks use database meal prices and unchanged order-item price snapshots; the payment helper checks database-calculated subtotals before opening or reusing a Stripe checkout or settling an edit. Delivery fees and refundable deposits do not count toward the minimum. Cancellations are exempt. This change does not require another database migration.
