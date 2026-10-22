@@ -18,14 +18,29 @@ export async function GET(request: Request) {
   if (code) {
     const { data, error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error && data.user) {
-      const role = await afterAuth(data.user);
-      return NextResponse.redirect(`${origin}${next || (role === 'admin' ? '/admin' : '/menu')}`);
+      try {
+        const role = await afterAuth(data.user);
+        return NextResponse.redirect(
+          `${origin}${next || (role === 'admin' ? '/admin' : '/account')}`,
+        );
+      } catch (error) {
+        console.error('Account initialization failed', error);
+      }
     }
   } else if (tokenHash && type) {
-    const { data, error } = await supabase.auth.verifyOtp({ token_hash: tokenHash, type });
+    const { data, error } = await supabase.auth.verifyOtp({
+      token_hash: tokenHash,
+      type,
+    });
     if (!error && data.user) {
-      const role = await afterAuth(data.user);
-      return NextResponse.redirect(`${origin}${next || (role === 'admin' ? '/admin' : '/menu')}`);
+      try {
+        const role = await afterAuth(data.user);
+        return NextResponse.redirect(
+          `${origin}${next || (role === 'admin' ? '/admin' : '/account')}`,
+        );
+      } catch (error) {
+        console.error('Account initialization failed', error);
+      }
     }
   }
 

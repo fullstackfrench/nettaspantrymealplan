@@ -18,7 +18,8 @@ export async function getWeeklyMenuMeals(): Promise<Meal[]> {
   const { data: items, error: itemsError } = await supabase
     .from('weekly_menu_items')
     .select('meal_id')
-    .eq('menu_id', menu.id);
+    .eq('menu_id', menu.id)
+    .eq('sold_out', false);
   if (itemsError) throw itemsError;
   const included = new Set((items ?? []).map((item) => item.meal_id));
   if (included.size === 0) return [];

@@ -71,7 +71,7 @@ export default function Header() {
     <>
       {authState === 'customer' && <Link href="/account" className={navLink('/account')}>Account</Link>}
       {authState === 'admin' && <Link href="/admin" className={navLink('/admin')}>Admin</Link>}
-      {authState === 'logged_out' && <Link href="/login" className={navLink('/login')}>Login</Link>}
+      {authState === 'logged_out' && <Link href="/login" className={navLink('/login')}>Sign in / Create account</Link>}
       {authState === 'loading' && <span className="px-3 py-2 text-sm text-ink/55" aria-live="polite">Loading…</span>}
       {(authState === 'customer' || authState === 'admin') && (
         <form action={signOut}>
