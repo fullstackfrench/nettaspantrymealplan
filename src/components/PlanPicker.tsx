@@ -29,7 +29,7 @@ export default function PlanPicker({ plans }: { plans: PublicSubscriptionPlan[] 
 
       {mode === 'subscription' ? (
         <>
-          <p className="mt-5 text-sm text-ink/60">Choose a plan. Skip or cancel any week.</p>
+          <p className="mt-5 text-sm text-ink/60">Choose a plan with half sides and half entrées. Skip or cancel any week.</p>
           {plans.length === 0 ? (
             <p className="mt-4 rounded-control bg-clay-100 p-4 text-sm text-brand-brick">No subscription plans are currently available.</p>
           ) : (
@@ -42,6 +42,7 @@ export default function PlanPicker({ plans }: { plans: PublicSubscriptionPlan[] 
                     <div className="font-display text-lg font-bold text-brand-plum">{plan.name}</div>
                     <div className="mt-1 text-sm font-semibold text-ink/70">{formatCents(plan.price_cents)}/{plan.billing_interval}</div>
                     <div className="mt-1 text-xs text-ink/60">{formatCents(perMeal)} per meal</div>
+                    <div className="mt-1 text-xs font-semibold text-brand-plum">{plan.included_credits / 2} sides + {plan.included_credits / 2} entrées</div>
                     {plan.blurb && <div className="mt-1 text-xs text-moss-600">{plan.blurb}</div>}
                   </button>
                 );

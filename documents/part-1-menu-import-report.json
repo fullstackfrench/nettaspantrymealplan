@@ -1,0 +1,706 @@
+{
+  "source": "Part 1 menu plans (1).pdf",
+  "imported_at": "2026-10-11T20:12:01.400Z",
+  "added_count": 45,
+  "size_count": 54,
+  "skipped": [
+    "Garlicky Green Beans"
+  ],
+  "added": [
+    {
+      "id": "38122300-8628-458b-816a-0eb7b8dc6616",
+      "name": "Broccoli Cheddar Bacon Frittata",
+      "is_active": false,
+      "price_cents": 4000,
+      "meal_sizes": [
+        {
+          "label": "6 pieces",
+          "servings": null,
+          "is_active": false,
+          "price_cents": 4000
+        }
+      ]
+    },
+    {
+      "id": "ca9338f3-1a0e-4a49-b13a-ac20ddc946ce",
+      "name": "Veggie & Potato Hash",
+      "is_active": false,
+      "price_cents": 3500,
+      "meal_sizes": [
+        {
+          "label": "2 quarts",
+          "servings": null,
+          "is_active": false,
+          "price_cents": 3500
+        }
+      ]
+    },
+    {
+      "id": "f980ce45-1529-408d-aa84-e65cc42e922d",
+      "name": "Blueberry Kale Quinoa Salad",
+      "is_active": false,
+      "price_cents": 3500,
+      "meal_sizes": [
+        {
+          "label": "2 quarts",
+          "servings": null,
+          "is_active": false,
+          "price_cents": 3500
+        }
+      ]
+    },
+    {
+      "id": "6a23ce16-ff85-4e67-a823-982766834a87",
+      "name": "Chicken & Waffles",
+      "is_active": false,
+      "price_cents": 4500,
+      "meal_sizes": [
+        {
+          "label": "4 pieces & 2 waffles",
+          "servings": null,
+          "is_active": false,
+          "price_cents": 4500
+        }
+      ]
+    },
+    {
+      "id": "d0ac50bb-6d88-4651-adff-63cf2dfe829b",
+      "name": "Chocolate Peanut Butter Chia Pudding",
+      "is_active": false,
+      "price_cents": 3500,
+      "meal_sizes": [
+        {
+          "label": "2 quarts",
+          "servings": null,
+          "is_active": false,
+          "price_cents": 3500
+        }
+      ]
+    },
+    {
+      "id": "3401a355-d83a-4476-9d8a-e3eff4efdf2a",
+      "name": "Huevos Ranchero",
+      "is_active": false,
+      "price_cents": 3500,
+      "meal_sizes": [
+        {
+          "label": "2 quarts",
+          "servings": null,
+          "is_active": false,
+          "price_cents": 3500
+        }
+      ]
+    },
+    {
+      "id": "2449682f-c441-4b42-9066-0bcaf844370c",
+      "name": "Herb Garlic Chicken Roast & Yellow Rice",
+      "is_active": false,
+      "price_cents": 4000,
+      "meal_sizes": [
+        {
+          "label": "8 pieces",
+          "servings": null,
+          "is_active": false,
+          "price_cents": 4000
+        }
+      ]
+    },
+    {
+      "id": "f5931634-341e-4018-9737-29b6b600fc91",
+      "name": "Southern Fried Okra & Ranch",
+      "is_active": false,
+      "price_cents": 1500,
+      "meal_sizes": [
+        {
+          "label": "Full pan",
+          "servings": null,
+          "is_active": false,
+          "price_cents": 1500
+        },
+        {
+          "label": "Half pan",
+          "servings": null,
+          "is_active": false,
+          "price_cents": 750
+        }
+      ]
+    },
+    {
+      "id": "1cc186f2-a687-40ef-a8f5-2d5761f27883",
+      "name": "Harvest Bowl: Mexican Style",
+      "is_active": false,
+      "price_cents": 3500,
+      "meal_sizes": [
+        {
+          "label": "2 quarts",
+          "servings": null,
+          "is_active": false,
+          "price_cents": 3500
+        }
+      ]
+    },
+    {
+      "id": "68c63573-054d-4a25-9155-c7faa88450e7",
+      "name": "Strawberry Crunch Cupcakes",
+      "is_active": false,
+      "price_cents": 1500,
+      "meal_sizes": [
+        {
+          "label": "6 pieces",
+          "servings": null,
+          "is_active": false,
+          "price_cents": 1500
+        }
+      ]
+    },
+    {
+      "id": "9c0ed0e4-198e-416d-b22b-e016ef663fa5",
+      "name": "Mushroom Masala & Chapathi",
+      "is_active": false,
+      "price_cents": 3500,
+      "meal_sizes": [
+        {
+          "label": "2 quarts",
+          "servings": null,
+          "is_active": false,
+          "price_cents": 3500
+        }
+      ]
+    },
+    {
+      "id": "5107096c-47b6-44e5-a376-1871d2ecc754",
+      "name": "Farm Empanada with Chipotle Mayo",
+      "is_active": false,
+      "price_cents": 3500,
+      "meal_sizes": [
+        {
+          "label": "6 pieces",
+          "servings": null,
+          "is_active": false,
+          "price_cents": 3500
+        }
+      ]
+    },
+    {
+      "id": "45f4a335-0257-4e0c-856d-11a9726628fd",
+      "name": "Harvest Bowl: Tropical Style",
+      "is_active": false,
+      "price_cents": 3500,
+      "meal_sizes": [
+        {
+          "label": "2 quarts",
+          "servings": null,
+          "is_active": false,
+          "price_cents": 3500
+        }
+      ]
+    },
+    {
+      "id": "ae3354b8-220e-4a0d-a73a-e7236fc236c6",
+      "name": "Shrimp Scampi Pasta",
+      "is_active": false,
+      "price_cents": 4000,
+      "meal_sizes": [
+        {
+          "label": "2 quarts",
+          "servings": null,
+          "is_active": false,
+          "price_cents": 4000
+        }
+      ]
+    },
+    {
+      "id": "74936563-b62f-4c79-a1ed-247385c6345e",
+      "name": "Caprese Style Noodles",
+      "is_active": false,
+      "price_cents": 3500,
+      "meal_sizes": [
+        {
+          "label": "2 quarts",
+          "servings": null,
+          "is_active": false,
+          "price_cents": 3500
+        }
+      ]
+    },
+    {
+      "id": "2c49a012-9fa8-4e59-8e83-440730bc4cfb",
+      "name": "Veggie Quiche",
+      "is_active": false,
+      "price_cents": 3500,
+      "meal_sizes": [
+        {
+          "label": "Full pie",
+          "servings": null,
+          "is_active": false,
+          "price_cents": 3500
+        }
+      ]
+    },
+    {
+      "id": "473c220d-e407-4fc9-bdc7-62707b7065d9",
+      "name": "Southern-Style Fried Rice",
+      "is_active": false,
+      "price_cents": 4000,
+      "meal_sizes": [
+        {
+          "label": "Full pan",
+          "servings": null,
+          "is_active": false,
+          "price_cents": 4000
+        }
+      ]
+    },
+    {
+      "id": "8246acaf-0ab5-4dda-a338-0de9371a0b12",
+      "name": "Saucy Tofu & Veggies",
+      "is_active": false,
+      "price_cents": 3500,
+      "meal_sizes": [
+        {
+          "label": "2 quarts",
+          "servings": null,
+          "is_active": false,
+          "price_cents": 3500
+        }
+      ]
+    },
+    {
+      "id": "48f64f4e-7481-4f87-b949-dc410dfc0cec",
+      "name": "Stewed Okra & Tomatoes",
+      "is_active": false,
+      "price_cents": 3500,
+      "meal_sizes": [
+        {
+          "label": "2 quarts",
+          "servings": null,
+          "is_active": false,
+          "price_cents": 3500
+        }
+      ]
+    },
+    {
+      "id": "5cad31d5-e245-49f3-93e4-ba396d217b69",
+      "name": "Tofu Banh Mi",
+      "is_active": false,
+      "price_cents": 3500,
+      "meal_sizes": [
+        {
+          "label": "6 sandwiches",
+          "servings": null,
+          "is_active": false,
+          "price_cents": 3500
+        }
+      ]
+    },
+    {
+      "id": "4aea386f-48c2-468d-8863-e2e2b4adfccb",
+      "name": "Chicken Pot Pie",
+      "is_active": false,
+      "price_cents": 4000,
+      "meal_sizes": [
+        {
+          "label": "8 slices",
+          "servings": null,
+          "is_active": false,
+          "price_cents": 4000
+        }
+      ]
+    },
+    {
+      "id": "0933affa-65d5-48fe-a66f-b43ece158ada",
+      "name": "Harvest Bowl: Peach Style",
+      "is_active": false,
+      "price_cents": 3000,
+      "meal_sizes": [
+        {
+          "label": "2 quarts",
+          "servings": null,
+          "is_active": false,
+          "price_cents": 3000
+        }
+      ]
+    },
+    {
+      "id": "553ff2d9-c924-40da-996c-0e466eb8083b",
+      "name": "Pan Seared Cod with Mexican Street Corn Salad",
+      "is_active": false,
+      "price_cents": 4500,
+      "meal_sizes": [
+        {
+          "label": "6 pieces",
+          "servings": null,
+          "is_active": false,
+          "price_cents": 4500
+        }
+      ]
+    },
+    {
+      "id": "a02da438-883f-4279-82c1-636e5d50e79c",
+      "name": "Figgy Chicken",
+      "is_active": false,
+      "price_cents": 4000,
+      "meal_sizes": [
+        {
+          "label": "8 pieces",
+          "servings": null,
+          "is_active": false,
+          "price_cents": 4000
+        }
+      ]
+    },
+    {
+      "id": "c83e6145-ca87-4a67-bcaf-fb385fff5d74",
+      "name": "Protein Packed Lemon Ricotta Pancakes",
+      "is_active": false,
+      "price_cents": 3000,
+      "meal_sizes": [
+        {
+          "label": "8 pieces",
+          "servings": null,
+          "is_active": false,
+          "price_cents": 3000
+        }
+      ]
+    },
+    {
+      "id": "b354e5e5-6cfc-4c06-bc10-3e6b64794115",
+      "name": "Roasted Veggie Quinoa Bowl with Avocado and Tahini Dressing",
+      "is_active": false,
+      "price_cents": 3500,
+      "meal_sizes": [
+        {
+          "label": "2 quarts",
+          "servings": null,
+          "is_active": false,
+          "price_cents": 3500
+        }
+      ]
+    },
+    {
+      "id": "d6d6e290-8aca-4d0f-8988-6b7ad7b55b82",
+      "name": "Shrimp, Corn & Zucchini Flatbread",
+      "is_active": false,
+      "price_cents": 4000,
+      "meal_sizes": [
+        {
+          "label": "2 flatbreads",
+          "servings": null,
+          "is_active": false,
+          "price_cents": 4000
+        }
+      ]
+    },
+    {
+      "id": "a45bc385-8154-4289-8b65-a54e3484008c",
+      "name": "Crispy Garlic Butter Parmesan Smashed Potatoes",
+      "is_active": false,
+      "price_cents": 1500,
+      "meal_sizes": [
+        {
+          "label": "Full pan",
+          "servings": null,
+          "is_active": false,
+          "price_cents": 1500
+        },
+        {
+          "label": "Half pan",
+          "servings": null,
+          "is_active": false,
+          "price_cents": 750
+        }
+      ]
+    },
+    {
+      "id": "2a488bb6-0ca1-49c3-8b21-d7d382b663d9",
+      "name": "Honey Ginger Roasted Carrots",
+      "is_active": false,
+      "price_cents": 1500,
+      "meal_sizes": [
+        {
+          "label": "Full pan",
+          "servings": null,
+          "is_active": false,
+          "price_cents": 1500
+        },
+        {
+          "label": "Half pan",
+          "servings": null,
+          "is_active": false,
+          "price_cents": 750
+        }
+      ]
+    },
+    {
+      "id": "bf5a4132-c215-44c8-99cd-42018bbf8f41",
+      "name": "Ratatouille Stew",
+      "is_active": false,
+      "price_cents": 1500,
+      "meal_sizes": [
+        {
+          "label": "Full pan",
+          "servings": null,
+          "is_active": false,
+          "price_cents": 1500
+        },
+        {
+          "label": "Half pan",
+          "servings": null,
+          "is_active": false,
+          "price_cents": 750
+        }
+      ]
+    },
+    {
+      "id": "fe53adc3-7f45-4ed7-81b8-d218c6ce624f",
+      "name": "Creamy Watermelon Chia Seed Pudding",
+      "is_active": false,
+      "price_cents": 1500,
+      "meal_sizes": [
+        {
+          "label": "Full pan",
+          "servings": null,
+          "is_active": false,
+          "price_cents": 1500
+        },
+        {
+          "label": "Half pan",
+          "servings": null,
+          "is_active": false,
+          "price_cents": 750
+        }
+      ]
+    },
+    {
+      "id": "6da4c56a-1a9d-4b1e-bb65-2a0cd6aedfdc",
+      "name": "Farm Veggie Medley",
+      "is_active": false,
+      "price_cents": 1500,
+      "meal_sizes": [
+        {
+          "label": "Full pan",
+          "servings": null,
+          "is_active": false,
+          "price_cents": 1500
+        },
+        {
+          "label": "Half pan",
+          "servings": null,
+          "is_active": false,
+          "price_cents": 750
+        }
+      ]
+    },
+    {
+      "id": "742c27a0-5641-4899-ace8-ad358477db6e",
+      "name": "Fruit Pie",
+      "is_active": false,
+      "price_cents": 1500,
+      "meal_sizes": [
+        {
+          "label": "Full pan",
+          "servings": null,
+          "is_active": false,
+          "price_cents": 1500
+        },
+        {
+          "label": "Half pan",
+          "servings": null,
+          "is_active": false,
+          "price_cents": 750
+        }
+      ]
+    },
+    {
+      "id": "6d04a4f5-50f2-4941-b614-a87fc9f80f2a",
+      "name": "Beets & Asparagus",
+      "is_active": false,
+      "price_cents": 1500,
+      "meal_sizes": [
+        {
+          "label": "Full pan",
+          "servings": null,
+          "is_active": false,
+          "price_cents": 1500
+        },
+        {
+          "label": "Half pan",
+          "servings": null,
+          "is_active": false,
+          "price_cents": 750
+        }
+      ]
+    },
+    {
+      "id": "d3c2a2e3-205e-45e0-b7f0-329c09b5bec8",
+      "name": "Yellow Rice & Peas",
+      "is_active": false,
+      "price_cents": 1500,
+      "meal_sizes": [
+        {
+          "label": "Full pan",
+          "servings": null,
+          "is_active": false,
+          "price_cents": 1500
+        },
+        {
+          "label": "Half pan",
+          "servings": null,
+          "is_active": false,
+          "price_cents": 750
+        }
+      ]
+    },
+    {
+      "id": "5167bec1-55ef-40cc-8a76-1877c5272e5e",
+      "name": "Hummus Harvest Bowl",
+      "is_active": false,
+      "price_cents": 3500,
+      "meal_sizes": [
+        {
+          "label": "2 quarts",
+          "servings": null,
+          "is_active": false,
+          "price_cents": 3500
+        }
+      ]
+    },
+    {
+      "id": "2282fb32-a6e7-47ca-ae33-2c3ee611a41f",
+      "name": "Soft Breakfast Cookies: Maple Pecan Oatmeal",
+      "is_active": false,
+      "price_cents": 1500,
+      "meal_sizes": [
+        {
+          "label": "Portion to confirm",
+          "servings": null,
+          "is_active": false,
+          "price_cents": 1500
+        }
+      ]
+    },
+    {
+      "id": "3f97dcda-527b-46df-bf89-db5e639d7b40",
+      "name": "Garden Veggie Wraps",
+      "is_active": false,
+      "price_cents": 3500,
+      "meal_sizes": [
+        {
+          "label": "4 wraps",
+          "servings": null,
+          "is_active": false,
+          "price_cents": 3500
+        }
+      ]
+    },
+    {
+      "id": "db9baa28-5618-4461-87f2-8bf35178c495",
+      "name": "Ginger Carrots & Peeled Zucchini",
+      "is_active": false,
+      "price_cents": 1500,
+      "meal_sizes": [
+        {
+          "label": "Portion to confirm",
+          "servings": null,
+          "is_active": false,
+          "price_cents": 1500
+        }
+      ]
+    },
+    {
+      "id": "ec9a86d0-3ee5-4f34-98c1-58a9a0a1e2a6",
+      "name": "Mango Cilantro Sticky Rice Pudding",
+      "is_active": false,
+      "price_cents": 3500,
+      "meal_sizes": [
+        {
+          "label": "2 quarts",
+          "servings": null,
+          "is_active": false,
+          "price_cents": 3500
+        }
+      ]
+    },
+    {
+      "id": "48153ce4-18e4-4670-8186-517797d5abfd",
+      "name": "Pesto Shepherd’s Pie",
+      "is_active": false,
+      "price_cents": 4000,
+      "meal_sizes": [
+        {
+          "label": "2 quarts",
+          "servings": null,
+          "is_active": false,
+          "price_cents": 4000
+        }
+      ]
+    },
+    {
+      "id": "8dfcae03-6dcf-44d6-9a9d-67c233996e3b",
+      "name": "Gazpacho Soup",
+      "is_active": false,
+      "price_cents": 3500,
+      "meal_sizes": [
+        {
+          "label": "2 quarts",
+          "servings": null,
+          "is_active": false,
+          "price_cents": 3500
+        }
+      ]
+    },
+    {
+      "id": "05edda23-cc28-4ea2-b1ef-6bcb82d1429c",
+      "name": "Whipped Feta & Honey with Rice Cakes",
+      "is_active": false,
+      "price_cents": 3500,
+      "meal_sizes": [
+        {
+          "label": "2 quarts",
+          "servings": null,
+          "is_active": false,
+          "price_cents": 3500
+        }
+      ]
+    },
+    {
+      "id": "0e667f09-d7c9-4d9d-80d1-5efe53ec8944",
+      "name": "Beer Battered Fish & Chips",
+      "is_active": false,
+      "price_cents": 4000,
+      "meal_sizes": [
+        {
+          "label": "Portion to confirm",
+          "servings": null,
+          "is_active": false,
+          "price_cents": 4000
+        }
+      ]
+    },
+    {
+      "id": "7136f9d3-666d-4159-b0b1-60188d5b5b67",
+      "name": "Apple Cinnamon Chia Pudding",
+      "is_active": false,
+      "price_cents": 3500,
+      "meal_sizes": [
+        {
+          "label": "2 quarts",
+          "servings": null,
+          "is_active": false,
+          "price_cents": 3500
+        }
+      ]
+    }
+  ],
+  "review_notes": [
+    {
+      "name": "Caprese Style Noodles",
+      "note": "Also appears on page 5 with the same price and quantity; imported once."
+    },
+    {
+      "name": "Creamy Watermelon Chia Seed Pudding",
+      "note": "Source description lists figs, challah bread, milk, honey, eggs and spices, which conflicts with the dish name. Description and ingredients left blank for review."
+    }
+  ],
+  "servings_note": "Quarts, pieces, slices and container counts were not treated as serving counts. New meals and sizes are inactive and purchase availability is disabled pending review. No existing records or weekly menus were changed."
+}

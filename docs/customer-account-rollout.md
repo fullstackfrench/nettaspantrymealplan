@@ -9,6 +9,7 @@ The account implementation adds password registration and sign-in, emailed sign-
 - The policy is visible at checkout, on the payment-return page, and in the account dashboard. Eligible orders show their exact cancellation deadline.
 - Paid order price increases require an additional Stripe payment before the new details are applied. Price reductions and cancellations submit refunds against the actual original payment and any prior adjustment payments. Refund retries reuse the same identifiers.
 - Pending changes reserve the order and block kitchen fulfillment until settled. Customers can continue a pending change. A pending edit that has not settled can be discarded when no refund has started and no additional payment is processing.
+- Every subscription must contain half sides and half entrées: 6 meals = 3 + 3, 8 meals = 4 + 4, and 12 meals = 6 + 6. Breakfast & Brunch, Main Dishes, Salads & Bowls, and Soups & Stews count as entrées. Desserts and uncategorized meals do not qualify. Assigned categories override the meal editor's legacy name-based suggestions. Quantities, rather than distinct dishes or serving counts, fill these slots.
 - Subscription quantity changes must preserve the order's meal count. To change the number of meals in future weeks, change the subscription plan.
 - Pausing or skipping a subscription voids future invoices during the pause. Skipping covers the next single weekly billing cycle, then collection resumes. These actions do not cancel orders already placed.
 - Subscription cancellation is scheduled for the end of the current paid billing period. Existing orders must be canceled separately within their own 24-hour window.
@@ -83,3 +84,15 @@ After migration and provider/webhook configuration, deploy the customer-account 
 - Mocked auth UI tests cover email/password, signup, sign-in links, recovery and Google callback construction. Real email delivery, Google consent, and hosted Stripe payment flows require the configured environments above.
 
 No production migration, live charge, refund or subscription change has been performed as part of these tests.
+
+## Subscription mix and price update (October 22)
+
+The original database rollout was reported applied by the owner. For that existing database, run only `supabase/migrations/20261022_subscription_mix_and_prices.sql` in the Supabase SQL Editor before deploying these subscription changes. The combined rollout script now includes this migration for fresh installations.
+
+The migration updates the 8-meal plan to $105/week and the 12-meal plan to $165/week; the 6-meal price is unchanged. It validates the half-side, half-entrée rule in checkout, customer order edits, and saved weekly choices. Renewal invoices with old or reclassified choices that fail the rule create an order requiring meal selection and remain blocked from preparation.
+
+New subscriptions and voluntary plan changes use the new prices. Existing Stripe subscriptions and historical order price snapshots are retained; automatically changing existing subscribers' renewal prices requires the owner's outstanding pricing-scope decision and a separate Stripe update. `ensurePlanPrice` creates/reuses a matching Stripe recurring price when a customer checks out or changes plans.
+
+Validation: TypeScript, subscription category/count tests, existing customer regression tests, and actual isolated PostgreSQL tests of checkout, order edits, weekly choices, renewals, duplicate invoice handling, and authoritative prices. The owner reported applying the production mix migration. This application update is awaiting deployment.
+
+The owner requested removal of test orders and subscriptions after applying the migration. Two one-time test orders and their four line items were backed up locally and removed; verification found zero orders and zero subscriptions afterward. Customer accounts and menu data were retained. The configured Stripe test key could not access those checkout sessions, so Stripe records were not changed.

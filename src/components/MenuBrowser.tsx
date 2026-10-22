@@ -12,7 +12,7 @@ import type { Meal, PublicSubscriptionPlan } from '@/lib/types';
 export default function MenuBrowser({ meals, plans }: { meals: Meal[]; plans: PublicSubscriptionPlan[] }) {
   const [active, setActive] = useState('all');
   const [selected, setSelected] = useState<Meal | null>(null);
-  const { totalMeals, remaining, mode } = useCart();
+  const { totalMeals, remaining, mode, subscriptionSides, subscriptionEntrees, selectedPlan } = useCart();
   const availableMeals = useMemo(
     () => meals.filter((meal) => getAvailableMealSizes(meal, mode).length > 0),
     [meals, mode]
@@ -43,9 +43,8 @@ export default function MenuBrowser({ meals, plans }: { meals: Meal[]; plans: Pu
 
       {mode === 'subscription' && (
         <p className="mt-4 rounded-control bg-brand-plum/5 px-4 py-3 text-sm font-medium text-brand-plum" aria-live="polite">
-          {remaining > 0
-            ? `Pick ${remaining} more meal${remaining === 1 ? '' : 's'} to fill your plan.`
-            : 'Your plan is full — head to checkout when you are ready.'}
+          {selectedPlan ? `${subscriptionSides}/${selectedPlan.includedCredits / 2} sides · ${subscriptionEntrees}/${selectedPlan.includedCredits / 2} entrées selected.` : 'Choose a subscription plan.'}
+          {remaining === 0 && selectedPlan && ' Your plan is full — head to checkout when you are ready.'}
         </p>
       )}
       {mode === 'one_time' && totalMeals > 0 && (

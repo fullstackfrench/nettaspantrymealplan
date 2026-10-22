@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Netta’s Pantry — Weekly Menu Guide</title>
+<style>
+@page { size: Letter; margin: 0.6in; }
+* { box-sizing: border-box; }
+body { font-family: Arial, sans-serif; font-size: 10.5pt; line-height: 1.45; color: #302831; margin: 0; }
+.brand { color: #71305a; font-size: 12pt; font-weight: bold; letter-spacing: 1px; }
+h1 { font-family: Georgia, serif; font-size: 27pt; color: #71305a; line-height: 1.15; margin: 12px 0; }
+.intro { color: #615860; margin: 0 0 18px; }
+h2 { font-size: 13pt; color: #71305a; margin: 18px 0 8px; }
+ol { padding-left: 22px; margin: 6px 0; }
+li { padding-left: 4px; margin: 0 0 10px; break-inside: avoid; }
+ul { padding-left: 19px; margin: 5px 0; }
+ul li { margin-bottom: 2px; }
+.note { background: #f3f5ef; border-left: 4px solid #496641; padding: 11px 14px; margin-top: 16px; break-inside: avoid; }
+.footer { border-top: 1px solid #e6dde2; margin-top: 18px; padding-top: 8px; color: #756b71; font-size: 9pt; }
+</style></head><body>
+<div class="brand">NETTA’S PANTRY</div>
+<h1>Add a meal to the weekly menu</h1>
+<p class="intro">A step-by-step guide for making a meal available in both <strong>one-time boxes</strong> and <strong>weekly subscriptions</strong>.</p>
+<h2>1. Set up the meal</h2>
+<ol>
+<li>Open <strong>Admin → Meals</strong> and click <strong>Edit</strong> beside the meal.</li>
+<li>Under <strong>Purchase availability</strong>, check both <strong>Available for one-time purchase</strong> and <strong>Available for subscription</strong>.</li>
+<li>Under <strong>Sizes &amp; prices</strong>, configure each size you want to offer:
+<ul><li>Check <strong>Active</strong>.</li><li>Enter a positive whole-number <strong>serving count</strong>, such as 1, 2, or 4.</li><li>Enter a <strong>price greater than $0</strong>, with no more than two decimal places.</li><li>Check <strong>One-time purchase</strong> for each size customers can buy in a one-time box.</li><li>Select <strong>Standard subscription size</strong> for exactly one size—the portion subscribers will receive.</li></ul>
+You may offer several one-time sizes. Subscriptions use the single designated standard size, which can also be sold in one-time boxes.</li>
+<li>Check <strong>Show on the customer menu</strong>, then click <strong>Save changes</strong>. Click <strong>OK</strong> in the confirmation popup. The meal should be marked <strong>Visible</strong>.</li>
+</ol>
+<h2>2. Include the meal and publish the week</h2>
+<ol start="5">
+<li>Open <strong>Admin → Weekly Menus</strong> and select the week you want customers to order from.</li>
+<li>Find the meal and click <strong>Add</strong>. Its button should say <strong>On the menu</strong>. If it already says that, leave it selected.</li>
+<li>Check the week’s status. If it says <strong>Draft</strong>, click <strong>Publish this week</strong>. If it already says <strong>Published</strong>, leave it published.</li>
+<li>Open or refresh <strong>This Week’s Menu</strong>. Select <strong>One-time box</strong> and confirm the meal appears, then switch to <strong>Weekly subscription</strong> and check again.</li>
+</ol>
+<div class="note"><strong>If a meal is missing:</strong> Check all three requirements: it is <strong>Visible</strong>, it is <strong>On the menu</strong> in the latest published week, and its size is available for the selected order type. A meal missing only from subscriptions usually needs <strong>Available for subscription</strong> enabled or a valid <strong>Standard subscription size</strong> selected. Publishing a week does not automatically enable either purchase type.</div>
+<div class="footer">The customer menu displays the latest published week by its week-start date. Save meal edits before checking the customer menu.</div>
+</body></html>

@@ -12,25 +12,6 @@ export const DEPOSIT_PER_CONTAINER_CENTS = 300;
  */
 export const DEPOSIT_ONCE_FOR_SUBSCRIBERS = true;
 
-export type PlanSize = 6 | 8 | 12;
-
-export interface Plan {
-  size: PlanSize;
-  /** Per-meal price when on a weekly subscription. */
-  subscriptionPriceCents: number;
-  label: string;
-  blurb: string;
-}
-
-export const PLANS: Plan[] = [
-  { size: 6, subscriptionPriceCents: 1350, label: '6 meals / week', blurb: 'Lunches sorted.' },
-  { size: 8, subscriptionPriceCents: 1275, label: '8 meals / week', blurb: 'Most popular.' },
-  { size: 12, subscriptionPriceCents: 1195, label: '12 meals / week', blurb: 'Best value, feeds two.' },
-];
-
-/** Flat per-meal price with no subscription. */
-export const ONE_TIME_PRICE_CENTS = 1450;
-
 export const DELIVERY_FEE_CENTS = 0;
 
 // ---------------------------------------------------------------

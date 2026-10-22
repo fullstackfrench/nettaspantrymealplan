@@ -4,8 +4,12 @@ insert into auth.users(id) values ('10000000-0000-4000-8000-000000000001'),('100
 insert into customers(id,auth_user_id,email,address_line1,city,zip) values ('20000000-0000-4000-8000-000000000001','10000000-0000-4000-8000-000000000001','customer-one@example.test','1 Test St','Raleigh','27601'),('20000000-0000-4000-8000-000000000002','10000000-0000-4000-8000-000000000002','customer-two@example.test','2 Test St','Raleigh','27601');
 insert into meals(id,slug,name,price_cents,is_available_for_subscription) values ('30000000-0000-4000-8000-000000000001','test-meal-one','Test Meal One',1000,true);
 insert into meal_sizes(id,meal_id,label,price_cents,servings,is_available_for_subscription) values ('40000000-0000-4000-8000-000000000001','30000000-0000-4000-8000-000000000001','Regular',1000,1,true);
+update meals set tags=array['main-dishes'] where id='30000000-0000-4000-8000-000000000001';
+insert into meals(id,slug,name,price_cents,tags) values ('30000000-0000-4000-8000-000000000002','test-side','Test Side',500,array['sides']);
+insert into meal_sizes(id,meal_id,label,price_cents,servings,is_available_for_subscription) values ('40000000-0000-4000-8000-000000000002','30000000-0000-4000-8000-000000000002','Regular',500,1,true);
 insert into weekly_menus(id,week_start,is_published) values ('50000000-0000-4000-8000-000000000001','2099-01-05',true);
 insert into weekly_menu_items(menu_id,meal_id) values ('50000000-0000-4000-8000-000000000001','30000000-0000-4000-8000-000000000001');
+insert into weekly_menu_items(menu_id,meal_id) values ('50000000-0000-4000-8000-000000000001','30000000-0000-4000-8000-000000000002');
 insert into orders(id,customer_id,created_at,total_cents,subtotal_cents,containers_issued,deposit_cents) values ('60000000-0000-4000-8000-000000000001','20000000-0000-4000-8000-000000000001',now()-interval '2 hours',1300,1000,1,300),('60000000-0000-4000-8000-000000000002','20000000-0000-4000-8000-000000000001',now()-interval '24 hours',1300,1000,1,300);
 insert into order_items(order_id,meal_id,meal_size_id,quantity,unit_price_cents) values ('60000000-0000-4000-8000-000000000001','30000000-0000-4000-8000-000000000001','40000000-0000-4000-8000-000000000001',1,1000);
 do $$
@@ -47,7 +51,7 @@ declare sub_id uuid; choices jsonb; generated orders%rowtype;
 begin
  select id into sub_id from subscriptions where stripe_subscription_id='sub_test';
  if (select count(*) from subscriptions where stripe_subscription_id='sub_test')<>1 then raise exception 'Duplicate subscription';end if;
- choices:='[{"meal_id":"30000000-0000-4000-8000-000000000001","meal_size_id":"40000000-0000-4000-8000-000000000001","quantity":2}]';
+ choices:='[{"meal_id":"30000000-0000-4000-8000-000000000001","meal_size_id":"40000000-0000-4000-8000-000000000001","quantity":1},{"meal_id":"30000000-0000-4000-8000-000000000002","meal_size_id":"40000000-0000-4000-8000-000000000002","quantity":1}]';
  begin perform save_customer_week_choices('10000000-0000-4000-8000-000000000002',sub_id,'50000000-0000-4000-8000-000000000001',choices);raise exception 'Choices ownership guard failed';exception when raise_exception then if sqlerrm not like 'Subscription not found%' then raise;end if;end;
  perform save_customer_week_choices('10000000-0000-4000-8000-000000000001',sub_id,'50000000-0000-4000-8000-000000000001',choices);
  perform record_customer_subscription_invoice('in_test_one','sub_test','pi_test_renewal',2000);

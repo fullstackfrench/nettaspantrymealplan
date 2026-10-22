@@ -1,0 +1,416 @@
+[
+  {
+    "name": "Broccoli Cheddar Bacon Frittata",
+    "source_page": 1,
+    "price_cents": 4000,
+    "quantity": "6 pieces",
+    "description": "Egg casserole baked with cheddar cheese, bacon, broccoli, onions and spices.",
+    "half_pan": false,
+    "review_note": null
+  },
+  {
+    "name": "Veggie & Potato Hash",
+    "source_page": 1,
+    "price_cents": 3500,
+    "quantity": "2 quarts",
+    "description": "Garden veggies (onion, bell peppers and greens) with herbs and crispy white and sweet potatoes.",
+    "half_pan": false,
+    "review_note": null
+  },
+  {
+    "name": "Blueberry Kale Quinoa Salad",
+    "source_page": 1,
+    "price_cents": 3500,
+    "quantity": "2 quarts",
+    "description": "Blueberry quinoa salad with corn, red onion, feta and a cilantro lime dressing. Optional chicken breast add-on: $15.",
+    "half_pan": false,
+    "review_note": null
+  },
+  {
+    "name": "Chicken & Waffles",
+    "source_page": 1,
+    "price_cents": 4500,
+    "quantity": "4 pieces & 2 waffles",
+    "description": "Buttermilk fried chicken paired with Belgian waffles and strawberry syrup. Additional waffles: $6 each.",
+    "half_pan": false,
+    "review_note": null
+  },
+  {
+    "name": "Chocolate Peanut Butter Chia Pudding",
+    "source_page": 1,
+    "price_cents": 3500,
+    "quantity": "2 quarts",
+    "description": "Peanut butter cup-inspired chia pudding. Listed as Protein Powerhouse in the source menu.",
+    "half_pan": false,
+    "review_note": null
+  },
+  {
+    "name": "Huevos Ranchero",
+    "source_page": 1,
+    "price_cents": 3500,
+    "quantity": "2 quarts",
+    "description": "Eggs, fresh vegetables, tortillas, beans and cheese. Optional turkey sausage or bacon add-on: $7.",
+    "half_pan": false,
+    "review_note": null
+  },
+  {
+    "name": "Herb Garlic Chicken Roast & Yellow Rice",
+    "source_page": 2,
+    "price_cents": 4000,
+    "quantity": "8 pieces",
+    "description": "Basil, parsley, garlic, extra virgin olive oil, chicken, rice, onions and bell peppers in herb butter.",
+    "half_pan": false,
+    "review_note": null
+  },
+  {
+    "name": "Southern Fried Okra & Ranch",
+    "source_page": 2,
+    "price_cents": 1500,
+    "quantity": "Full pan",
+    "description": "Farm okra with seasoned breading, served with ranch.",
+    "half_pan": true,
+    "review_note": null
+  },
+  {
+    "name": "Harvest Bowl: Mexican Style",
+    "source_page": 2,
+    "price_cents": 3500,
+    "quantity": "2 quarts",
+    "description": "Fresh guacamole, farm tomatoes, corn, pickled onions and lettuce in a lime ranch dressing. Optional chicken breast add-on: $15.",
+    "half_pan": false,
+    "review_note": null
+  },
+  {
+    "name": "Strawberry Crunch Cupcakes",
+    "source_page": 2,
+    "price_cents": 1500,
+    "quantity": "6 pieces",
+    "description": "From Marie’s Sweets. Fresh strawberries, cream cheese, flour, sugar and strawberry crunch.",
+    "half_pan": false,
+    "review_note": null
+  },
+  {
+    "name": "Garlicky Green Beans",
+    "source_page": 2,
+    "price_cents": 1500,
+    "quantity": "Full pan",
+    "description": "French green beans simmered in flavorful broth, onions, butter and spices.",
+    "half_pan": true,
+    "review_note": null
+  },
+  {
+    "name": "Mushroom Masala & Chapathi",
+    "source_page": 3,
+    "price_cents": 3500,
+    "quantity": "2 quarts",
+    "description": "Assortment of mushrooms, stewed tomatoes, coconut milk, spices and bread.",
+    "half_pan": false,
+    "review_note": null
+  },
+  {
+    "name": "Farm Empanada with Chipotle Mayo",
+    "source_page": 3,
+    "price_cents": 3500,
+    "quantity": "6 pieces",
+    "description": "Cornmeal dough filled with seasonal local veggies (kale, cabbage, onions, peppers, carrots and cheese), served with chipotle mayo.",
+    "half_pan": false,
+    "review_note": null
+  },
+  {
+    "name": "Harvest Bowl: Tropical Style",
+    "source_page": 3,
+    "price_cents": 3500,
+    "quantity": "2 quarts",
+    "description": "Farm cucumber, black beans, mango and quinoa in a lime vinaigrette.",
+    "half_pan": false,
+    "review_note": null
+  },
+  {
+    "name": "Shrimp Scampi Pasta",
+    "source_page": 3,
+    "price_cents": 4000,
+    "quantity": "2 quarts",
+    "description": "Shrimp, garlic, lemon butter, farm bell peppers and herbs with pasta.",
+    "half_pan": false,
+    "review_note": null
+  },
+  {
+    "name": "Caprese Style Noodles",
+    "source_page": 3,
+    "price_cents": 3500,
+    "quantity": "2 quarts",
+    "description": "Spaghetti noodles, fresh basil, farm tomatoes, farm squash, fresh mozzarella and extra virgin olive oil.",
+    "half_pan": false,
+    "review_note": "Also appears on page 5 with the same price and quantity; imported once."
+  },
+  {
+    "name": "Veggie Quiche",
+    "source_page": 4,
+    "price_cents": 3500,
+    "quantity": "Full pie",
+    "description": "Farm eggs, feta and cheddar cheese, kale, mushrooms, seasonings and pie crust.",
+    "half_pan": false,
+    "review_note": null
+  },
+  {
+    "name": "Southern-Style Fried Rice",
+    "source_page": 4,
+    "price_cents": 4000,
+    "quantity": "Full pan",
+    "description": "Atlantic salmon stir-fried with teriyaki sauce, ginger, onions, farm carrots, black-eyed peas and basmati rice.",
+    "half_pan": false,
+    "review_note": null
+  },
+  {
+    "name": "Saucy Tofu & Veggies",
+    "source_page": 4,
+    "price_cents": 3500,
+    "quantity": "2 quarts",
+    "description": "Pan-fried tofu mixed with garlic chili sauce and farm veggies.",
+    "half_pan": false,
+    "review_note": null
+  },
+  {
+    "name": "Stewed Okra & Tomatoes",
+    "source_page": 4,
+    "price_cents": 3500,
+    "quantity": "2 quarts",
+    "description": "Farm okra stewed with garbanzo beans, extra virgin olive oil, tomatoes and spices.",
+    "half_pan": false,
+    "review_note": null
+  },
+  {
+    "name": "Tofu Banh Mi",
+    "source_page": 4,
+    "price_cents": 3500,
+    "quantity": "6 sandwiches",
+    "description": "Crispy tofu, cilantro, chipotle mayo, farm cucumber, pickled onions and bread.",
+    "half_pan": false,
+    "review_note": null
+  },
+  {
+    "name": "Chicken Pot Pie",
+    "source_page": 5,
+    "price_cents": 4000,
+    "quantity": "8 slices",
+    "description": "Stewed chicken, peas, farm carrots, herbs and potatoes in a savory pie crust.",
+    "half_pan": false,
+    "review_note": null
+  },
+  {
+    "name": "Harvest Bowl: Peach Style",
+    "source_page": 5,
+    "price_cents": 3000,
+    "quantity": "2 quarts",
+    "description": "Farm cucumber, quinoa, feta cheese, prosciutto and lettuce in Oregon’s peach vinaigrette. Optional chicken breast add-on: $15.",
+    "half_pan": false,
+    "review_note": null
+  },
+  {
+    "name": "Pan Seared Cod with Mexican Street Corn Salad",
+    "source_page": 5,
+    "price_cents": 4500,
+    "quantity": "6 pieces",
+    "description": "Cod, farm tomatoes, mayo, seasonings, spices and corn.",
+    "half_pan": false,
+    "review_note": null
+  },
+  {
+    "name": "Figgy Chicken",
+    "source_page": 6,
+    "price_cents": 4000,
+    "quantity": "8 pieces",
+    "description": "Farm figs, bone-in chicken, shallots, rosemary, extra virgin olive oil and caramelized onions.",
+    "half_pan": false,
+    "review_note": null
+  },
+  {
+    "name": "Protein Packed Lemon Ricotta Pancakes",
+    "source_page": 6,
+    "price_cents": 3000,
+    "quantity": "8 pieces",
+    "description": "Creamy ricotta, flour, spices, lemon zest, protein powder and blueberry syrup.",
+    "half_pan": false,
+    "review_note": null
+  },
+  {
+    "name": "Roasted Veggie Quinoa Bowl with Avocado and Tahini Dressing",
+    "source_page": 6,
+    "price_cents": 3500,
+    "quantity": "2 quarts",
+    "description": "Farm kale, quinoa, sweet potatoes, chickpeas, avocado and sunflower seeds, with tahini on the side.",
+    "half_pan": false,
+    "review_note": null
+  },
+  {
+    "name": "Shrimp, Corn & Zucchini Flatbread",
+    "source_page": 6,
+    "price_cents": 4000,
+    "quantity": "2 flatbreads",
+    "description": "Grilled shrimp, corn, zucchini, naan bread, farm marinara sauce, mozzarella, basil and balsamic drizzle.",
+    "half_pan": false,
+    "review_note": null
+  },
+  {
+    "name": "Crispy Garlic Butter Parmesan Smashed Potatoes",
+    "source_page": 7,
+    "price_cents": 1500,
+    "quantity": "Full pan",
+    "description": "Fresh garlic, potatoes, extra virgin olive oil, herbs and spices.",
+    "half_pan": true,
+    "review_note": null
+  },
+  {
+    "name": "Honey Ginger Roasted Carrots",
+    "source_page": 7,
+    "price_cents": 1500,
+    "quantity": "Full pan",
+    "description": "Extra virgin olive oil, farm carrots, ginger, honey and herbs.",
+    "half_pan": true,
+    "review_note": null
+  },
+  {
+    "name": "Ratatouille Stew",
+    "source_page": 7,
+    "price_cents": 1500,
+    "quantity": "Full pan",
+    "description": "Farm zucchini, eggplant, tomatoes, onions, peas, garlic and herbs.",
+    "half_pan": true,
+    "review_note": null
+  },
+  {
+    "name": "Creamy Watermelon Chia Seed Pudding",
+    "source_page": 7,
+    "price_cents": 1500,
+    "quantity": "Full pan",
+    "description": null,
+    "half_pan": true,
+    "review_note": "Source description lists figs, challah bread, milk, honey, eggs and spices, which conflicts with the dish name. Description and ingredients left blank for review."
+  },
+  {
+    "name": "Farm Veggie Medley",
+    "source_page": 8,
+    "price_cents": 1500,
+    "quantity": "Full pan",
+    "description": "Green beans, onions, squash, extra virgin olive oil, broccoli and herbs.",
+    "half_pan": true,
+    "review_note": null
+  },
+  {
+    "name": "Fruit Pie",
+    "source_page": 8,
+    "price_cents": 1500,
+    "quantity": "Full pan",
+    "description": "Farm jujube, apples, cinnamon, nutmeg, vanilla and pie crust.",
+    "half_pan": true,
+    "review_note": null
+  },
+  {
+    "name": "Beets & Asparagus",
+    "source_page": 8,
+    "price_cents": 1500,
+    "quantity": "Full pan",
+    "description": "Roasted beets, asparagus, extra virgin olive oil, feta cheese and seasoning.",
+    "half_pan": true,
+    "review_note": null
+  },
+  {
+    "name": "Yellow Rice & Peas",
+    "source_page": 8,
+    "price_cents": 1500,
+    "quantity": "Full pan",
+    "description": "Yellow rice, peas, onions, turmeric and butter.",
+    "half_pan": true,
+    "review_note": null
+  },
+  {
+    "name": "Hummus Harvest Bowl",
+    "source_page": 9,
+    "price_cents": 3500,
+    "quantity": "2 quarts",
+    "description": "Brown rice, garlic hummus, tomato paste, diced olives, fried onions and lemon vinaigrette. Optional salmon add-on: $15.",
+    "half_pan": false,
+    "review_note": null
+  },
+  {
+    "name": "Soft Breakfast Cookies: Maple Pecan Oatmeal",
+    "source_page": 9,
+    "price_cents": 1500,
+    "quantity": "Portion to confirm",
+    "description": "Pecans, flour, oatmeal, eggs, milk and brown sugar.",
+    "half_pan": false,
+    "review_note": null
+  },
+  {
+    "name": "Garden Veggie Wraps",
+    "source_page": 9,
+    "price_cents": 3500,
+    "quantity": "4 wraps",
+    "description": "Spinach flour wrap with peeled cucumbers, caramelized onions, feta cheese, beans, tomatoes and chipotle mayo.",
+    "half_pan": false,
+    "review_note": null
+  },
+  {
+    "name": "Ginger Carrots & Peeled Zucchini",
+    "source_page": 9,
+    "price_cents": 1500,
+    "quantity": "Portion to confirm",
+    "description": "Extra virgin olive oil, softened farm carrots, ginger, farm zucchini, fresh rosemary and spices.",
+    "half_pan": false,
+    "review_note": null
+  },
+  {
+    "name": "Mango Cilantro Sticky Rice Pudding",
+    "source_page": 9,
+    "price_cents": 3500,
+    "quantity": "2 quarts",
+    "description": "Farm cilantro, mango puree, oat milk, sticky rice and spices.",
+    "half_pan": false,
+    "review_note": null
+  },
+  {
+    "name": "Pesto Shepherd’s Pie",
+    "source_page": 10,
+    "price_cents": 4000,
+    "quantity": "2 quarts",
+    "description": "Farm pesto, cauliflower, peeled Yukon potatoes, beef broth, peeled carrots and extra virgin olive oil.",
+    "half_pan": false,
+    "review_note": null
+  },
+  {
+    "name": "Gazpacho Soup",
+    "source_page": 10,
+    "price_cents": 3500,
+    "quantity": "2 quarts",
+    "description": "Spanish gazpacho with farm peeled cucumbers, tomatoes, olive oil, vinegar and salt.",
+    "half_pan": false,
+    "review_note": null
+  },
+  {
+    "name": "Whipped Feta & Honey with Rice Cakes",
+    "source_page": 10,
+    "price_cents": 3500,
+    "quantity": "2 quarts",
+    "description": "Whipped feta cheese, local honey, herbs and extra virgin olive oil, with rice cakes served on the side.",
+    "half_pan": false,
+    "review_note": null
+  },
+  {
+    "name": "Beer Battered Fish & Chips",
+    "source_page": 10,
+    "price_cents": 4000,
+    "quantity": "Portion to confirm",
+    "description": "Cod, flour, lager, seasoning, lemons and fries.",
+    "half_pan": false,
+    "review_note": null
+  },
+  {
+    "name": "Apple Cinnamon Chia Pudding",
+    "source_page": 10,
+    "price_cents": 3500,
+    "quantity": "2 quarts",
+    "description": "Peeled apples stewed with cinnamon, ground chia seeds, oat milk and agave.",
+    "half_pan": false,
+    "review_note": null
+  }
+]

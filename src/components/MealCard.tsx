@@ -3,6 +3,7 @@
 import { formatCents } from '@/lib/constants';
 import type { OrderMode } from '@/lib/cart';
 import type { Meal } from '@/lib/types';
+import { getAvailableMealSizes } from '@/lib/meal-availability';
 
 interface Props {
   meal: Meal;
@@ -11,12 +12,10 @@ interface Props {
 }
 
 export default function MealCard({ meal, mode, onSelect }: Props) {
-  const sizes = meal.meal_sizes ?? [];
-  const oneTimeSizes = sizes.filter((size) => size.is_active && size.is_available_for_one_time && size.servings != null);
-  const subscriptionSizes = sizes.filter((size) => size.is_active && size.is_available_for_subscription && size.servings != null);
-  const available = mode === 'one_time'
-    ? meal.is_available_for_one_time && oneTimeSizes.length > 0
-    : meal.is_available_for_subscription && subscriptionSizes.length === 1;
+  const oneTimeSizes = getAvailableMealSizes(meal, 'one_time');
+  const subscriptionSizes = getAvailableMealSizes(meal, 'subscription');
+  const available = (mode === 'one_time' ? oneTimeSizes : subscriptionSizes).length > 0;
+  if (!available) return null;
 
   let purchaseDetail = 'Unavailable for this order type';
   if (mode === 'one_time' && available) {

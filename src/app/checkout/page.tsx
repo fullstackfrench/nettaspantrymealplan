@@ -14,7 +14,9 @@ export default function CheckoutPage() {
     totalMeals,
     mode,
     selectedPlan,
-    remaining,
+    subscriptionSides,
+    subscriptionEntrees,
+    subscriptionComplete,
     subtotalCents,
     depositCents,
     totalCents,
@@ -75,7 +77,7 @@ export default function CheckoutPage() {
   }
 
   const incomplete =
-    mode === 'subscription' && (!selectedPlan || remaining > 0);
+    mode === 'subscription' && (!selectedPlan || !subscriptionComplete);
   const contactComplete =
     street.trim() !== '' &&
     city.trim() !== '' &&
@@ -272,8 +274,8 @@ export default function CheckoutPage() {
         </dl>
         {incomplete && (
           <p className="mt-4 text-sm text-clay-500">
-            Your subscription plan still needs {remaining} more meal
-            {remaining === 1 ? '' : 's'}.
+            Choose exactly {selectedPlan ? selectedPlan.includedCredits / 2 : 'half'} sides and {selectedPlan ? selectedPlan.includedCredits / 2 : 'half'} entrées.
+            Selected: {subscriptionSides} sides and {subscriptionEntrees} entrées.
           </p>
         )}
         {error && (

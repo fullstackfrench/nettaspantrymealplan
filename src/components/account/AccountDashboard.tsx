@@ -18,6 +18,7 @@ import {
   orderChangeDeadline,
   ORDER_CHANGE_POLICY,
 } from '@/lib/account/policy';
+import { getSubscriptionKind, subscriptionMix } from '@/lib/subscription-mix';
 import { getAvailableMealSizes } from '@/lib/meal-availability';
 import { formatCents } from '@/lib/constants';
 import type {
@@ -642,6 +643,8 @@ function OrderEditor({
     }));
   const [items, setItems] = useState<Choice[]>(initial);
   const [key] = useState(() => crypto.randomUUID());
+  const required = order.included_credits_snapshot ?? initial.reduce((sum, item) => sum + item.quantity, 0);
+  const mix = subscriptionMix(items.map((item) => ({ quantity: item.quantity, kind: getSubscriptionKind(meals.find((meal) => meal.id === item.meal_id) ?? { name: '', tags: [] }) })), required);
   return (
     <form
       className="space-y-4 border-t border-brand-plum/10 pt-4"
@@ -660,7 +663,7 @@ function OrderEditor({
         Increase quantities to add meals; set a quantity to 0 to remove it.
         Price increases require an additional payment before changes are saved.
         Price reductions are refunded. Subscription orders must keep the same
-        total number of meals.
+        total number of meals, with half sides and half entrées.
       </p>
       <MealChoices
         meals={meals}
@@ -669,7 +672,8 @@ function OrderEditor({
         onChange={setItems}
       />
       <AddressFields customer={customer} order={order} />
-      <button disabled={busy} className="admin-primary-button">
+      {order.order_type === 'subscription' && <p className="admin-help">{mix.sides}/{mix.half} sides · {mix.entrees}/{mix.half} entrées</p>}
+      <button disabled={busy || (order.order_type === 'subscription' && !mix.valid)} className="admin-primary-button">
         {busy ? 'Saving…' : 'Save order changes'}
       </button>
     </form>
@@ -691,8 +695,8 @@ function WeeklyEditor({
   onSubmit: (form: FormData) => void;
 }) {
   const [items, setItems] = useState<Choice[]>(initial);
-  const total = items.reduce((sum, item) => sum + item.quantity, 0);
   const required = sub.included_credits_snapshot || sub.plan_size;
+  const mix = subscriptionMix(items.map((item) => ({ quantity: item.quantity, kind: getSubscriptionKind(meals.find((meal) => meal.id === item.meal_id) ?? { name: '', tags: [] }) })), required);
   return (
     <form
       className="space-y-3 border-t border-brand-plum/10 pt-4"
@@ -707,8 +711,8 @@ function WeeklyEditor({
     >
       <h4 className="font-bold">Meals for week of {menu.week_start}</h4>
       <p className="text-sm">
-        Choose {required} meals. Choices close when the menu week starts.
-        Selected: {total}/{required}.
+        Choose {required / 2} sides and {required / 2} entrées. Choices close when the menu week starts.
+        Selected: {mix.sides}/{mix.half} sides · {mix.entrees}/{mix.half} entrées.
       </p>
       <MealChoices
         meals={meals}
@@ -717,7 +721,7 @@ function WeeklyEditor({
         onChange={setItems}
       />
       <button
-        disabled={busy || total !== required}
+        disabled={busy || !mix.valid}
         className="admin-primary-button"
       >
         Save upcoming meals

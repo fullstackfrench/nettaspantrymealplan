@@ -3,6 +3,7 @@
 import { createContext, useContext, useMemo, useState, type ReactNode } from 'react';
 import { DEPOSIT_PER_CONTAINER_CENTS } from './constants';
 import type { Meal, MealSize, PublicSubscriptionPlan } from './types';
+import { getSubscriptionKind, subscriptionMix, type SubscriptionKind } from './subscription-mix';
 
 export type OrderMode = 'subscription' | 'one_time';
 
@@ -26,6 +27,7 @@ export type CartLine =
   | {
       id: string;
       kind: 'subscription';
+      subscriptionKind: SubscriptionKind;
       mealId: string;
       mealSizeId: string;
       quantity: number;
@@ -54,6 +56,10 @@ interface CartState {
   clear: () => void;
   totalMeals: number;
   remaining: number;
+  subscriptionSides: number;
+  subscriptionEntrees: number;
+  subscriptionComplete: boolean;
+  canAddSubscription: (meal: Meal) => boolean;
   subtotalCents: number;
   depositCents: number;
   totalCents: number;
@@ -132,9 +138,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }
 
   function addSubscription(meal: Meal, size: MealSize) {
+    const kind = getSubscriptionKind(meal);
     if (
       mode !== 'subscription' ||
-      !selectedPlan ||
+      !selectedPlan || !kind ||
       totalMeals >= selectedPlan.includedCredits ||
       !meal.is_available_for_subscription ||
       !size.is_active ||
@@ -143,11 +150,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
     ) return;
     const id = `subscription:${meal.id}:${size.id}`;
     setLines((current) => {
+      const categoryCount = current.reduce((sum, line) => sum +
+        (line.kind === 'subscription' && line.subscriptionKind === kind ? line.quantity : 0), 0);
+      if (categoryCount >= selectedPlan.includedCredits / 2) return current;
       const found = current.find((line) => line.id === id);
       if (found) return current.map((line) => line.id === id ? { ...line, quantity: line.quantity + 1 } : line);
       return [...current, {
         id,
         kind: 'subscription',
+        subscriptionKind: kind,
         mealId: meal.id,
         mealSizeId: size.id,
         quantity: 1,
@@ -163,6 +174,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }
 
   const value = useMemo<CartState>(() => {
+    const mix = subscriptionMix(lines.map((line) => ({ quantity: line.quantity,
+      kind: line.kind === 'subscription' ? line.subscriptionKind : null })), selectedPlan?.includedCredits ?? 0);
     const subtotalCents = mode === 'subscription'
       ? selectedPlan?.priceCents ?? 0
       : lines.reduce((sum, line) => sum + (line.kind === 'one_time' ? line.quantity * line.display.unitPriceCents : 0), 0);
@@ -178,6 +191,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
       remove,
       clear: () => setLines([]),
       totalMeals,
+      subscriptionSides: mix.sides,
+      subscriptionEntrees: mix.entrees,
+      subscriptionComplete: mix.valid,
+      canAddSubscription: (meal) => {
+        const kind = getSubscriptionKind(meal);
+        return Boolean(selectedPlan && Number.isInteger(mix.half) && kind &&
+          (kind === 'side' ? mix.sides : mix.entrees) < mix.half);
+      },
       remaining: mode === 'subscription' && selectedPlan
         ? Math.max(0, selectedPlan.includedCredits - totalMeals)
         : 0,

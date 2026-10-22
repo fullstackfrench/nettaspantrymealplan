@@ -7,7 +7,7 @@ import { useCart } from '@/lib/cart';
 import type { Meal } from '@/lib/types';
 
 export default function MealModal({ meal, onClose }: { meal: Meal | null; onClose: () => void }) {
-  const { addOneTime, addSubscription, mode, remaining, selectedPlan } = useCart();
+  const { addOneTime, addSubscription, mode, remaining, selectedPlan, canAddSubscription } = useCart();
   const oneTimeSizes = useMemo(() => (meal?.meal_sizes ?? []).filter((size) => size.is_active && size.is_available_for_one_time && size.servings != null), [meal]);
   const subscriptionSizes = useMemo(() => (meal?.meal_sizes ?? []).filter((size) => size.is_active && size.is_available_for_subscription && size.servings != null), [meal]);
   const [selectedSizeId, setSelectedSizeId] = useState<string | null>(null);
@@ -47,6 +47,7 @@ export default function MealModal({ meal, onClose }: { meal: Meal | null; onClos
   const selectedSize = oneTimeSizes.find((size) => size.id === selectedSizeId) ?? null;
   const subscriptionSize = subscriptionSizes.length === 1 ? subscriptionSizes[0] : null;
   const planFull = mode === 'subscription' && (!selectedPlan || remaining === 0);
+  const categoryFull = mode === 'subscription' && !canAddSubscription(meal);
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-brand-plum/70 p-0 backdrop-blur-sm sm:items-center sm:p-4" onClick={onClose}>
@@ -95,12 +96,12 @@ export default function MealModal({ meal, onClose }: { meal: Meal | null; onClos
                   if (mode === 'subscription' && subscriptionSize) addSubscription(meal, subscriptionSize);
                   onClose();
                 }}
-                disabled={mode === 'one_time' ? !selectedSize : planFull || !subscriptionSize}
+                disabled={mode === 'one_time' ? !selectedSize : planFull || categoryFull || !subscriptionSize}
                 className="min-h-12 rounded-full bg-brand-plum px-6 py-3 text-sm font-bold text-white shadow-soft transition hover:bg-[#542043] disabled:cursor-not-allowed disabled:bg-black/20"
               >
                 {mode === 'one_time'
                   ? selectedSize ? `Add to order · ${formatCents(selectedSize.price_cents)}` : 'Choose a size'
-                  : planFull ? selectedPlan ? 'Plan is full' : 'Choose a plan' : 'Add to plan'}
+                  : planFull ? selectedPlan ? 'Plan is full' : 'Choose a plan' : categoryFull ? 'Category limit reached' : 'Add to plan'}
               </button>
               <Link href={`/meals/${meal.slug}`} className="inline-flex min-h-12 items-center justify-center rounded-full px-5 py-3 text-center text-sm font-bold text-brand-plum ring-1 ring-brand-plum/20 transition hover:bg-brand-plum/5">View meal details</Link>
             </div>

@@ -154,8 +154,8 @@ insert into subscription_plans
   (code, name, blurb, included_credits, price_cents, billing_interval, billing_interval_count, sort_order)
 values
   ('weekly-6', '6 meals / week', 'Lunches sorted.', 6, 8100, 'week', 1, 0),
-  ('weekly-8', '8 meals / week', 'Most popular.', 8, 10200, 'week', 1, 1),
-  ('weekly-12', '12 meals / week', 'Best value, feeds two.', 12, 14340, 'week', 1, 2)
+  ('weekly-8', '8 meals / week', 'Most popular.', 8, 10500, 'week', 1, 1),
+  ('weekly-12', '12 meals / week', 'Best value, feeds two.', 12, 16500, 'week', 1, 2)
 on conflict (code) do nothing;
 
 -- ---------- SUBSCRIPTIONS ----------
@@ -199,6 +199,19 @@ create table if not exists orders (
                            check (fulfillment_status in ('unfulfilled','packing','out_for_delivery','delivered','canceled')),
   paid_at                  timestamptz,
   checkout_expires_at      timestamptz,
+  checkout_preparation_key uuid,
+  checkout_request_fingerprint text,
+  contact_name             text,
+  contact_email            text,
+  delivery_zip             text,
+  delivery_fee_cents       integer not null default 0,
+  subscription_plan_id     uuid references subscription_plans(id) on delete restrict,
+  plan_code_snapshot       text,
+  plan_name_snapshot       text,
+  included_credits_snapshot integer,
+  plan_price_cents_snapshot integer,
+  billing_interval_snapshot text,
+  billing_interval_count_snapshot integer,
   created_at               timestamptz not null default now()
 );
 
@@ -208,6 +221,8 @@ create unique index if not exists orders_stripe_checkout_session_uidx
   on orders (stripe_checkout_session_id) where stripe_checkout_session_id is not null;
 create unique index if not exists orders_stripe_payment_intent_uidx
   on orders (stripe_payment_intent_id) where stripe_payment_intent_id is not null;
+create unique index if not exists orders_checkout_preparation_key_uidx
+  on orders (checkout_preparation_key) where checkout_preparation_key is not null;
 
 create table if not exists order_items (
   id               uuid primary key default uuid_generate_v4(),
