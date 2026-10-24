@@ -100,6 +100,7 @@ export default function Header() {
 
         <nav className="hidden items-center gap-1 lg:flex" aria-label="Primary navigation">
           <Link href="/menu" className={navLink('/menu')}>This Week&apos;s Menu</Link>
+          <Link href="/holiday-cheat-sheet" className={navLink('/holiday-cheat-sheet')}>Holiday Menu</Link>
           <Link href="/how-it-works" className={navLink('/how-it-works')}>How It Works</Link>
           <a href="https://yoursouthernfoodie.com/" className={navLink('external')}>Catering &amp; Events</a>
           <span className="mx-1 h-6 w-px bg-brand-plum/15" aria-hidden />
@@ -136,6 +137,7 @@ export default function Header() {
         <nav id="mobile-navigation" className="border-t border-brand-plum/10 bg-white px-4 py-4 shadow-soft lg:hidden" aria-label="Mobile navigation">
           <div className="mx-auto grid max-w-7xl gap-1">
             <Link href="/menu" className={navLink('/menu')}>This Week&apos;s Menu</Link>
+            <Link href="/holiday-cheat-sheet" className={navLink('/holiday-cheat-sheet')}>Holiday Menu</Link>
             <Link href="/how-it-works" className={navLink('/how-it-works')}>How It Works</Link>
             <a href="https://yoursouthernfoodie.com/" className={navLink('external')}>Catering &amp; Events</a>
             <div className="my-2 h-px bg-brand-plum/10" />

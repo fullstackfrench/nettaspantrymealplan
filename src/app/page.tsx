@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
+import HolidayBanner from '@/components/HolidayBanner';
 import { formatCents, DEPOSIT_PER_CONTAINER_CENTS } from '@/lib/constants';
 import { getActiveSubscriptionPlans } from '@/lib/catalog';
 
@@ -34,6 +35,8 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+
+      <HolidayBanner />
 
       <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20">
         <div className="mx-auto max-w-2xl text-center"><p className="text-xs font-bold uppercase tracking-[0.18em] text-brand-brick">Simple from start to finish</p><h2 className="mt-3 font-display text-3xl font-bold text-brand-plum sm:text-4xl">Good food, with a lighter footprint</h2></div>

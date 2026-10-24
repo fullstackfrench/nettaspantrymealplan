@@ -8,6 +8,7 @@ const links = [
   { href: '/admin/meals', label: 'Meals' },
   { href: '/admin/menus', label: 'Weekly menus' },
   { href: '/admin/orders', label: 'Orders' },
+  { href: '/admin/holidays', label: 'Holiday orders' },
   { href: '/admin/customers', label: 'Customers & glass' },
 ];
 
