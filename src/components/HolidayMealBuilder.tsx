@@ -127,7 +127,7 @@ export default function HolidayMealBuilder({
       <p className="mt-3 max-w-2xl text-sm leading-6 text-ink/65">
         {enabled ? "Current" : "Draft"} pricing:{" "}
         {formatCents(settings.per_person_cents)} per person, with a{" "}
-        {formatCents(settings.minimum_order_cents)} minimum order total and at
+        {formatCents(settings.minimum_order_cents)} minimum package price and at
         least {settings.minimum_people} people. Pricing depends on your group
         size, extras, and delivery. Prices may be updated before checkout; your
         accepted order total is locked once checkout begins.
@@ -338,10 +338,9 @@ export default function HolidayMealBuilder({
                   value={quote.totalCents}
                 />
                 <Amount
-                  label="50% deposit due now"
+                  label="Full payment due now"
                   value={quote.depositCents}
                 />
-                <Amount label="Remaining balance" value={quote.balanceCents} />
               </dl>
             ) : (
               <p className="mt-5 text-sm text-brand-brick">{quoteError}</p>
@@ -354,21 +353,16 @@ export default function HolidayMealBuilder({
                 {formatCents(
                   quote.foodCents - Number(people) * settings.per_person_cents,
                 )}{" "}
-                adjustment to meet the minimum order total.
+                adjustment to meet the minimum package price.
               </p>
             )}
           <h4 className="mt-7 font-bold text-brand-plum">
-            50% now, the balance at fulfillment
+            Pay in full at checkout
           </h4>
           <p className="mt-2 text-sm leading-6 text-ink/70">
-            Pay 50% at checkout. The remaining balance will be charged to your
-            authorized card when an admin marks your order delivered. Pickup
-            orders are marked delivered when collected. Later pricing updates
+            Pay the full order total at checkout. No remaining balance will be charged
+            when your order is delivered or collected. Later pricing updates
             won’t change your accepted total.
-          </p>
-          <p className="mt-3 text-sm leading-6 text-ink/70">
-            If your bank declines the balance payment or requires approval, the
-            invoice remains unpaid until payment is completed.
           </p>
           {enabled && quote ? (
             <>
@@ -380,11 +374,7 @@ export default function HolidayMealBuilder({
                   className="mt-1 h-5 w-5 shrink-0 accent-[#682952]"
                 />
                 <span>
-                  {holidayPaymentConsent(
-                    quote.totalCents,
-                    quote.depositCents,
-                    quote.balanceCents,
-                  )}
+                  {holidayPaymentConsent(quote.totalCents)}
                 </span>
               </label>
               <button
@@ -393,7 +383,7 @@ export default function HolidayMealBuilder({
               >
                 {pending
                   ? "Preparing checkout…"
-                  : `Pay ${formatCents(quote.depositCents)} deposit`}
+                  : `Pay ${formatCents(quote.totalCents)} in full`}
               </button>
             </>
           ) : (

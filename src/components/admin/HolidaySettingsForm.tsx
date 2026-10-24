@@ -21,9 +21,9 @@ export default function HolidaySettingsForm({
         Holiday pricing &amp; availability
       </h2>
       <p className="mt-3 text-sm leading-6 text-ink/65">
-        Customers pay a 50% deposit. Changes apply to new checkouts; existing
-        orders keep their agreed prices. The order minimum applies to the total,
-        including extras and delivery.
+        Customers pay in full at checkout. Changes apply to new checkouts; existing
+        orders keep their agreed prices. The minimum applies to the holiday package,
+        before dessert extras and delivery.
       </p>
       <input type="hidden" name="version" value={settings.version} />
       <fieldset
@@ -38,7 +38,7 @@ export default function HolidaySettingsForm({
         />
         <Field
           name="minimum_order"
-          label="Minimum order total ($)"
+          label="Minimum holiday package ($)"
           value={(settings.minimum_order_cents / 100).toFixed(2)}
         />
         <Field

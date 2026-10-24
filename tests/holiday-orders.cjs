@@ -73,28 +73,28 @@ const valid = {
 };
 const now = new Date("2026-10-12T16:00:00Z");
 
-test("package minimum and per-person pricing determine the 50% deposit", () => {
-  assert.equal(menu.holidayQuote(settings, 15, false, false).totalCents, 30000);
+test("package minimum and per-person pricing determine full payment at checkout", () => {
+  assert.equal(menu.holidayQuote(settings, 18, false, false).totalCents, 30000);
   const quote = menu.holidayQuote(settings, 25, false, false);
   assert.equal(quote.totalCents, 40000);
-  assert.equal(quote.depositCents, 20000);
-  assert.equal(quote.balanceCents, 20000);
+  assert.equal(quote.depositCents, 40000);
+  assert.equal(quote.balanceCents, 0);
 });
-test("second dessert and delivery are included in both payment amounts", () => {
+test("second dessert and delivery are included in the full checkout payment", () => {
   const quote = menu.holidayQuote(
     { ...settings, delivery_fee_cents: 2500 },
     25,
     true,
     true,
   );
-  assert.equal(quote.extraCents, 12500);
-  assert.equal(quote.totalCents, 55000);
-  assert.equal(quote.depositCents, 27500);
+  assert.equal(quote.extraCents, 4500);
+  assert.equal(quote.totalCents, 47000);
+  assert.equal(quote.depositCents, 47000);
   assert.equal(
     menu.holidayQuote(settings, 25, true, false).depositCents,
-    26250,
+    44500,
   );
-  assert.equal(menu.holidayQuote(settings, 15, true, false).totalCents, 31500);
+  assert.equal(menu.holidayQuote(settings, 18, true, false).totalCents, 34500);
 });
 test("admins can change rates and choose per-order dessert pricing", () => {
   const quote = menu.holidayQuote(
@@ -111,19 +111,19 @@ test("admins can change rates and choose per-order dessert pricing", () => {
   );
   assert.equal(quote.totalCents, 52500);
 });
-test("odd-cent totals split exactly, with no extra cent charged", () => {
+test("odd-cent totals are collected once in full", () => {
   const quote = menu.holidayQuote(
     { ...settings, delivery_fee_cents: 1 },
     25,
     false,
     true,
   );
-  assert.equal(quote.depositCents, 20001);
-  assert.equal(quote.balanceCents, 20000);
+  assert.equal(quote.depositCents, 40001);
+  assert.equal(quote.balanceCents, 0);
   assert.equal(quote.depositCents + quote.balanceCents, quote.totalCents);
 });
 test("invalid headcounts and unavailable upgrades are rejected", () => {
-  for (const people of [14, 25.5, NaN, 1001])
+  for (const people of [17, 25.5, NaN, 1001])
     assert.throws(() => menu.holidayQuote(settings, people, false, false));
   assert.throws(
     () =>
@@ -136,11 +136,11 @@ test("invalid headcounts and unavailable upgrades are rejected", () => {
     /unavailable/,
   );
 });
-test("checkout locks a verified price and records consent for the exact balance", () => {
+test("checkout locks a verified price and records consent for the exact full payment", () => {
   const accepted = validation.validateHolidayCheckout(valid, settings, now);
   assert.equal(accepted.details.email, "test@example.com");
-  assert.match(accepted.consent, /\$200.00 deposit/);
-  assert.match(accepted.consent, /\$400.00 holiday order/);
+  assert.match(accepted.consent, /full payment of \$400.00/);
+  assert.match(accepted.consent, /No remaining balance/);
 });
 test("checkout rejects stale pricing, forged totals, missing consent and menu substitutions", () => {
   for (const change of [
@@ -206,324 +206,68 @@ test("delivery ZIPs and party lead times are validated on the server", () => {
     /valid event/,
   );
 });
-
-function fixture({
-  decline = false,
-  processing = false,
-  wrongCustomer = false,
-} = {}) {
-  const order = {
-    id: "order-1",
-    full_name: "Test",
-    email: "test@example.com",
-    total_cents: 40000,
-    deposit_cents: 20000,
-    balance_cents: 20000,
-    consent_text: "Consent",
-    deposit_status: "paid",
-    fulfillment_status: "delivered",
-    balance_status: "unpaid",
-    stripe_customer_id: "cus_test",
-    stripe_payment_method_id: "pm_test",
-    stripe_balance_invoice_id: null,
-    stripe_checkout_session_id: "cs_test",
-    billing_lease_until: null,
-  };
-  const counts = { create: 0, lines: 0, pay: 0, finalize: 0 };
-  let invoice = null;
-  let declines = decline;
-  const stripe = {
-    invoices: {
-      async list() {
-        return { data: invoice ? [structuredClone(invoice)] : [] };
-      },
-      async create(input) {
-        counts.create++;
-        invoice = {
-          id: "in_test",
-          customer: wrongCustomer ? "cus_other" : input.customer,
-          currency: "usd",
-          metadata: input.metadata,
-          total: 0,
-          amount_paid: 0,
-          amount_remaining: 0,
-          status: "draft",
-          attempt_count: 0,
-          hosted_invoice_url: null,
-          payment_intent: null,
-          lines: { data: [] },
-        };
-        return structuredClone(invoice);
-      },
-      async retrieve() {
-        return structuredClone(invoice);
-      },
-      async listLineItems() {
-        return { data: structuredClone(invoice.lines.data) };
-      },
-      async finalizeInvoice() {
-        counts.finalize++;
-        invoice.status = "open";
-        invoice.hosted_invoice_url = "https://invoice.stripe.com/test";
-        if (processing) invoice.payment_intent = "pi_processing";
-        return structuredClone(invoice);
-      },
-      async pay(_id, input) {
-        assert.equal(input.off_session, true);
-        counts.pay++;
-        invoice.attempt_count++;
-        if (declines) throw new Error("Declined");
-        invoice.status = "paid";
-        invoice.amount_paid = invoice.total;
-        invoice.amount_remaining = 0;
-        return structuredClone(invoice);
-      },
-    },
-    invoiceItems: {
-      async create(input) {
-        counts.lines++;
-        invoice.total += input.amount;
-        invoice.amount_remaining = invoice.total;
-        invoice.lines.data.push({
-          amount: input.amount,
-          metadata: input.metadata,
-        });
-      },
-    },
-    paymentIntents: {
-      async retrieve() {
-        return { status: "processing" };
-      },
-    },
-    checkout: {
-      sessions: {
-        async retrieve() {
-          return { status: "open", url: "https://checkout.stripe.com/test" };
-        },
-      },
-    },
-  };
-  const db = {
-    async rpc(name) {
-      if (name === "claim_holiday_checkout") return { data: [], error: null };
-      if (
-        order.balance_status === "paid" ||
-        order.billing_lease_until ||
-        order.deposit_status !== "paid" ||
-        order.fulfillment_status !== "delivered"
-      )
-        return { data: [], error: null };
-      order.billing_lease_until = "locked";
-      return { data: [structuredClone(order)], error: null };
-    },
-    from() {
-      let update;
-      const query = {
-        update(values) {
-          update = values;
-          return query;
-        },
-        select() {
-          return query;
-        },
-        eq() {
-          return query;
-        },
-        async single() {
-          if (update) Object.assign(order, update);
-          return { data: structuredClone(order), error: null };
-        },
-      };
-      return query;
-    },
-  };
-  const payments = load("src/lib/holiday-payments.ts", {
-    "server-only": {},
-    stripe: class StripeMock {
-      constructor() {
-        return stripe;
-      }
-    },
-    "@/lib/supabase/server": {},
-  });
-  return {
-    db,
-    order,
-    counts,
-    stripe,
-    payments,
-    allowPayment() {
-      declines = false;
-    },
-  };
+function fixture() {
+ const order = { id: '11111111-1111-4111-8111-111111111111', full_name: 'Test', email: 'test@example.test',
+  total_cents: 30000, deposit_cents: 30000, balance_cents: 0, consent_text: 'Full payment consent',
+  deposit_status: 'pending', fulfillment_status: 'unfulfilled', balance_status: 'unpaid',
+  stripe_customer_id: 'cus_test', stripe_checkout_session_id: null, stripe_payment_method_id: null };
+ const calls = { checkout: 0, payment: 0, invoices: 0 };
+ const stripe = {
+  checkout: { sessions: {
+   list: async () => ({ data: [] }),
+   retrieve: async () => ({ status: 'open', url: 'https://checkout.example.test', amount_total: order.total_cents, currency: 'usd' }),
+   create: async (input) => { calls.checkout++; calls.request=input; return { id: 'cs_test', status: 'open', url: 'https://checkout.example.test', amount_total: order.total_cents, currency: 'usd' }; },
+  } },
+  paymentIntents: { retrieve: async () => ({ id: 'pi_test', status: 'succeeded', amount_received: order.total_cents,
+   currency: 'usd', customer: 'cus_test', metadata: { holiday_order_id: order.id }, payment_method: 'pm_test' }) },
+ };
+ const db = { rpc: async () => ({ data: [structuredClone(order)], error: null }), from() {
+  let update; const filters=[];
+  const q = { select() { return q; }, update(value) { update=value; return q; }, eq(key,value) { filters.push([key,value]); return q; },
+   async single() { if(update)Object.assign(order,update);return {data:structuredClone(order),error:null}; },
+   async maybeSingle() {
+    if (update && !filters.every(([key,value])=>order[key]===value)) return {data:null,error:null};
+    if(update)Object.assign(order,update);return {data:structuredClone(order),error:null};
+   } }; return q;
+ } };
+ const payments = load('src/lib/holiday-payments.ts', { 'server-only': {}, stripe: class { constructor(){return stripe;} }, '@/lib/supabase/server': {} });
+ const actions = load('src/app/admin/holidays/actions.ts', { 'next/cache': { revalidatePath() {} }, '@/lib/auth/require-admin': { requireAdmin: async () => db } });
+ return {order,calls,stripe,db,payments,actions};
 }
-test("fulfillment creates one invoice and repeated delivery clicks do not charge twice", async () => {
-  const f = fixture();
-  await f.payments.collectHolidayBalance(f.db, f.order.id);
-  await f.payments.collectHolidayBalance(f.db, f.order.id);
-  assert.equal(f.order.balance_status, "paid");
-  assert.equal(f.counts.create, 1);
-  assert.equal(f.counts.lines, 1);
-  assert.equal(f.counts.pay, 1);
-  assert.equal(f.order.billing_lease_until, null);
+test('checkout charges the full amount without authorizing a future card charge', async () => {
+ const f=fixture(); await f.payments.startHolidayCheckout(f.db,f.order);
+ assert.equal(f.calls.request.line_items[0].price_data.unit_amount,30000);
+ assert.equal(f.calls.request.payment_intent_data.setup_future_usage,undefined);
+ assert.match(f.calls.request.line_items[0].price_data.product_data.name,/full order payment/);
+ assert.equal(await f.payments.startHolidayCheckout(f.db,f.order),'https://checkout.example.test');
+ assert.equal(f.calls.checkout,1);
 });
-test("failed balance payment retains delivery and the existing invoice for retry", async () => {
-  const f = fixture({ decline: true });
-  await assert.rejects(
-    f.payments.collectHolidayBalance(f.db, f.order.id),
-    /needs attention/,
-  );
-  assert.equal(f.order.fulfillment_status, "delivered");
-  assert.equal(f.order.balance_status, "action_required");
-  assert.equal(f.order.invoice_url, "https://invoice.stripe.com/test");
-  f.allowPayment();
-  await f.payments.collectHolidayBalance(f.db, f.order.id);
-  assert.equal(f.order.balance_status, "paid");
-  assert.equal(f.counts.create, 1);
-  assert.equal(f.counts.lines, 1);
-  assert.equal(f.counts.pay, 2);
+test('legacy half-payment checkouts cannot be created or reused', async () => {
+ const f=fixture();Object.assign(f.order,{deposit_cents:15000,balance_cents:15000,stripe_checkout_session_id:'cs_old'});
+ await assert.rejects(f.payments.startHolidayCheckout(f.db,f.order),/checkout is being updated/);
+ assert.equal(f.calls.checkout,0);
 });
-test("concurrent balance clicks are serialized", async () => {
-  const f = fixture();
-  const results = await Promise.allSettled([
-    f.payments.collectHolidayBalance(f.db, f.order.id),
-    f.payments.collectHolidayBalance(f.db, f.order.id),
-  ]);
-  assert.ok(results.some((result) => result.status === "fulfilled"));
-  assert.equal(f.counts.create, 1);
-  assert.equal(f.counts.pay, 1);
+test('a lost checkout response recovers a matching full-payment session', async () => {
+ const f=fixture();f.stripe.checkout.sessions.list=async()=>({data:[{id:'cs_recovered',metadata:{holiday_order_id:f.order.id},status:'open',currency:'usd',amount_total:30000,url:'https://checkout.example.test'}]});
+ await f.payments.startHolidayCheckout(f.db,f.order);
+ assert.equal(f.order.stripe_checkout_session_id,'cs_recovered');assert.equal(f.calls.checkout,0);
 });
-test("processing payment intent is not charged again", async () => {
-  const f = fixture({ processing: true });
-  await f.payments.collectHolidayBalance(f.db, f.order.id);
-  assert.equal(f.order.balance_status, "processing");
-  assert.equal(f.counts.pay, 0);
+test('the payment webhook requires the full amount and marks the order fully paid idempotently', async () => {
+ const f=fixture();const session={id:'cs_test',metadata:{holiday_order_id:f.order.id},payment_status:'paid',currency:'usd',amount_total:30000,customer:'cus_test',payment_intent:'pi_test'};
+ await assert.rejects(f.payments.recordHolidayPayment(f.db,{...session,amount_total:15000}),/verification failed/);
+ assert.equal(f.order.deposit_status,'pending');
+ await f.payments.recordHolidayPayment(f.db,session);await f.payments.recordHolidayPayment(f.db,session);
+ assert.equal(f.order.deposit_status,'paid');assert.equal(f.order.balance_status,'paid');assert.equal(f.order.stripe_payment_method_id,null);
 });
-test("invoice customer mismatch prevents payment", async () => {
-  const f = fixture({ wrongCustomer: true });
-  await assert.rejects(f.payments.collectHolidayBalance(f.db, f.order.id));
-  assert.equal(f.counts.pay, 0);
+test('fulfillment is idempotent, requires full payment, and never contacts Stripe', async () => {
+ const f=fixture();const form=new FormData();form.set('id',f.order.id);
+ const unpaid=await f.actions.deliverHolidayOrder(null,form);assert.equal(unpaid.saved,false);
+ Object.assign(f.order,{deposit_status:'paid',balance_status:'paid'});
+ assert.equal((await f.actions.deliverHolidayOrder(null,form)).saved,true);
+ assert.equal((await f.actions.deliverHolidayOrder(null,form)).saved,true);
+ assert.equal(f.order.fulfillment_status,'delivered');assert.equal(f.calls.checkout,0);
 });
-test("out-of-order failed invoice event uses current paid state", async () => {
-  const f = fixture();
-  await f.payments.collectHolidayBalance(f.db, f.order.id);
-  await f.payments.recordHolidayInvoice(f.db, "in_test");
-  assert.equal(f.order.balance_status, "paid");
-  assert.equal(f.order.payment_error, null);
-});
-test("no balance charge before deposit payment and fulfillment", async () => {
-  for (const update of [
-    { deposit_status: "pending" },
-    { fulfillment_status: "unfulfilled" },
-  ]) {
-    const f = fixture();
-    Object.assign(f.order, update);
-    await assert.rejects(f.payments.collectHolidayBalance(f.db, f.order.id));
-    assert.equal(f.counts.pay, 0);
-  }
-});
-
-test("deposit Checkout saves the card only for the consented remaining balance", async () => {
-  const f = fixture();
-  Object.assign(f.order, {
-    stripe_checkout_session_id: null,
-    deposit_status: "pending",
-  });
-  f.db.rpc = async () => ({ data: [structuredClone(f.order)], error: null });
-  f.stripe.checkout.sessions.list = async () => ({ data: [] });
-  let request;
-  f.stripe.checkout.sessions.create = async (input) => {
-    request = input;
-    return {
-      id: "cs_new",
-      status: "open",
-      url: "https://checkout.stripe.com/test",
-    };
-  };
-  await f.payments.startHolidayCheckout(f.db, f.order);
-  assert.equal(request.payment_intent_data.setup_future_usage, "off_session");
-  assert.equal(request.line_items[0].price_data.unit_amount, 20000);
-  assert.equal(request.custom_text.submit.message, f.order.consent_text);
-  assert.equal(f.order.stripe_checkout_session_id, "cs_new");
-});
-test("lost Checkout response recovers its existing session instead of creating another", async () => {
-  const f = fixture();
-  Object.assign(f.order, {
-    stripe_checkout_session_id: null,
-    deposit_status: "pending",
-  });
-  f.db.rpc = async () => ({ data: [structuredClone(f.order)], error: null });
-  f.stripe.checkout.sessions.list = async () => ({
-    data: [
-      {
-        id: "cs_recovered",
-        status: "open",
-        url: "https://checkout.stripe.com/recovered",
-        metadata: { holiday_order_id: f.order.id },
-      },
-    ],
-  });
-  f.stripe.checkout.sessions.create = async () => {
-    throw new Error("Duplicate session");
-  };
-  assert.equal(
-    await f.payments.startHolidayCheckout(f.db, f.order),
-    "https://checkout.stripe.com/recovered",
-  );
-  assert.equal(f.order.stripe_checkout_session_id, "cs_recovered");
-});
-test("verified deposit webhook records the saved method and rejects mismatched deposits", async () => {
-  const f = fixture();
-  f.order.deposit_status = "pending";
-  const session = {
-    id: "cs_test",
-    currency: "usd",
-    amount_total: 20000,
-    payment_status: "paid",
-    customer: "cus_test",
-    payment_intent: "pi_deposit",
-    metadata: { holiday_order_id: f.order.id },
-  };
-  await assert.rejects(
-    f.payments.recordHolidayDeposit(f.db, { ...session, amount_total: 1 }),
-    /verification/,
-  );
-  assert.equal(f.order.deposit_status, "pending");
-  f.stripe.paymentIntents.retrieve = async () => ({
-    id: "pi_deposit",
-    status: "succeeded",
-    currency: "usd",
-    amount_received: 20000,
-    customer: "cus_test",
-    payment_method: "pm_deposit",
-    metadata: { holiday_order_id: f.order.id },
-  });
-  await f.payments.recordHolidayDeposit(f.db, session);
-  assert.equal(f.order.deposit_status, "paid");
-  assert.equal(f.order.stripe_payment_method_id, "pm_deposit");
-});
-test("admin pricing and fulfillment actions reject unauthorized callers before mutation", async () => {
-  let billingCalled = false;
-  const actions = load("src/app/admin/holidays/actions.ts", {
-    "next/cache": { revalidatePath() {} },
-    "@/lib/auth/require-admin": {
-      async requireAdmin() {
-        throw new Error("Unauthorized");
-      },
-    },
-    "@/lib/holiday-payments": {
-      async collectHolidayBalance() {
-        billingCalled = true;
-      },
-    },
-  });
-  assert.equal(
-    (await actions.saveHolidaySettings({}, new FormData())).error,
-    "Unauthorized",
-  );
-  assert.equal(
-    (await actions.deliverHolidayOrder({}, new FormData())).error,
-    "Unauthorized",
-  );
-  assert.equal(billingCalled, false);
+test('admin pricing and fulfillment actions reject unauthorized callers', async () => {
+ const actions=load('src/app/admin/holidays/actions.ts',{'next/cache':{revalidatePath(){}},'@/lib/auth/require-admin':{requireAdmin:async()=>{throw new Error('Unauthorized');}}});
+ for(const name of ['saveHolidaySettings','deliverHolidayOrder']) { const r=await actions[name](null,new FormData());assert.equal(r.saved,false);assert.match(r.error,/Unauthorized/); }
 });

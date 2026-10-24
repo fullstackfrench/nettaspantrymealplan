@@ -53,6 +53,8 @@ export async function POST(request: Request) {
         },
         { status: 409 },
       );
+    if (data.deposit_cents !== submission.quote.totalCents || data.balance_cents !== 0)
+      throw new Error("Holiday checkout is being updated. Please try again shortly.");
     const url = await startHolidayCheckout(db, data);
     return NextResponse.json({ url });
   } catch (error) {

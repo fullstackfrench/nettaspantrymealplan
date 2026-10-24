@@ -43,7 +43,7 @@ export function validateHolidayCheckout(
     );
   if (input.consent !== true)
     throw new Error(
-      "Authorize the deposit and automatic balance payment before continuing.",
+      "Authorize the full order payment before continuing.",
     );
   const full_name = text("name");
   const email = text("email", 254).toLowerCase();
@@ -142,10 +142,6 @@ export function validateHolidayCheckout(
       event_date,
       people,
     },
-    consent: holidayPaymentConsent(
-      quote.totalCents,
-      quote.depositCents,
-      quote.balanceCents,
-    ),
+    consent: holidayPaymentConsent(quote.totalCents),
   };
 }

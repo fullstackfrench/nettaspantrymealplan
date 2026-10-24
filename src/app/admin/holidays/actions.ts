@@ -2,7 +2,6 @@
 
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/auth/require-admin";
-import { collectHolidayBalance } from "@/lib/holiday-payments";
 
 export type HolidayActionState = { error: string | null; saved: boolean };
 
@@ -129,6 +128,8 @@ export async function deliverHolidayOrder(
       })
       .eq("id", id)
       .eq("deposit_status", "paid")
+      .eq("balance_cents", 0)
+      .eq("balance_status", "paid")
       .eq("fulfillment_status", "unfulfilled")
       .select("id")
       .maybeSingle();
@@ -136,16 +137,15 @@ export async function deliverHolidayOrder(
     if (!data) {
       const { data: current } = await db
         .from("holiday_orders")
-        .select("deposit_status, fulfillment_status")
+        .select("deposit_status, balance_cents, balance_status, fulfillment_status")
         .eq("id", id)
         .maybeSingle();
       if (
-        current?.deposit_status !== "paid" ||
+        current?.deposit_status !== "paid" || current.balance_cents !== 0 || current.balance_status !== "paid" ||
         current.fulfillment_status !== "delivered"
       )
-        throw new Error("A paid deposit is required before fulfillment.");
+        throw new Error("Full payment is required before fulfillment.");
     }
-    await collectHolidayBalance(db, id);
     revalidatePath("/admin/holidays");
     return { saved: true, error: null };
   } catch (error) {
@@ -155,7 +155,7 @@ export async function deliverHolidayOrder(
       error:
         error instanceof Error
           ? error.message
-          : "Unable to collect the balance.",
+          : "Unable to record fulfillment.",
     };
   }
 }

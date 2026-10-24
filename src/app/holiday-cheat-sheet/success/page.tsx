@@ -39,11 +39,11 @@ export default async function HolidaySuccess({
           .eq("id", session.metadata.holiday_order_id)
           .eq("stripe_checkout_session_id", session.id)
           .maybeSingle();
-        confirmed = data?.deposit_status === "paid";
+        confirmed = data?.deposit_status === "paid" && data.balance_cents === 0;
         amounts = data;
       }
     } catch {
-      /* A redirect alone does not prove that a deposit was received. */
+      /* A redirect alone does not prove that payment was received. */
     }
   }
   return (
@@ -51,13 +51,13 @@ export default async function HolidaySuccess({
       <div className="rounded-panel border border-brand-plum/15 bg-white p-8 shadow-soft">
         <h1 className="font-display text-3xl font-bold text-brand-plum">
           {confirmed
-            ? "Your holiday deposit is confirmed"
+            ? "Your holiday payment is confirmed"
             : "Checking your holiday payment"}
         </h1>
         <p className="mt-5 leading-7 text-ink/70">
           {confirmed
-            ? "Thank you! Your holiday order is booked. The remaining balance will be charged to your authorized card when your order is marked delivered or collected."
-            : "We haven’t confirmed your deposit yet. Refresh this page shortly. Please avoid placing another order while confirmation is pending."}
+            ? "Thank you! Your holiday order is booked and paid in full. Nothing remains due at pickup or delivery."
+            : "We haven’t confirmed your payment yet. Refresh this page shortly. Please avoid placing another order while confirmation is pending."}
         </p>
         {amounts && (
           <dl className="mt-6 space-y-3 text-ink/75">
@@ -66,29 +66,13 @@ export default async function HolidaySuccess({
               <dd className="font-bold">{formatCents(amounts.total_cents)}</dd>
             </div>
             <div>
-              <dt>Deposit</dt>
+              <dt>Paid at checkout</dt>
               <dd className="font-bold">
                 {formatCents(amounts.deposit_cents)}
               </dd>
             </div>
-            <div>
-              <dt>
-                Remaining balance · {amounts.balance_status.replace("_", " ")}
-              </dt>
-              <dd className="font-bold">
-                {formatCents(amounts.balance_cents)}
-              </dd>
-            </div>
+
           </dl>
-        )}
-        {amounts?.invoice_url && (
-          <a
-            href={amounts.invoice_url}
-            className="mt-6 inline-block font-bold text-brand-plum underline"
-            rel="noreferrer"
-          >
-            View or pay the balance invoice
-          </a>
         )}
         <Link
           href="/holiday-cheat-sheet"

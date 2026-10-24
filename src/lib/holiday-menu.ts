@@ -41,10 +41,10 @@ export const HOLIDAY_DRAFT_SETTINGS: HolidaySettings = {
   id: 1,
   version: 1,
   per_person_cents: 1600,
-  minimum_people: 15,
+  minimum_people: 18,
   minimum_order_cents: 30000,
-  extra_dessert_cents: 500,
-  extra_dessert_basis: "person",
+  extra_dessert_cents: 4500,
+  extra_dessert_basis: "order",
   delivery_fee_cents: 0,
   orders_open: false,
   thanksgiving_deadline: "2026-11-19",
@@ -82,29 +82,23 @@ export function holidayQuote(
   const deliveryCents = delivery ? settings.delivery_fee_cents : 0;
   const foodCents = Math.max(
     people * settings.per_person_cents,
-    settings.minimum_order_cents - extraCents - deliveryCents,
+    settings.minimum_order_cents,
   );
   const totalCents = foodCents + extraCents + deliveryCents;
-  // An odd cent goes into the initial payment; the balance is always the exact
-  // remainder, so the two payments never exceed the accepted order total.
-  const depositCents = Math.ceil(totalCents / 2);
+  // Retain the legacy field name for database compatibility; checkout collects the full total.
+  const depositCents = totalCents;
   return {
     foodCents,
     extraCents,
     deliveryCents,
     totalCents,
     depositCents,
-    balanceCents: totalCents - depositCents,
+    balanceCents: 0,
   };
 }
 
-export function holidayPaymentConsent(
-  total: number,
-  deposit: number,
-  balance: number,
-) {
-  const dollars = (cents: number) => (cents / 100).toFixed(2);
-  return `I authorize a $${dollars(deposit)} deposit toward my $${dollars(total)} holiday order, and authorize Stripe to save my card for the $${dollars(balance)} remaining balance. That balance will be charged automatically when an admin marks this order delivered, or collected for pickup. Pricing changes after checkout will not change my accepted total.`;
+export function holidayPaymentConsent(total: number) {
+  return `I authorize a full payment of $${(total / 100).toFixed(2)} for my holiday order at checkout. No remaining balance will be charged at pickup or delivery. Pricing changes after checkout will not change my accepted total.`;
 }
 
 export function otherHolidayDessert(dessert: string) {

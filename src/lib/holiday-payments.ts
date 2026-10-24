@@ -57,12 +57,14 @@ export async function updateHolidayOrder(
 }
 
 export async function startHolidayCheckout(db: Database, order: HolidayOrder) {
+  if (order.deposit_cents !== order.total_cents || order.balance_cents !== 0)
+    throw new Error("Holiday checkout is being updated. Reload the page before starting a new order.");
   const stripe = holidayStripe();
   if (order.stripe_checkout_session_id) {
     const existing = await stripe.checkout.sessions.retrieve(
       order.stripe_checkout_session_id,
     );
-    if (existing.status === "open" && existing.url) return existing.url;
+    if (existing.status === "open" && existing.url && existing.amount_total === order.total_cents && existing.currency === "usd") return existing.url;
     throw new Error(
       existing.status === "complete"
         ? "This checkout was already completed."
@@ -117,14 +119,13 @@ export async function startHolidayCheckout(db: Database, order: HolidayOrder) {
                 currency: "usd",
                 unit_amount: order.deposit_cents,
                 product_data: {
-                  name: "The Holiday Cheat Sheet — 50% order deposit",
-                  description: `Order total $${(order.total_cents / 100).toFixed(2)}. Remaining $${(order.balance_cents / 100).toFixed(2)} charged when delivered/collected.`,
+                  name: "Hassle-Free Holidays — full order payment",
+                  description: `Full payment of $${(order.total_cents / 100).toFixed(2)}. No balance due at pickup or delivery.`,
                 },
               },
             },
           ],
           payment_intent_data: {
-            setup_future_usage: "off_session",
             metadata: { holiday_order_id: order.id },
           },
           custom_text: { submit: { message: order.consent_text } },
@@ -137,6 +138,8 @@ export async function startHolidayCheckout(db: Database, order: HolidayOrder) {
     await updateHolidayOrder(db, order.id, {
       stripe_checkout_session_id: session.id,
     });
+    if (session.amount_total !== order.total_cents || session.currency !== "usd")
+      throw new Error("The checkout amount does not match the holiday order total.");
     if (session.status !== "open" || !session.url)
       throw new Error(
         "This checkout was completed or expired. Reload the page before starting another order.",
@@ -147,7 +150,7 @@ export async function startHolidayCheckout(db: Database, order: HolidayOrder) {
   }
 }
 
-export async function recordHolidayDeposit(
+export async function recordHolidayPayment(
   db: Database,
   session: Stripe.Checkout.Session,
 ) {
@@ -161,6 +164,7 @@ export async function recordHolidayDeposit(
   if (found.error) throw new Error("Holiday order not found.");
   const order = found.data as HolidayOrder;
   if (
+    order.deposit_cents !== order.total_cents || order.balance_cents !== 0 ||
     session.payment_status !== "paid" ||
     session.currency !== "usd" ||
     session.amount_total !== order.deposit_cents ||
@@ -168,212 +172,24 @@ export async function recordHolidayDeposit(
     (order.stripe_checkout_session_id &&
       order.stripe_checkout_session_id !== session.id)
   )
-    throw new Error("Holiday deposit verification failed.");
+    throw new Error("Holiday payment verification failed.");
   const stripe = holidayStripe();
   const intentId = stripeId(session.payment_intent);
-  if (!intentId) throw new Error("The deposit has no payment intent.");
+  if (!intentId) throw new Error("The payment has no payment intent.");
   const intent = await stripe.paymentIntents.retrieve(intentId);
   if (
     intent.status !== "succeeded" ||
     intent.amount_received !== order.deposit_cents ||
     stripeId(intent.customer) !== order.stripe_customer_id ||
     intent.currency !== "usd" ||
-    intent.metadata.holiday_order_id !== order.id ||
-    !stripeId(intent.payment_method)
+    intent.metadata.holiday_order_id !== order.id
   )
-    throw new Error("Deposit payment verification failed.");
+    throw new Error("Full payment verification failed.");
   await updateHolidayOrder(db, order.id, {
     deposit_status: "paid",
+    balance_status: "paid",
     stripe_checkout_session_id: session.id,
     stripe_deposit_intent_id: intent.id,
-    stripe_payment_method_id: stripeId(intent.payment_method),
+    stripe_payment_method_id: null,
   });
-}
-
-export function verifyHolidayInvoice(
-  invoice: Stripe.Invoice,
-  order: HolidayOrder,
-) {
-  if (
-    invoice.metadata?.holiday_order_id !== order.id ||
-    invoice.id !== order.stripe_balance_invoice_id ||
-    stripeId(invoice.customer) !== order.stripe_customer_id ||
-    invoice.currency !== "usd" ||
-    invoice.total !== order.balance_cents ||
-    order.fulfillment_status !== "delivered"
-  )
-    throw new Error("Balance invoice verification failed.");
-}
-
-export async function recordHolidayInvoice(db: Database, invoiceId: string) {
-  const invoice = await holidayStripe().invoices.retrieve(invoiceId);
-  const orderId = invoice.metadata?.holiday_order_id;
-  if (!orderId) return;
-  const found = await db
-    .from("holiday_orders")
-    .select("*")
-    .eq("id", orderId)
-    .single();
-  if (found.error) throw new Error("Holiday order not found.");
-  const order = found.data as HolidayOrder;
-  verifyHolidayInvoice(invoice, order);
-  const paid =
-    invoice.status === "paid" &&
-    invoice.amount_paid === order.balance_cents &&
-    invoice.amount_remaining === 0;
-  if (order.balance_status === "paid" && !paid) return;
-  await updateHolidayOrder(db, order.id, {
-    balance_status: paid ? "paid" : "action_required",
-    invoice_url: invoice.hosted_invoice_url,
-    payment_error: paid
-      ? null
-      : "The balance is not paid. The customer may need to update or authorize their card using the invoice link.",
-  });
-}
-
-export async function collectHolidayBalance(db: Database, orderId: string) {
-  const claimed = await db.rpc("claim_holiday_balance", {
-    p_order_id: orderId,
-  });
-  if (claimed.error) throw new Error("Unable to reserve the balance payment.");
-  if (!claimed.data?.length) {
-    const current = await db
-      .from("holiday_orders")
-      .select("balance_status")
-      .eq("id", orderId)
-      .single();
-    if (!current.error && current.data.balance_status === "paid") return;
-    throw new Error(
-      "A balance payment is already processing. Refresh the order shortly.",
-    );
-  }
-  const order = claimed.data[0] as HolidayOrder;
-  const stripe = holidayStripe();
-  try {
-    if (!order.stripe_customer_id || !order.stripe_payment_method_id)
-      throw new Error("The deposit payment method is missing.");
-    let invoice: Stripe.Invoice;
-    if (order.stripe_balance_invoice_id) {
-      invoice = await stripe.invoices.retrieve(order.stripe_balance_invoice_id);
-    } else {
-      const previous = await stripe.invoices.list({
-        customer: order.stripe_customer_id,
-        limit: 100,
-      });
-      invoice =
-        previous.data.find(
-          (item) => item.metadata?.holiday_order_id === order.id,
-        ) ??
-        (await stripe.invoices.create(
-          {
-            customer: order.stripe_customer_id,
-            currency: "usd",
-            auto_advance: false,
-            collection_method: "charge_automatically",
-            default_payment_method: order.stripe_payment_method_id,
-            pending_invoice_items_behavior: "exclude",
-            description: `The Holiday Cheat Sheet — remaining balance. Order total $${(order.total_cents / 100).toFixed(2)}; deposit paid $${(order.deposit_cents / 100).toFixed(2)}.`,
-            metadata: { holiday_order_id: order.id },
-          },
-          { idempotencyKey: `holiday-invoice:${order.id}` },
-        ));
-      await updateHolidayOrder(db, order.id, {
-        stripe_balance_invoice_id: invoice.id,
-      });
-      order.stripe_balance_invoice_id = invoice.id;
-    }
-    if (invoice.status === "draft") {
-      const lines = await stripe.invoices.listLineItems(invoice.id, {
-        limit: 100,
-      });
-      if (!lines.data.length) {
-        await stripe.invoiceItems.create(
-          {
-            customer: order.stripe_customer_id,
-            invoice: invoice.id,
-            currency: "usd",
-            amount: order.balance_cents,
-            description: "Remaining 50% holiday order balance",
-            metadata: { holiday_order_id: order.id },
-          },
-          { idempotencyKey: `holiday-balance-line:${order.id}` },
-        );
-      } else if (
-        lines.data.length !== 1 ||
-        lines.data[0].amount !== order.balance_cents ||
-        lines.data[0].metadata.holiday_order_id !== order.id
-      )
-        throw new Error(
-          "The invoice lines do not match the accepted order balance.",
-        );
-      const draft = await stripe.invoices.retrieve(invoice.id);
-      verifyHolidayInvoice(draft, order);
-      invoice = await stripe.invoices.finalizeInvoice(
-        invoice.id,
-        { auto_advance: false },
-        { idempotencyKey: `holiday-finalize:${order.id}` },
-      );
-    }
-    verifyHolidayInvoice(invoice, order);
-    await updateHolidayOrder(db, order.id, {
-      invoice_url: invoice.hosted_invoice_url,
-    });
-    if (invoice.status === "paid") {
-      await recordHolidayInvoice(db, invoice.id);
-      return;
-    }
-    if (invoice.status !== "open")
-      throw new Error(
-        "This invoice cannot be charged. Review its status in Stripe.",
-      );
-    const intentId = stripeId(invoice.payment_intent);
-    if (intentId) {
-      const intent = await stripe.paymentIntents.retrieve(intentId);
-      if (intent.status === "processing" || intent.status === "succeeded") {
-        await updateHolidayOrder(db, order.id, {
-          balance_status: "processing",
-          payment_error: null,
-        });
-        return;
-      }
-      if (intent.status === "requires_action")
-        throw new Error(
-          "Customer card approval is required. Share the balance invoice link.",
-        );
-    }
-    await updateHolidayOrder(db, order.id, {
-      balance_status: "processing",
-      payment_error: null,
-    });
-    await stripe.invoices.pay(
-      invoice.id,
-      { off_session: true },
-      { idempotencyKey: `holiday-pay:${order.id}:${invoice.attempt_count}` },
-    );
-    await recordHolidayInvoice(db, invoice.id);
-  } catch (error) {
-    const current = await db
-      .from("holiday_orders")
-      .select("balance_status")
-      .eq("id", order.id)
-      .single();
-    // A webhook can settle the same invoice while the API request is timing out.
-    if (current.data?.balance_status !== "paid") {
-      await updateHolidayOrder(db, order.id, {
-        balance_status: "action_required",
-        payment_error:
-          "Balance payment needs attention. Review the invoice before retrying or share its payment link with the customer.",
-      });
-    }
-    console.error(
-      "Holiday balance collection failed",
-      order.id,
-      error instanceof Error ? error.message : "Unknown failure",
-    );
-    throw new Error(
-      "Delivery was recorded, but balance collection needs attention. Review the invoice payment status below.",
-    );
-  } finally {
-    await updateHolidayOrder(db, order.id, { billing_lease_until: null });
-  }
 }

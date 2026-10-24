@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 export default function HolidayBanner() {
   return (
@@ -6,7 +7,7 @@ export default function HolidayBanner() {
       className="bg-black text-white"
       aria-labelledby="holiday-banner-title"
     >
-      <div className="mx-auto grid max-w-7xl gap-8 px-4 py-16 sm:px-6 sm:py-20 lg:grid-cols-[1.3fr_.7fr] lg:items-center">
+      <div className="mx-auto grid max-w-7xl gap-8 px-4 py-16 sm:px-6 sm:py-20 lg:grid-cols-2 lg:items-center">
         <div>
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#d8c487]">
             Thanksgiving · Christmas · Holiday parties
@@ -15,11 +16,10 @@ export default function HolidayBanner() {
             id="holiday-banner-title"
             className="mt-4 font-display text-4xl font-bold sm:text-5xl"
           >
-            The Holiday Cheat Sheet
+            Hassle-free Holidays
           </h2>
           <p className="mt-5 max-w-xl leading-7 text-white/75">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do
-            eiusmod tempor incididunt ut labore et dolore magna aliqua.
+            You make the memories. We&apos;ll make the meal.
           </p>
           <Link
             href="/holiday-cheat-sheet"
@@ -28,16 +28,16 @@ export default function HolidayBanner() {
             Explore the holiday menu
           </Link>
         </div>
-        <div className="border-t border-white/20 pt-6 lg:border-l lg:border-t-0 lg:pl-8 lg:pt-0">
-          <p className="font-display text-2xl font-bold">
-            Chef Netta’s Holiday Menu
-          </p>
-          <p className="mt-3 leading-7 text-white/75">
-            Pickup &amp; delivery available
-          </p>
-          <p className="mt-2 text-sm text-white/60">
-            Meal drop-offs &amp; traditional catering
-          </p>
+        <div>
+          <Image
+            src="/hassle-free-holidays.png"
+            alt="Hassle-free Holidays: a glazed ham with holiday side dishes"
+            width={2880}
+            height={2304}
+            sizes="(max-width: 1023px) 100vw, 45vw"
+            className="h-auto w-full rounded-panel"
+          />
+          <p className="mt-3 text-sm text-white/75">Pickup &amp; delivery · Meal drop-offs &amp; traditional catering</p>
         </div>
       </div>
     </section>

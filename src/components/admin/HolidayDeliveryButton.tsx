@@ -2,16 +2,11 @@
 
 import { useFormState, useFormStatus } from "react-dom";
 import { deliverHolidayOrder } from "@/app/admin/holidays/actions";
-import { formatCents } from "@/lib/constants";
 
 export default function HolidayDeliveryButton({
   id,
-  balance,
-  delivered,
 }: {
   id: string;
-  balance: number;
-  delivered: boolean;
 }) {
   const [state, action] = useFormState(deliverHolidayOrder, {
     error: null,
@@ -23,16 +18,14 @@ export default function HolidayDeliveryButton({
       onSubmit={(event) => {
         if (
           !window.confirm(
-            delivered
-              ? `Attempt the ${formatCents(balance)} balance payment on the existing invoice?`
-              : `Mark this order delivered/collected and charge its ${formatCents(balance)} remaining balance?`,
+            "Mark this fully paid order delivered or collected? No additional payment will be taken.",
           )
         )
           event.preventDefault();
       }}
     >
       <input type="hidden" name="id" value={id} />
-      <Button delivered={delivered} />
+      <Button />
       {state.error && (
         <p className="mt-3 text-sm text-brand-brick" role="alert">
           {state.error}
@@ -40,14 +33,14 @@ export default function HolidayDeliveryButton({
       )}
       {state.saved && (
         <p className="mt-3 text-sm text-moss-700" role="status">
-          Fulfillment recorded. See the invoice payment status below.
+          Fulfillment recorded. No additional payment was taken.
         </p>
       )}
     </form>
   );
 }
 
-function Button({ delivered }: { delivered: boolean }) {
+function Button() {
   const { pending } = useFormStatus();
   return (
     <button
@@ -56,9 +49,7 @@ function Button({ delivered }: { delivered: boolean }) {
     >
       {pending
         ? "Processing…"
-        : delivered
-          ? "Retry balance payment"
-          : "Mark delivered / collected & charge balance"}
+        : "Mark delivered / collected"}
     </button>
   );
 }

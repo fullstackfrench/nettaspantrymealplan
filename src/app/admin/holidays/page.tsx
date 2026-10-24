@@ -22,7 +22,7 @@ export default async function HolidayAdmin() {
     <div className="space-y-8">
       <div>
         <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-gold">
-          The Holiday Cheat Sheet
+          Hassle-Free Holidays
         </p>
         <h1 className="mt-2 font-display text-3xl font-bold text-brand-plum">
           Holiday orders
@@ -59,13 +59,10 @@ export default async function HolidayAdmin() {
                   Total {formatCents(order.total_cents)}
                 </p>
                 <p>
-                  Deposit {formatCents(order.deposit_cents)} ·{" "}
+                  Payment {formatCents(order.deposit_cents)} ·{" "}
                   {order.deposit_status}
                 </p>
-                <p>
-                  Balance {formatCents(order.balance_cents)} ·{" "}
-                  {order.balance_status.replace("_", " ")}
-                </p>
+                {order.balance_cents > 0 && <p>Legacy unpaid balance: {formatCents(order.balance_cents)}</p>}
                 <p>Fulfillment · {order.fulfillment_status}</p>
               </div>
             </div>
@@ -81,11 +78,9 @@ export default async function HolidayAdmin() {
               )}
             </ul>
             {order.deposit_status === "paid" &&
-              order.balance_status !== "paid" && (
+              order.balance_status === "paid" && order.balance_cents === 0 && order.fulfillment_status !== "delivered" && (
                 <HolidayDeliveryButton
                   id={order.id}
-                  balance={order.balance_cents}
-                  delivered={order.fulfillment_status === "delivered"}
                 />
               )}
             {order.payment_error && (

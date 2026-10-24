@@ -3,8 +3,7 @@ import type Stripe from "stripe";
 import { createAdminClient } from "@/lib/supabase/server";
 import {
   holidayStripe,
-  recordHolidayDeposit,
-  recordHolidayInvoice,
+  recordHolidayPayment,
 } from "@/lib/holiday-payments";
 
 export const runtime = "nodejs";
@@ -40,7 +39,7 @@ export async function POST(request: Request) {
         session.metadata?.holiday_order_id &&
         session.payment_status === "paid"
       )
-        await recordHolidayDeposit(db, session);
+        await recordHolidayPayment(db, session);
     } else if (event.type === "checkout.session.expired") {
       const session = event.data.object as Stripe.Checkout.Session;
       if (session.metadata?.holiday_order_id) {
@@ -52,17 +51,8 @@ export async function POST(request: Request) {
           .eq("deposit_status", "pending");
         if (result.error) throw result.error;
       }
-    } else if (
-      [
-        "invoice.paid",
-        "invoice.payment_failed",
-        "invoice.payment_action_required",
-      ].includes(event.type)
-    ) {
-      const invoice = event.data.object as Stripe.Invoice;
-      if (invoice.metadata?.holiday_order_id)
-        await recordHolidayInvoice(db, invoice.id);
     }
+
     return NextResponse.json({ received: true });
   } catch (error) {
     console.error(
