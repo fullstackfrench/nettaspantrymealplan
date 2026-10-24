@@ -6,7 +6,8 @@ export async function getHolidaySettings(): Promise<{
   settings: HolidaySettings;
   installed: boolean;
 }> {
-  const { data, error } = await createServerClient()
+  // Prices and ordering availability must reflect the current database settings.
+  const { data, error } = await createServerClient("no-store")
     .from("holiday_settings")
     .select("*")
     .eq("id", 1)

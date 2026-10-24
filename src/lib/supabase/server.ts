@@ -39,11 +39,15 @@ export function createSessionClient() {
  * Public server client — anon key, RLS enforced, no cookies. Use for reading
  * the menu in server components where no signed-in user matters.
  */
-export function createServerClient() {
+export function createServerClient(cache?: RequestCache) {
   return createSupabaseClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    { auth: { persistSession: false } }
+    {
+      auth: { persistSession: false },
+      ...(cache ? { global: { fetch: (input: RequestInfo | URL, init?: RequestInit) =>
+        fetch(input, { ...init, cache }) } } : {}),
+    }
   );
 }
 
