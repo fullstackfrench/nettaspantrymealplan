@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import HolidayMealBuilder from "@/components/HolidayMealBuilder";
 import {
   HOLIDAY_ENTREES,
@@ -12,7 +13,7 @@ import { formatCents } from "@/lib/constants";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "The Holiday Cheat Sheet | Netta's Pantry",
+  title: "Hassle-free Holidays | Netta's Pantry",
   description:
     "Chef Netta’s Thanksgiving and Christmas menu for holiday meal drop-offs and catering. Pickup and delivery available for groups of 15 or more.",
 };
@@ -39,16 +40,16 @@ export default async function HolidayPage() {
   return (
     <>
       <section className="bg-black text-white">
-        <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 sm:py-28">
+        <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 py-12 sm:px-6 sm:py-16 lg:grid-cols-2">
+          <div>
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#d8c487]">
             Thanksgiving · Christmas · Holiday parties
           </p>
           <h1 className="mt-5 max-w-3xl font-display text-5xl font-bold sm:text-6xl">
-            The Holiday Cheat Sheet
+            Hassle-free Holidays
           </h1>
           <p className="mt-6 max-w-xl text-lg leading-8 text-white/75">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do
-            eiusmod tempor incididunt ut labore et dolore magna aliqua.
+            You make the memories. We&apos;ll make the meal.
           </p>
           <a
             href="#holiday-menu"
@@ -56,6 +57,16 @@ export default async function HolidayPage() {
           >
             View Chef Netta’s menu
           </a>
+          </div>
+          <Image
+            src="/hassle-free-holidays.png"
+            alt="Hassle-free Holidays: a glazed ham with holiday side dishes"
+            width={2880}
+            height={2304}
+            priority
+            sizes="(max-width: 1023px) 100vw, 50vw"
+            className="h-auto w-full rounded-panel"
+          />
         </div>
       </section>
       <section
