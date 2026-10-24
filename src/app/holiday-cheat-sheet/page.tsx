@@ -52,8 +52,8 @@ export default async function HolidayPage() {
           sizes="100vw"
           className="object-cover object-[center_35%]"
         />
-        <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/90 to-transparent" aria-hidden="true" />
-        <p className="absolute inset-x-0 bottom-0 px-4 pb-7 text-center text-xl font-medium leading-snug text-white drop-shadow-lg sm:pb-10 sm:text-3xl lg:pb-14 lg:text-4xl">
+        <div className="absolute inset-0 bg-black/30" aria-hidden="true" />
+        <p className="absolute inset-x-0 bottom-10 px-4 pb-7 text-center text-xl font-medium leading-snug text-white drop-shadow-lg sm:bottom-[100px] sm:pb-10 sm:text-3xl lg:pb-14 lg:text-4xl">
           You make the memories. We&apos;ll make the meal.
         </p>
       </section>
