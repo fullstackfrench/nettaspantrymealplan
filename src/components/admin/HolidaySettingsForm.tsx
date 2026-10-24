@@ -21,9 +21,8 @@ export default function HolidaySettingsForm({
         Holiday pricing &amp; availability
       </h2>
       <p className="mt-3 text-sm leading-6 text-ink/65">
-        Customers pay in full at checkout. Changes apply to new checkouts; existing
-        orders keep their agreed prices. The minimum applies to the holiday package,
-        before dessert extras and delivery.
+        Customers pay at checkout. Changes apply to new checkouts; existing
+        orders keep their agreed prices. The base package covers the minimum group size; extra guests, desserts, and delivery are added separately.
       </p>
       <input type="hidden" name="version" value={settings.version} />
       <fieldset
@@ -33,12 +32,12 @@ export default function HolidaySettingsForm({
       >
         <Field
           name="per_person"
-          label="Package price per person ($)"
+          label="Each additional person ($)"
           value={(settings.per_person_cents / 100).toFixed(2)}
         />
         <Field
           name="minimum_order"
-          label="Minimum holiday package ($)"
+          label="Base holiday package ($)"
           value={(settings.minimum_order_cents / 100).toFixed(2)}
         />
         <Field
@@ -103,12 +102,7 @@ export default function HolidaySettingsForm({
           value={settings.pickup_location}
           required={false}
         />
-        <Field
-          name="delivery_zips"
-          label="Delivery ZIP codes (comma-separated)"
-          value={settings.delivery_zips.join(", ")}
-          required={false}
-        />
+        <p className="text-sm leading-6 text-ink/70">Delivery area: all North Carolina ZIP codes. Out-of-state addresses are not accepted.</p>
         <label className="flex items-start gap-3 text-sm leading-6 text-ink/75 sm:col-span-2">
           <input
             type="checkbox"

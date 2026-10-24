@@ -8,7 +8,6 @@ import {
   HOLIDAY_DESSERTS,
   otherHolidayDessert,
   holidayQuote,
-  holidayPaymentConsent,
   type HolidaySettings,
 } from "@/lib/holiday-menu";
 import { formatCents } from "@/lib/constants";
@@ -25,7 +24,7 @@ export default function HolidayMealBuilder({
   const [dessert, setDessert] = useState<string>(HOLIDAY_DESSERTS[0]);
   const [extraDessert, setExtraDessert] = useState(false);
   const [fulfillment, setFulfillment] = useState(
-    !settings.pickup_location && settings.delivery_zips.length ? "delivery" : "pickup",
+    !settings.pickup_location ? "delivery" : "pickup",
   );
   const [people, setPeople] = useState(String(settings.minimum_people));
   const [occasion, setOccasion] = useState("thanksgiving");
@@ -74,7 +73,7 @@ export default function HolidayMealBuilder({
       address: String(form.get("address") ?? ""),
       zip: String(form.get("zip") ?? ""),
       eventDate: String(form.get("eventDate") ?? ""),
-      consent: form.get("consent") === "on",
+      consent: true, // Clicking checkout accepts the displayed, server-validated order total.
       expectedTotal: quote.totalCents,
     };
     const fingerprint = JSON.stringify(payload);
@@ -126,9 +125,9 @@ export default function HolidayMealBuilder({
       </p>
       <p className="mt-3 max-w-2xl text-sm leading-6 text-ink/65">
         {enabled ? "Current" : "Draft"} pricing:{" "}
-        {formatCents(settings.per_person_cents)} per person, with a{" "}
-        {formatCents(settings.minimum_order_cents)} minimum package price and at
-        least {settings.minimum_people} people. Pricing depends on your group
+        {formatCents(settings.minimum_order_cents)} for {settings.minimum_people} people,
+        plus {formatCents(settings.per_person_cents)} for each additional person.
+        Pricing depends on your group
         size, extras, and delivery. Prices may be updated before checkout; your
         accepted order total is locked once checkout begins.
       </p>
@@ -243,6 +242,7 @@ export default function HolidayMealBuilder({
                   <input
                     type="radio"
                     name="holiday-fulfillment"
+                    disabled={option === "pickup" && !settings.pickup_location}
                     value={option}
                     checked={fulfillment === option}
                     onChange={() => setFulfillment(option)}
@@ -295,9 +295,7 @@ export default function HolidayMealBuilder({
                     autoComplete="postal-code"
                   />
                   <p className="text-xs leading-6 text-ink/60">
-                    Eligible ZIP codes:{" "}
-                    {settings.delivery_zips.join(", ") ||
-                      "Delivery not currently available"}
+                    Delivery is available throughout North Carolina, to all North Carolina ZIP codes.
                   </p>
                 </>
               )}
@@ -334,56 +332,23 @@ export default function HolidayMealBuilder({
                 <Amount label="Second dessert" value={quote.extraCents} />
                 <Amount label="Delivery" value={quote.deliveryCents} />
                 <Amount
-                  label={`${enabled ? "Order" : "Draft"} total`}
+                  label="Order total"
                   value={quote.totalCents}
-                />
-                <Amount
-                  label="Full payment due now"
-                  value={quote.depositCents}
                 />
               </dl>
             ) : (
               <p className="mt-5 text-sm text-brand-brick">{quoteError}</p>
             )}
           </div>
-          {quote &&
-            quote.foodCents > Number(people) * settings.per_person_cents && (
-              <p className="mt-3 text-xs leading-6 text-ink/65">
-                The package charge includes a{" "}
-                {formatCents(
-                  quote.foodCents - Number(people) * settings.per_person_cents,
-                )}{" "}
-                adjustment to meet the minimum package price.
-              </p>
-            )}
-          <h4 className="mt-7 font-bold text-brand-plum">
-            Pay in full at checkout
-          </h4>
-          <p className="mt-2 text-sm leading-6 text-ink/70">
-            Pay the full order total at checkout. No remaining balance will be charged
-            when your order is delivered or collected. Later pricing updates
-            won’t change your accepted total.
-          </p>
           {enabled && quote ? (
             <>
-              <label className="mt-6 flex items-start gap-3 text-sm leading-6 text-ink/75">
-                <input
-                  name="consent"
-                  type="checkbox"
-                  required
-                  className="mt-1 h-5 w-5 shrink-0 accent-[#682952]"
-                />
-                <span>
-                  {holidayPaymentConsent(quote.totalCents)}
-                </span>
-              </label>
               <button
                 disabled={pending}
                 className="mt-6 min-h-12 w-full rounded-full bg-brand-plum px-5 py-3 font-bold text-white disabled:opacity-50"
               >
                 {pending
                   ? "Preparing checkout…"
-                  : `Pay ${formatCents(quote.totalCents)} in full`}
+                  : "Continue to checkout"}
               </button>
             </>
           ) : (

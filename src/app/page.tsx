@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import HolidayBanner from '@/components/HolidayBanner';
-import { formatCents, DEPOSIT_PER_CONTAINER_CENTS } from '@/lib/constants';
+import { formatCents, GLASS_CONTAINER_DEPOSIT_CENTS } from '@/lib/constants';
 import { getActiveSubscriptionPlans } from '@/lib/catalog';
 
 export const revalidate = 60;
@@ -40,7 +40,7 @@ export default async function HomePage() {
 
       <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20">
         <div className="mx-auto max-w-2xl text-center"><p className="text-xs font-bold uppercase tracking-[0.18em] text-brand-brick">Simple from start to finish</p><h2 className="mt-3 font-display text-3xl font-bold text-brand-plum sm:text-4xl">Good food, with a lighter footprint</h2></div>
-        <div className="mt-12 grid gap-5 md:grid-cols-3"><Step n="01" title="Choose your meals" body="Browse the fresh weekly menu and choose a subscription or build a one-time box." /><Step n="02" title="We deliver in glass" body={`Meals arrive in reusable containers. A refundable ${formatCents(DEPOSIT_PER_CONTAINER_CENTS)} deposit keeps the loop turning.`} /><Step n="03" title="Send the glass back" body="Rinse the empties and leave them out on your next delivery day." /></div>
+        <div className="mt-12 grid gap-5 md:grid-cols-3"><Step n="01" title="Choose your meals" body="Browse the fresh weekly menu and choose a subscription or build a one-time box." /><Step n="02" title="We deliver in glass" body={`Meals arrive in reusable containers. A one-time, non-refundable ${formatCents(GLASS_CONTAINER_DEPOSIT_CENTS)} deposit covers your glass containers.`} /><Step n="03" title="Send the glass back" body="Rinse the empties and leave them out on your next delivery day. We clean and sanitize every dish before its next delivery." /></div>
       </section>
 
       <section className="border-y border-brand-plum/10 bg-white py-16 sm:py-20">

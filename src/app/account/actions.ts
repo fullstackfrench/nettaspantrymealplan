@@ -4,7 +4,7 @@ import { ensurePlanPrice } from '@/lib/account/plan-prices';
 import { revalidatePath } from 'next/cache';
 import { accountContext, siteOrigin, stripeClient } from '@/lib/account/server';
 import { createOrderCheckout, settleOrderChange } from '@/lib/account/payments';
-import { isInDeliveryArea } from '@/lib/constants';
+import { normalizeDeliveryZip, isInDeliveryArea } from '@/lib/constants';
 import { assertSelectionMinimum } from '@/lib/account/minimum-order';
 
 function message(error: unknown) {
@@ -32,6 +32,7 @@ function address(form: FormData) {
         .slice(0, key === 'delivery_notes' ? 2000 : 200),
     ]),
   );
+  result.zip = normalizeDeliveryZip(result.zip) ?? '';
   if (!result.address_line1 || !result.city || !isInDeliveryArea(result.zip))
     throw new Error(
       'Enter a street address, city, and valid North Carolina ZIP.',

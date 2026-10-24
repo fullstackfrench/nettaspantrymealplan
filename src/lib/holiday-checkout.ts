@@ -1,3 +1,5 @@
+import { isInDeliveryArea, normalizeDeliveryZip } from './constants';
+
 import {
   HOLIDAY_ENTREES,
   HOLIDAY_BREADS,
@@ -69,15 +71,16 @@ export function validateHolidayCheckout(
   if (!["pickup", "delivery"].includes(fulfillment))
     throw new Error("Choose pickup or delivery.");
   const address = text("address", 1000);
-  const zip = text("zip", 5);
+  const zip = normalizeDeliveryZip(text("zip", 10)) ?? "";
+  if (input.state != null && input.state !== "NC") throw new Error("Delivery is available only within North Carolina.");
   if (fulfillment === "pickup" && !settings.pickup_location)
     throw new Error("Pickup is not available yet.");
   if (
     fulfillment === "delivery" &&
-    (!address || !settings.delivery_zips.includes(zip))
+    (!address || !isInDeliveryArea(zip))
   )
     throw new Error(
-      "Enter a delivery address and an eligible delivery ZIP code.",
+      "Enter a North Carolina delivery address and ZIP code.",
     );
   const occasion = text("occasion");
   const today = holidayToday(now);

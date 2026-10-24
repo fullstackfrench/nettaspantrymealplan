@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { DEPOSIT_PER_CONTAINER_CENTS, formatCents } from '@/lib/constants';
+import { GLASS_CONTAINER_DEPOSIT_CENTS, formatCents } from '@/lib/constants';
 
 export default function HowItWorksPage() {
   return (
@@ -18,14 +18,11 @@ export default function HowItWorksPage() {
           once.
         </p>
         <p>
-          Because glass costs real money, we hold a refundable deposit of{' '}
-          <strong>{formatCents(DEPOSIT_PER_CONTAINER_CENTS)} per container</strong>. It is not
-          a fee — you get it back. Return your containers and the deposit is refunded to your
-          card or applied as credit toward your next order, whichever you prefer.
+          A one-time, non-refundable <strong>{formatCents(GLASS_CONTAINER_DEPOSIT_CENTS)} glass-container deposit</strong> is charged once per customer, on your first paid meal order. It is not charged on subscription renewals or later orders after you sign in to your account.
         </p>
         <p>
-          Subscribers pay the deposit only once. After your first week you are simply swapping
-          empties for fulls, so you never hold more than one set.
+          Rinse the empties and leave them out on your next delivery day.
+          We clean and sanitize every dish before its next delivery.
         </p>
       </Section>
 
@@ -40,11 +37,10 @@ export default function HowItWorksPage() {
         <p>
           A weekly subscription gets you the lowest per-meal price and a standing delivery
           slot. You choose your meals each week, and you can skip, pause, or cancel any time
-          before the weekly cutoff.
+          before the weekly cutoff: Monday at 8:00 p.m. Eastern.
         </p>
         <p>
-          Prefer no commitment? Order a one-time box at any size. The deposit works the same
-          way — it comes back when the glass does.
+          Prefer no commitment? Build a one-time box. The same one-time, non-refundable glass-container deposit applies to your first paid order.
         </p>
       </Section>
       </div>

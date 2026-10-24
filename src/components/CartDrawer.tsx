@@ -28,7 +28,7 @@ export default function CartDrawer() {
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:px-6 sm:py-4">
           <div className="min-w-0 text-sm">
             <div className="flex flex-wrap items-baseline gap-x-2"><span className="font-bold text-brand-plum">{totalMeals} meal{totalMeals === 1 ? '' : 's'}</span><span className="font-semibold text-ink/70">{formatCents(subtotalCents)}</span></div>
-            <p className="mt-0.5 truncate text-xs text-ink/55">{mode === 'subscription' && remaining > 0 ? `${subscriptionSides}/${planTotal / 2} sides · ${subscriptionEntrees}/${planTotal / 2} entrées` : depositCents > 0 ? `Plus ${formatCents(depositCents)} refundable glass deposit` : 'Your order is ready to review'}</p>
+            <p className="mt-0.5 truncate text-xs text-ink/55">{mode === 'subscription' && remaining > 0 ? `${subscriptionSides}/${planTotal / 2} sides · ${subscriptionEntrees}/${planTotal / 2} entrées` : depositCents > 0 ? `Plus ${formatCents(depositCents)} one-time, non-refundable glass deposit` : 'Your order is ready to review'}</p>
             {!meetsOrderMinimum(subtotalCents) && <p className="text-xs font-semibold text-brand-plum">Add {formatCents(Math.max(0, MINIMUM_ORDER_CENTS - subtotalCents))} to reach the $55 food minimum.</p>}
           </div>
           <Link href="/checkout" className="inline-flex min-h-11 shrink-0 items-center justify-center rounded-full bg-brand-plum px-5 py-3 text-sm font-bold text-white shadow-soft transition hover:bg-[#542043] sm:px-6"><span className="hidden min-[360px]:inline">Review order</span><span className="min-[360px]:hidden">Review</span></Link>

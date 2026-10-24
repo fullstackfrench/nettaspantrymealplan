@@ -12,7 +12,7 @@ import type { Meal, PublicSubscriptionPlan } from '@/lib/types';
 export default function MenuBrowser({ meals, plans }: { meals: Meal[]; plans: PublicSubscriptionPlan[] }) {
   const [active, setActive] = useState('all');
   const [selected, setSelected] = useState<Meal | null>(null);
-  const { totalMeals, remaining, mode, subscriptionSides, subscriptionEntrees, selectedPlan } = useCart();
+  const { totalMeals, remaining, mode, subscriptionSides, subscriptionEntrees, selectedPlan, orderingOpen, orderingDeadline } = useCart();
   const availableMeals = useMemo(
     () => meals.filter((meal) => getAvailableMealSizes(meal, mode).length > 0),
     [meals, mode]
@@ -32,6 +32,10 @@ export default function MenuBrowser({ meals, plans }: { meals: Meal[]; plans: Pu
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-10">
       <PlanPicker plans={plans} />
+      <p role="status" className="mt-5 rounded-control bg-cream p-4 text-sm font-semibold text-brand-plum">
+        {orderingOpen ? 'Order by Monday at 8:00 p.m. Eastern for this menu.' : 'New orders are closed for this menu. Ordering resumes when the next menu is published.'}
+        {orderingDeadline && ` Deadline: ${new Date(orderingDeadline).toLocaleString('en-US', { timeZone: 'America/New_York', dateStyle: 'medium', timeStyle: 'short' })} Eastern.`}
+      </p>
 
       <div className="mt-7 border-t border-brand-plum/10 pt-7">
         <div className="mb-4 flex items-end justify-between gap-4">

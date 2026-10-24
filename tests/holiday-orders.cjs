@@ -43,8 +43,10 @@ function load(file, imports = {}, environment = {}) {
   return output;
 }
 const menu = load("src/lib/holiday-menu.ts");
+const deliveryConstants = load("src/lib/constants.ts");
 const validation = load("src/lib/holiday-checkout.ts", {
   "./holiday-menu": menu,
+  "./constants": deliveryConstants,
 });
 const settings = {
   ...menu.HOLIDAY_DRAFT_SETTINGS,
@@ -69,15 +71,15 @@ const valid = {
   occasion: "thanksgiving",
   eventDate: "",
   consent: true,
-  expectedTotal: 40000,
+  expectedTotal: 41669,
 };
 const now = new Date("2026-10-12T16:00:00Z");
 
 test("package minimum and per-person pricing determine full payment at checkout", () => {
   assert.equal(menu.holidayQuote(settings, 18, false, false).totalCents, 30000);
   const quote = menu.holidayQuote(settings, 25, false, false);
-  assert.equal(quote.totalCents, 40000);
-  assert.equal(quote.depositCents, 40000);
+  assert.equal(quote.totalCents, 41669);
+  assert.equal(quote.depositCents, 41669);
   assert.equal(quote.balanceCents, 0);
 });
 test("second dessert and delivery are included in the full checkout payment", () => {
@@ -88,15 +90,15 @@ test("second dessert and delivery are included in the full checkout payment", ()
     true,
   );
   assert.equal(quote.extraCents, 4500);
-  assert.equal(quote.totalCents, 47000);
-  assert.equal(quote.depositCents, 47000);
+  assert.equal(quote.totalCents, 48669);
+  assert.equal(quote.depositCents, 48669);
   assert.equal(
     menu.holidayQuote(settings, 25, true, false).depositCents,
-    44500,
+    46169,
   );
   assert.equal(menu.holidayQuote(settings, 18, true, false).totalCents, 34500);
 });
-test("admins can change rates and choose per-order dessert pricing", () => {
+test("admins can change the base package and additional-guest rates", () => {
   const quote = menu.holidayQuote(
     {
       ...settings,
@@ -109,7 +111,7 @@ test("admins can change rates and choose per-order dessert pricing", () => {
     true,
     false,
   );
-  assert.equal(quote.totalCents, 52500);
+  assert.equal(quote.totalCents, 51500);
 });
 test("odd-cent totals are collected once in full", () => {
   const quote = menu.holidayQuote(
@@ -118,7 +120,7 @@ test("odd-cent totals are collected once in full", () => {
     false,
     true,
   );
-  assert.equal(quote.depositCents, 40001);
+  assert.equal(quote.depositCents, 41670);
   assert.equal(quote.balanceCents, 0);
   assert.equal(quote.depositCents + quote.balanceCents, quote.totalCents);
 });
@@ -139,8 +141,8 @@ test("invalid headcounts and unavailable upgrades are rejected", () => {
 test("checkout locks a verified price and records consent for the exact full payment", () => {
   const accepted = validation.validateHolidayCheckout(valid, settings, now);
   assert.equal(accepted.details.email, "test@example.com");
-  assert.match(accepted.consent, /full payment of \$400.00/);
-  assert.match(accepted.consent, /No remaining balance/);
+  assert.match(accepted.consent, /payment of \$416.69/);
+  assert.doesNotMatch(accepted.consent, /in full|remaining balance/);
 });
 test("checkout rejects stale pricing, forged totals, missing consent and menu substitutions", () => {
   for (const change of [
@@ -183,7 +185,7 @@ test("delivery ZIPs and party lead times are validated on the server", () => {
         settings,
         now,
       ),
-    /eligible/,
+    /North Carolina/,
   );
   const party = { ...valid, occasion: "party", eventDate: "2026-10-19" };
   validation.validateHolidayCheckout(party, settings, now);
@@ -238,7 +240,7 @@ test('checkout charges the full amount without authorizing a future card charge'
  const f=fixture(); await f.payments.startHolidayCheckout(f.db,f.order);
  assert.equal(f.calls.request.line_items[0].price_data.unit_amount,30000);
  assert.equal(f.calls.request.payment_intent_data.setup_future_usage,undefined);
- assert.match(f.calls.request.line_items[0].price_data.product_data.name,/full order payment/);
+ assert.match(f.calls.request.line_items[0].price_data.product_data.name,/Hassle-free Holidays/);
  assert.equal(await f.payments.startHolidayCheckout(f.db,f.order),'https://checkout.example.test');
  assert.equal(f.calls.checkout,1);
 });
@@ -270,4 +272,13 @@ test('fulfillment is idempotent, requires full payment, and never contacts Strip
 test('admin pricing and fulfillment actions reject unauthorized callers', async () => {
  const actions=load('src/app/admin/holidays/actions.ts',{'next/cache':{revalidatePath(){}},'@/lib/auth/require-admin':{requireAdmin:async()=>{throw new Error('Unauthorized');}}});
  for(const name of ['saveHolidaySettings','deliverHolidayOrder']) { const r=await actions[name](null,new FormData());assert.equal(r.saved,false);assert.match(r.error,/Unauthorized/); }
+});
+
+test('holiday delivery accepts all NC ZIPs, including ZIP+4, and rejects other states', () => {
+  for (const zip of ['27006', '28909', '27601-1234']) {
+    const result=validation.validateHolidayCheckout({...valid,fulfillment:'delivery',address:'1 NC Street',zip},settings,now);
+    assert.equal(result.details.zip,zip.slice(0,5));
+  }
+  assert.throws(()=>validation.validateHolidayCheckout({...valid,fulfillment:'delivery',address:'1 SC Street',zip:'29601'},settings,now),/North Carolina/);
+  assert.throws(()=>validation.validateHolidayCheckout({...valid,fulfillment:'delivery',address:'1 Street',zip:'27601',state:'SC'},settings,now),/North Carolina/);
 });

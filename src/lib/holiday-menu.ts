@@ -40,7 +40,7 @@ export type HolidaySettings = {
 export const HOLIDAY_DRAFT_SETTINGS: HolidaySettings = {
   id: 1,
   version: 1,
-  per_person_cents: 1600,
+  per_person_cents: 1667,
   minimum_people: 18,
   minimum_order_cents: 30000,
   extra_dessert_cents: 4500,
@@ -80,10 +80,8 @@ export function holidayQuote(
       (settings.extra_dessert_basis === "person" ? people : 1)
     : 0;
   const deliveryCents = delivery ? settings.delivery_fee_cents : 0;
-  const foodCents = Math.max(
-    people * settings.per_person_cents,
-    settings.minimum_order_cents,
-  );
+  const foodCents = settings.minimum_order_cents +
+    (people - settings.minimum_people) * settings.per_person_cents;
   const totalCents = foodCents + extraCents + deliveryCents;
   // Retain the legacy field name for database compatibility; checkout collects the full total.
   const depositCents = totalCents;
@@ -98,7 +96,7 @@ export function holidayQuote(
 }
 
 export function holidayPaymentConsent(total: number) {
-  return `I authorize a full payment of $${(total / 100).toFixed(2)} for my holiday order at checkout. No remaining balance will be charged at pickup or delivery. Pricing changes after checkout will not change my accepted total.`;
+  return `I authorize payment of $${(total / 100).toFixed(2)} for my holiday order.`;
 }
 
 export function otherHolidayDessert(dessert: string) {

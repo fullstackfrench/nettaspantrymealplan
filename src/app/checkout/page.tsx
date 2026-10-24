@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import { ORDER_CHANGE_POLICY } from '@/lib/account/policy';
 import { useCart } from '@/lib/cart';
-import { DEPOSIT_PER_CONTAINER_CENTS, formatCents } from '@/lib/constants';
+import { isInDeliveryArea, formatCents } from '@/lib/constants';
 import { meetsOrderMinimum, MINIMUM_ORDER_CENTS, MINIMUM_ORDER_MESSAGE } from '@/lib/minimum-order';
 
 export default function CheckoutPage() {
@@ -19,7 +19,9 @@ export default function CheckoutPage() {
     subscriptionEntrees,
     subscriptionComplete,
     subtotalCents,
-    depositCents,
+    glassFeeCents,
+    orderingOpen,
+    setChargeDeposit,
     totalCents,
   } = useCart();
   const [name, setName] = useState('');
@@ -38,7 +40,7 @@ export default function CheckoutPage() {
       setEmail(user.email || '');
       const { data } = await client
         .from('customers')
-        .select('full_name,address_line1,address_line2,city,zip,delivery_notes')
+        .select('full_name,address_line1,address_line2,city,zip,delivery_notes,glass_fee_paid_at')
         .eq('auth_user_id', user.id)
         .maybeSingle();
       if (data) {
@@ -48,6 +50,7 @@ export default function CheckoutPage() {
         setCity(data.city || '');
         setZip(data.zip || '');
         setNotes(data.delivery_notes || '');
+        setChargeDeposit(!data.glass_fee_paid_at);
       }
     });
   }, []);
@@ -57,6 +60,7 @@ export default function CheckoutPage() {
     orderId: string;
     subtotalCents: number;
     depositCents: number;
+    glassFeeCents: number;
     deliveryFeeCents: number;
     totalCents: number;
     paymentStatus: string;
@@ -85,10 +89,10 @@ export default function CheckoutPage() {
     city.trim() !== '' &&
     name.trim() !== '' &&
     email.includes('@') &&
-    /^\d{5}$/.test(zip);
+    isInDeliveryArea(zip);
 
   async function prepareOrder() {
-    if (submitting || prepared || incomplete || belowMinimum || !contactComplete) return;
+    if (submitting || prepared || incomplete || belowMinimum || !orderingOpen || !contactComplete) return;
     setSubmitting(true);
     setError(null);
     preparationKey.current ??= crypto.randomUUID();
@@ -267,13 +271,15 @@ export default function CheckoutPage() {
             value={formatCents(subtotalCents)}
           />
           <Row
-            label={`Container preview (${totalMeals} × ${formatCents(DEPOSIT_PER_CONTAINER_CENTS)})`}
-            value={formatCents(depositCents)}
+            label="One-time, non-refundable glass-container deposit"
+            value={formatCents(glassFeeCents)}
           />
           <div className="border-t border-black/10 pt-3">
             <Row label="Preview total" value={formatCents(totalCents)} bold />
           </div>
         </dl>
+        <p className="mt-3 text-xs text-ink/65">Delivery is available throughout North Carolina. Returning customers should sign in so their paid glass deposit is recognized.</p>
+        {!orderingOpen && <p role="status" className="mt-4 text-sm text-brand-brick">New weekly orders close Monday at 8:00 p.m. Eastern. Ordering resumes with the next published menu.</p>}
         {belowMinimum && (
           <p role="status" className="mt-4 rounded-xl bg-clay-100 p-3 text-sm text-clay-500">
             {MINIMUM_ORDER_MESSAGE} Add {formatCents(Math.max(0, MINIMUM_ORDER_CENTS - subtotalCents))} more food to continue.
@@ -305,7 +311,7 @@ export default function CheckoutPage() {
           <button
             type="button"
             onClick={prepareOrder}
-            disabled={submitting || incomplete || belowMinimum || !contactComplete}
+            disabled={submitting || incomplete || belowMinimum || !orderingOpen || !contactComplete}
             className="mt-6 min-h-12 w-full rounded-full bg-brand-plum px-6 py-3 text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-40"
           >
             {submitting ? 'Preparing payment…' : 'Continue to secure payment'}

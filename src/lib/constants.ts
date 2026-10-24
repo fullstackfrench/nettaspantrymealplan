@@ -2,15 +2,10 @@
 // Business rules in one place. Change prices/tiers here, not in JSX.
 // ---------------------------------------------------------------
 
-/** Refundable deposit charged per glass container. */
+/** Legacy refundable rate, retained only for historical container records. */
 export const DEPOSIT_PER_CONTAINER_CENTS = 300;
-
-/**
- * Subscribers are charged the deposit once, on their first order. After that
- * they swap empties for fulls each week, so they only ever hold one set.
- * One-time buyers pay the deposit every order and get it back on return.
- */
-export const DEPOSIT_ONCE_FOR_SUBSCRIBERS = true;
+/** Non-refundable glass-container deposit, charged once per customer. */
+export const GLASS_CONTAINER_DEPOSIT_CENTS = 5000;
 
 export const DELIVERY_FEE_CENTS = 0;
 
@@ -39,13 +34,17 @@ export const FILTERS: FilterOption[] = [
 
 // ---------------------------------------------------------------
 // Delivery area — North Carolina only.
-// NC ZIP codes run 27006–28909. We check the prefix.
+// All North Carolina ZIP codes use the 270–289 postal region (27006–28909).
 // ---------------------------------------------------------------
 export function isInDeliveryArea(zip: string): boolean {
-  const clean = zip.trim().slice(0, 5);
-  if (!/^\d{5}$/.test(clean)) return false;
+  const clean = normalizeDeliveryZip(zip);
+  if (!clean) return false;
   const n = parseInt(clean, 10);
   return n >= 27006 && n <= 28909;
+}
+
+export function normalizeDeliveryZip(zip: string): string | null {
+  return /^(\d{5})(?:-\d{4})?$/.exec(zip.trim())?.[1] ?? null;
 }
 
 export function formatCents(cents: number): string {

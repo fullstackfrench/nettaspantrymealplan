@@ -148,6 +148,9 @@ export default function AccountDashboard({
         <h2 className="font-display text-2xl text-brand-plum">
           Delivery details
         </h2>
+        <p className="mt-2 text-sm text-ink/65">
+          {customer.glass_fee_paid_at ? 'Glass-container deposit: already paid. You will not be charged another $50 deposit.' : 'A one-time, non-refundable $50 glass-container deposit applies to your first meal order.'}
+        </p>
         <form
           onSubmit={(event) => {
             event.preventDefault();
@@ -664,7 +667,7 @@ function OrderEditor({
         Price increases require an additional payment before changes are saved.
         Price reductions are refunded. Subscription orders must keep the same
         total number of meals, with half sides and half entrées.
-        Food orders must remain at least $55 before delivery fees and refundable container deposits.
+        Food orders must remain at least $55 before delivery fees and glass-container deposits.
       </p>
       <MealChoices
         meals={meals}
@@ -712,7 +715,7 @@ function WeeklyEditor({
     >
       <h4 className="font-bold">Meals for week of {menu.week_start}</h4>
       <p className="text-sm">
-        Choose {required / 2} sides and {required / 2} entrées. Choices close when the menu week starts.
+        Choose {required / 2} sides and {required / 2} entrées. Choices close Monday at 8:00 p.m. Eastern.
         Selected: {mix.sides}/{mix.half} sides · {mix.entrees}/{mix.half} entrées.
       </p>
       <MealChoices

@@ -2,6 +2,7 @@ import 'server-only';
 import { ensurePlanPrice } from './plan-prices';
 import { createAdminClient } from '@/lib/supabase/server';
 import { siteOrigin, stripeClient } from './server';
+import { assertWeeklyOrderingOpen } from './ordering-policy';
 import { assertOrderMinimum } from '@/lib/minimum-order';
 
 export async function createOrderCheckout(
@@ -20,6 +21,7 @@ export async function createOrderCheckout(
   if (error || !order || order.status !== 'pending' || order.customer_change_id)
     throw new Error('This order is not available for payment.');
   assertOrderMinimum(order.subtotal_cents);
+  await assertWeeklyOrderingOpen(admin, order.week_start);
   const stripe = stripeClient();
   if (order.stripe_checkout_session_id) {
     const existing = await stripe.checkout.sessions.retrieve(
@@ -79,20 +81,13 @@ export async function createOrderCheckout(
                 },
               }),
         },
-        ...(order.total_cents > order.subtotal_cents
-          ? [
-              {
-                quantity: 1,
-                price_data: {
-                  currency: 'usd',
-                  unit_amount: order.total_cents - order.subtotal_cents,
-                  product_data: {
-                    name: 'Glass container deposit and delivery',
-                  },
-                },
-              },
-            ]
-          : []),
+        ...[
+          { amount: order.glass_fee_cents ?? 0, name: 'One-time non-refundable glass-container deposit' },
+          { amount: order.deposit_cents ?? 0, name: 'Legacy refundable glass-container deposit' },
+          { amount: order.delivery_fee_cents ?? 0, name: 'Delivery' },
+        ].filter((charge) => charge.amount > 0).map((charge) => ({
+          quantity: 1, price_data: { currency: 'usd', unit_amount: charge.amount, product_data: { name: charge.name } },
+        })),
       ],
       metadata: { order_id: order.id, customer_id: customerId },
       ...(recurring
@@ -134,7 +129,7 @@ export async function settleOrderChange(changeId: string) {
   if (!['pending', 'waiting_payment'].includes(change.status))
     throw new Error('This order change is no longer available.');
   if (change.operation === 'edit') {
-    assertOrderMinimum(change.new_total_cents - Number(change.payload?.deposit_cents) - Number(change.orders.delivery_fee_cents ?? 0));
+    assertOrderMinimum(change.new_total_cents - Number(change.payload?.deposit_cents) - Number(change.orders.delivery_fee_cents ?? 0) - Number(change.orders.glass_fee_cents ?? 0));
   }
   const difference = change.new_total_cents - change.old_total_cents;
   if (change.paid && difference > 0) {

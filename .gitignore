@@ -9,3 +9,6 @@ npm-debug.log*
 .vercel
 next-env.d.ts
 *.tsbuildinfo
+
+# Private customer emails in the local rollout bundle.
+supabase/meal-ordering-policy-rollout.local.sql

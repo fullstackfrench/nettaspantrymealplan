@@ -119,8 +119,8 @@ export async function startHolidayCheckout(db: Database, order: HolidayOrder) {
                 currency: "usd",
                 unit_amount: order.deposit_cents,
                 product_data: {
-                  name: "Hassle-Free Holidays — full order payment",
-                  description: `Full payment of $${(order.total_cents / 100).toFixed(2)}. No balance due at pickup or delivery.`,
+                  name: "Hassle-free Holidays",
+                  description: `Holiday order total: $${(order.total_cents / 100).toFixed(2)}.`,
                 },
               },
             },

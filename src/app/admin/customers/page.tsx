@@ -53,7 +53,7 @@ export default async function CustomersAdmin() {
                   <span className="text-lg font-bold">{c.containers_out}</span> containers out
                 </div>
                 <div className="mt-1 text-xs font-medium">
-                  {formatCents(c.deposit_held_cents)} deposit held
+                  {formatCents(c.deposit_held_cents)} legacy refundable deposit held
                 </div>
               </div>
             </div>
@@ -74,10 +74,10 @@ export default async function CustomersAdmin() {
                       className="admin-field w-full sm:w-24"
                     />
                   </div>
-                  <label className="flex min-h-11 items-center gap-2 rounded-control bg-white px-3 text-xs font-medium text-ink/70">
+                  {c.deposit_held_cents > 0 && <label className="flex min-h-11 items-center gap-2 rounded-control bg-white px-3 text-xs font-medium text-ink/70">
                     <input type="checkbox" name="refund" defaultChecked className="h-4 w-4" />
-                    Refund deposit ({formatCents(DEPOSIT_PER_CONTAINER_CENTS)} each)
-                  </label>
+                    Refund legacy deposit ({formatCents(DEPOSIT_PER_CONTAINER_CENTS)} each)
+                  </label>}
                   <button className="inline-flex min-h-11 items-center justify-center rounded-full bg-moss-600 px-4 py-2 text-xs font-bold text-white transition hover:bg-moss-700">
                     Log return
                   </button>

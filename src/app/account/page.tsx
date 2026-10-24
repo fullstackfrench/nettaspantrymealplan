@@ -44,7 +44,7 @@ export default async function AccountPage({
         .from('weekly_menus')
         .select('id,week_start')
         .eq('is_published', true)
-        .gt(
+        .gte(
           'week_start',
           new Intl.DateTimeFormat('en-CA', {
             timeZone: 'America/New_York',

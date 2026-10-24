@@ -52,15 +52,15 @@ test('malformed and future timestamps cannot enable changes', () => {
 
 const auth = {};
 let mutations = [];
+let creditEmail = null, creditLookupEmail = null;
 const authClient = {
   from(table) {
     const q = {
       select() {
         return q;
       },
-      eq() {
-        return q;
-      },
+      eq(key, value) { if (table === 'glass_deposit_credits' && key === 'email') creditLookupEmail = value; return q; },
+      is() { return q; },
       update(value) {
         mutations.push({ table, value });
         return q;
@@ -69,7 +69,7 @@ const authClient = {
         return Promise.resolve({ data: null, error: null }).then(resolve);
       },
       maybeSingle: async () => ({
-        data: table === 'profiles' ? { role: 'customer' } : { id: 'customer' },
+        data: table === 'glass_deposit_credits' ? (creditEmail && creditLookupEmail === creditEmail ? { email: creditEmail } : null) : table === 'profiles' ? { role: 'customer' } : { id: 'customer' },
         error: null,
       }),
     };
@@ -129,4 +129,15 @@ test('redirects reject external hosts, backslashes and control characters', () =
   ])
     assert.equal(auth.safeRedirect(value, '/account'), '/account');
   assert.equal(auth.safeRedirect('/checkout', '/account'), '/checkout');
+});
+
+test('pre-registered glass payments are applied only after verifying the matching email', async () => {
+  mutations = []; creditEmail = 'legacy@example.test';
+  await auth.afterAuth({ id: 'legacy-user', email: 'LEGACY@example.test', email_confirmed_at: created, user_metadata: { full_name: 'Any display name' } });
+  assert.equal(mutations.filter(m => m.value.glass_fee_paid_at).length, 1);
+  mutations = [];
+  await auth.afterAuth({ id: 'other-user', email: 'other@example.test', email_confirmed_at: created, user_metadata: { full_name: 'Previously Paid' } });
+  assert.equal(mutations.filter(m => m.value.glass_fee_paid_at).length, 0);
+  await assert.rejects(auth.afterAuth({ id: 'unverified', email: 'legacy@example.test', email_confirmed_at: null }), /verified email/);
+  creditEmail = null;
 });

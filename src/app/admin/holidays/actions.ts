@@ -53,19 +53,9 @@ export async function saveHolidaySettings(
       dates.christmas_deadline >= dates.christmas_fulfillment
     )
       throw new Error("Order deadlines must be before pickup/delivery dates.");
-    const deliveryZips = String(form.get("delivery_zips") ?? "")
-      .split(/[\s,]+/)
-      .filter(Boolean);
-    if (deliveryZips.some((zip) => !/^\d{5}$/.test(zip)))
-      throw new Error(
-        "Enter five-digit delivery ZIP codes separated by commas.",
-      );
+    const deliveryZips: string[] = []; // Delivery is available statewide in North Carolina.
     const pickupLocation = String(form.get("pickup_location") ?? "").trim();
     const open = form.get("orders_open") === "on";
-    if (open && !pickupLocation && !deliveryZips.length)
-      throw new Error(
-        "Set a pickup location or at least one delivery ZIP code before opening orders.",
-      );
     if (
       open &&
       (!process.env.STRIPE_SECRET_KEY ||

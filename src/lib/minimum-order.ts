@@ -1,6 +1,6 @@
-/** Food subtotal only; delivery fees and refundable deposits do not qualify. */
+/** Food subtotal only; delivery fees and container deposits do not qualify. */
 export const MINIMUM_ORDER_CENTS = 5500;
-export const MINIMUM_ORDER_MESSAGE = 'The minimum food order is $55, before delivery fees and refundable container deposits.';
+export const MINIMUM_ORDER_MESSAGE = 'The minimum food order is $55, before delivery fees and glass-container deposits.';
 
 export function meetsOrderMinimum(subtotalCents: number) {
   return Number.isSafeInteger(subtotalCents) && subtotalCents >= MINIMUM_ORDER_CENTS;

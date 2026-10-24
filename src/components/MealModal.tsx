@@ -7,7 +7,7 @@ import { useCart } from '@/lib/cart';
 import type { Meal } from '@/lib/types';
 
 export default function MealModal({ meal, onClose }: { meal: Meal | null; onClose: () => void }) {
-  const { addOneTime, addSubscription, mode, remaining, selectedPlan, canAddSubscription } = useCart();
+  const { addOneTime, addSubscription, mode, remaining, selectedPlan, canAddSubscription, orderingOpen } = useCart();
   const oneTimeSizes = useMemo(() => (meal?.meal_sizes ?? []).filter((size) => size.is_active && size.is_available_for_one_time && size.servings != null), [meal]);
   const subscriptionSizes = useMemo(() => (meal?.meal_sizes ?? []).filter((size) => size.is_active && size.is_available_for_subscription && size.servings != null), [meal]);
   const [selectedSizeId, setSelectedSizeId] = useState<string | null>(null);
@@ -96,10 +96,10 @@ export default function MealModal({ meal, onClose }: { meal: Meal | null; onClos
                   if (mode === 'subscription' && subscriptionSize) addSubscription(meal, subscriptionSize);
                   onClose();
                 }}
-                disabled={mode === 'one_time' ? !selectedSize : planFull || categoryFull || !subscriptionSize}
+                disabled={!orderingOpen || (mode === 'one_time' ? !selectedSize : planFull || categoryFull || !subscriptionSize)}
                 className="min-h-12 rounded-full bg-brand-plum px-6 py-3 text-sm font-bold text-white shadow-soft transition hover:bg-[#542043] disabled:cursor-not-allowed disabled:bg-black/20"
               >
-                {mode === 'one_time'
+                {!orderingOpen ? 'Ordering is closed' : mode === 'one_time'
                   ? selectedSize ? `Add to order · ${formatCents(selectedSize.price_cents)}` : 'Choose a size'
                   : planFull ? selectedPlan ? 'Plan is full' : 'Choose a plan' : categoryFull ? 'Category limit reached' : 'Add to plan'}
               </button>

@@ -69,6 +69,17 @@ export async function afterAuth(user: User): Promise<'customer' | 'admin'> {
     }
   }
 
+  // Pre-registered payments belong to verified emails, never to a supplied display name.
+  const { data: glassCredit, error: creditError } = await supabase
+    .from('glass_deposit_credits').select('email').eq('email', user.email.trim().toLowerCase()).maybeSingle();
+  if (creditError) throw creditError;
+  if (glassCredit) {
+    const { error: applyError } = await supabase.from('customers')
+      .update({ glass_fee_paid_at: new Date().toISOString() })
+      .eq('auth_user_id', user.id).is('glass_fee_paid_at', null);
+    if (applyError) throw applyError;
+  }
+
   const { data: profile } = await supabase
     .from('profiles')
     .select('role')

@@ -121,7 +121,7 @@ export default async function HolidayPage() {
               />
               <Detail
                 title="Fulfillment"
-                value="Pickup and delivery available"
+                value="Pickup and delivery throughout North Carolina"
               />
               <Detail
                 title="Group size"
@@ -133,7 +133,7 @@ export default async function HolidayPage() {
                     ? "Package pricing"
                     : "Draft package pricing"
                 }
-                value={`${formatCents(settings.per_person_cents)} per person · ${formatCents(settings.minimum_order_cents)} minimum package price`}
+                value={`${formatCents(settings.minimum_order_cents)} for ${settings.minimum_people} people · ${formatCents(settings.per_person_cents)} per additional person`}
               />
               <Detail
                 title="Second dessert"
@@ -142,10 +142,6 @@ export default async function HolidayPage() {
                     ? "Currently unavailable"
                     : `${formatCents(settings.extra_dessert_cents)} per ${settings.extra_dessert_basis === "person" ? "person" : "order"}`
                 }
-              />
-              <Detail
-                title="Payment"
-                value="Full payment at checkout. Nothing remains due at pickup or delivery."
               />
             </dl>
             <p className="mt-6 text-sm leading-6 text-ink/60">

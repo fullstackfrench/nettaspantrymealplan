@@ -2,12 +2,13 @@ import { createOrderCheckout } from '@/lib/account/payments';
 import { afterAuth } from '@/app/auth/after-auth';
 import { meetsOrderMinimum, MINIMUM_ORDER_MESSAGE } from '@/lib/minimum-order';
 import { assertSelectionMinimum } from '@/lib/account/minimum-order';
+import { assertWeeklyOrderingOpen } from '@/lib/account/ordering-policy';
 import { createHash } from 'crypto';
 import { NextResponse } from 'next/server';
 import { createAdminClient, createSessionClient } from '@/lib/supabase/server';
 import {
   DELIVERY_FEE_CENTS,
-  DEPOSIT_PER_CONTAINER_CENTS,
+  normalizeDeliveryZip,
   isInDeliveryArea,
 } from '@/lib/constants';
 
@@ -67,7 +68,8 @@ function parseRequest(value: unknown): ValidRequest | string {
     typeof customer.email === 'string'
       ? customer.email.trim().toLowerCase()
       : '';
-  const zip = typeof customer.zip === 'string' ? customer.zip.trim() : '';
+  const zip = typeof customer.zip === 'string' ? normalizeDeliveryZip(customer.zip) ?? '' : '';
+  if (customer.state != null && customer.state !== 'NC') return 'We only deliver within North Carolina.';
   if (!name || name.length > 200) return 'A valid customer name is required.';
   if (!EMAIL_PATTERN.test(email) || email.length > 320)
     return 'A valid email address is required.';
@@ -194,6 +196,8 @@ export async function POST(request: Request) {
   });
   const fingerprint = createHash('sha256').update(canonical).digest('hex');
   const admin = createAdminClient();
+  try { await assertWeeklyOrderingOpen(admin); }
+  catch (error) { return invalid(error instanceof Error ? error.message : 'Ordering is closed.'); }
   if (parsed.mode === 'one_time') {
     try { await assertSelectionMinimum(admin, parsed.items); }
     catch (error) { return invalid(error instanceof Error ? error.message : MINIMUM_ORDER_MESSAGE); }
@@ -213,7 +217,7 @@ export async function POST(request: Request) {
       meal_size_id: item.mealSizeId,
       quantity: item.quantity,
     })),
-    p_deposit_per_container_cents: DEPOSIT_PER_CONTAINER_CENTS,
+    p_deposit_per_container_cents: 0,
     p_delivery_fee_cents: DELIVERY_FEE_CENTS,
   });
 
@@ -242,7 +246,7 @@ export async function POST(request: Request) {
   if (!meetsOrderMinimum(prepared.subtotal_cents)) return invalid(MINIMUM_ORDER_MESSAGE);
   const lookup = await admin
     .from('orders')
-    .select('customer_id')
+    .select('customer_id,glass_fee_cents')
     .eq('id', prepared.order_id)
     .single();
   if (lookup.error || !lookup.data)
@@ -288,6 +292,7 @@ export async function POST(request: Request) {
     orderId: prepared.order_id,
     subtotalCents: prepared.subtotal_cents,
     depositCents: prepared.deposit_cents,
+    glassFeeCents: lookup.data.glass_fee_cents,
     deliveryFeeCents: prepared.delivery_fee_cents,
     totalCents: prepared.total_cents,
     containers: prepared.containers,

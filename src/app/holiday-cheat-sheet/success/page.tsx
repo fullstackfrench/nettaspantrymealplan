@@ -56,7 +56,7 @@ export default async function HolidaySuccess({
         </h1>
         <p className="mt-5 leading-7 text-ink/70">
           {confirmed
-            ? "Thank you! Your holiday order is booked and paid in full. Nothing remains due at pickup or delivery."
+            ? "Thank you! Your holiday order is confirmed."
             : "We haven’t confirmed your payment yet. Refresh this page shortly. Please avoid placing another order while confirmation is pending."}
         </p>
         {amounts && (
@@ -65,12 +65,7 @@ export default async function HolidaySuccess({
               <dt>Order total</dt>
               <dd className="font-bold">{formatCents(amounts.total_cents)}</dd>
             </div>
-            <div>
-              <dt>Paid at checkout</dt>
-              <dd className="font-bold">
-                {formatCents(amounts.deposit_cents)}
-              </dd>
-            </div>
+
 
           </dl>
         )}

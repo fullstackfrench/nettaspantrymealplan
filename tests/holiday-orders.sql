@@ -8,7 +8,7 @@ declare
  key uuid:=gen_random_uuid(); claims integer;
 begin
  select * into s from public.holiday_settings where id=1;
- if s.per_person_cents<>1600 or s.minimum_people<>18 or s.extra_dessert_cents<>4500 or s.extra_dessert_basis<>'order' then raise exception 'Incorrect current prices'; end if;
+ if s.per_person_cents<>1667 or s.minimum_people<>18 or s.extra_dessert_cents<>4500 or s.extra_dessert_basis<>'order' then raise exception 'Incorrect current prices'; end if;
  o:=public.prepare_holiday_order(key,s.version,details,34500,'Full payment consent');
  if o.total_cents<>34500 or o.deposit_cents<>34500 or o.balance_cents<>0 then raise exception 'Incorrect full-payment amounts'; end if;
  repeated:=public.prepare_holiday_order(key,s.version,details,34500,'Full payment consent');

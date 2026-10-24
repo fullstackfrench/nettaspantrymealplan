@@ -1,7 +1,8 @@
 'use client';
 
-import { createContext, useContext, useMemo, useState, type ReactNode } from 'react';
-import { DEPOSIT_PER_CONTAINER_CENTS } from './constants';
+import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { usePathname } from 'next/navigation';
+import { GLASS_CONTAINER_DEPOSIT_CENTS } from './constants';
 import type { Meal, MealSize, PublicSubscriptionPlan } from './types';
 import { getSubscriptionKind, subscriptionMix, type SubscriptionKind } from './subscription-mix';
 
@@ -62,6 +63,9 @@ interface CartState {
   canAddSubscription: (meal: Meal) => boolean;
   subtotalCents: number;
   depositCents: number;
+  glassFeeCents: number;
+  orderingOpen: boolean;
+  orderingDeadline: string | null;
   totalCents: number;
   chargeDeposit: boolean;
   setChargeDeposit: (value: boolean) => void;
@@ -81,10 +85,40 @@ function displayMeal(meal: Meal, size: MealSize): DisplayMeal {
 }
 
 export function CartProvider({ children }: { children: ReactNode }) {
+  const pathname = usePathname();
   const [mode, setMode] = useState<OrderMode>('subscription');
   const [selectedPlan, setSelectedPlan] = useState<SelectedPlan | null>(null);
   const [lines, setLines] = useState<CartLine[]>([]);
   const [chargeDeposit, setChargeDeposit] = useState(true);
+  const [orderingOpen, setOrderingOpen] = useState(false);
+  const [orderingDeadline, setOrderingDeadline] = useState<string | null>(null);
+  useEffect(() => {
+    let active = true;
+    async function refresh() {
+      try {
+        const response = await fetch('/api/ordering-policy', { cache: 'no-store' });
+        if (!response.ok) throw new Error('Unavailable');
+        const policy = await response.json();
+        if (active) {
+          setChargeDeposit(policy.glassFeeCents > 0);
+          setOrderingDeadline(policy.closesAt);
+          setOrderingOpen(policy.orderingOpen && Date.now() < Date.parse(policy.closesAt));
+        }
+      } catch { if (active) setOrderingOpen(false); }
+    }
+    void refresh();
+    window.addEventListener('focus', refresh);
+    const interval = window.setInterval(refresh, 60000);
+    return () => { active = false; window.removeEventListener('focus', refresh); window.clearInterval(interval); };
+  }, [pathname]);
+  useEffect(() => {
+    if (!orderingDeadline) return;
+    const timer = window.setInterval(() => {
+      if (Date.now() >= Date.parse(orderingDeadline)) setOrderingOpen(false);
+    }, 1000);
+    return () => window.clearInterval(timer);
+  }, [orderingDeadline]);
+
 
   const totalMeals = lines.reduce((sum, line) => sum + line.quantity, 0);
 
@@ -116,7 +150,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   function addOneTime(meal: Meal, size: MealSize) {
     if (
-      mode !== 'one_time' ||
+      !orderingOpen || mode !== 'one_time' ||
       !meal.is_available_for_one_time ||
       !size.is_active ||
       !size.is_available_for_one_time ||
@@ -140,7 +174,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   function addSubscription(meal: Meal, size: MealSize) {
     const kind = getSubscriptionKind(meal);
     if (
-      mode !== 'subscription' ||
+      !orderingOpen || mode !== 'subscription' ||
       !selectedPlan || !kind ||
       totalMeals >= selectedPlan.includedCredits ||
       !meal.is_available_for_subscription ||
@@ -179,7 +213,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     const subtotalCents = mode === 'subscription'
       ? selectedPlan?.priceCents ?? 0
       : lines.reduce((sum, line) => sum + (line.kind === 'one_time' ? line.quantity * line.display.unitPriceCents : 0), 0);
-    const depositCents = chargeDeposit ? totalMeals * DEPOSIT_PER_CONTAINER_CENTS : 0;
+    const depositCents = totalMeals > 0 && chargeDeposit ? GLASS_CONTAINER_DEPOSIT_CENTS : 0;
     return {
       mode,
       changeMode,
@@ -204,11 +238,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
         : 0,
       subtotalCents,
       depositCents,
+      glassFeeCents: depositCents,
+      orderingOpen,
+      orderingDeadline,
       totalCents: subtotalCents + depositCents,
       chargeDeposit,
       setChargeDeposit,
     };
-  }, [mode, selectedPlan, lines, totalMeals, chargeDeposit]);
+  }, [mode, selectedPlan, lines, totalMeals, chargeDeposit, orderingOpen, orderingDeadline]);
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }

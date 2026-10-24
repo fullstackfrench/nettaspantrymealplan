@@ -97,6 +97,7 @@ export interface Customer {
   delivery_notes: string | null;
   containers_out: number;
   deposit_held_cents: number;
+  glass_fee_paid_at?: string | null;
   stripe_customer_id: string | null;
   created_at: string;
 }
@@ -120,6 +121,7 @@ export interface Order {
   delivery_date: string | null;
   subtotal_cents: number;
   deposit_cents: number;
+  glass_fee_cents?: number;
   total_cents: number;
   containers_issued: number;
   containers_returned: number;

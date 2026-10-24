@@ -1,6 +1,6 @@
 export const ORDER_CHANGE_WINDOW_HOURS = 24;
 export const ORDER_CHANGE_POLICY =
-  'Orders can be canceled only within 24 hours of being placed. Meal, quantity, and delivery-address changes are available within the same 24-hour window, before preparation begins.';
+  'Orders can be canceled only within 24 hours of being placed. Meal, quantity, and delivery-address changes are available within the same 24-hour window, before preparation begins. Meal selections also close Monday at 8:00 p.m. Eastern. The one-time $50 glass-container deposit is non-refundable.';
 export function orderChangeDeadline(createdAt: string) {
   return new Date(
     new Date(createdAt).getTime() + ORDER_CHANGE_WINDOW_HOURS * 3600000,

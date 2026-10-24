@@ -42,7 +42,7 @@ test('invalid quantities, unknown dishes and incomplete or odd plans cannot qual
   assert.equal(subscriptionMix([{ kind: 'side', quantity: 2 }, { kind: 'entree', quantity: 3 }], 5).valid, false);
 });
 function cartHarness() {
-  const values = []; let cursor = 0; let context;
+  const values = []; let cursor = 0; let effectCursor = 0; let context; const effects = new Set();
   const react = {
     createContext() { context = { Provider: Symbol('provider') }; return context; },
     useState(initial) {
@@ -50,26 +50,28 @@ function cartHarness() {
       if (!(slot in values)) values[slot] = initial;
       return [values[slot], (update) => { values[slot] = typeof update === 'function' ? update(values[slot]) : update; }];
     },
+    useEffect(fn) { const id = effectCursor++; if (!effects.has(id)) { effects.add(id); fn(); } },
     useMemo(fn) { return fn(); },
     useContext() { return context.value; },
   };
   const exports = {};
   vm.runInNewContext(ts.transpileModule(fs.readFileSync('src/lib/cart.tsx', 'utf8'), {
     compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX },
-  }).outputText, { exports, window: { confirm: () => true }, require(name) {
+  }).outputText, { exports, window: { confirm: () => true, addEventListener() {}, removeEventListener() {}, setInterval: () => 1, clearInterval() {} }, fetch: async () => ({ ok: true, json: async () => ({ orderingOpen: true, closesAt: '2099-01-06T01:00:00Z', glassFeeCents: 5000 }) }), require(name) {
     if (name === 'react') return react;
+    if (name === 'next/navigation') return { usePathname: () => '/menu' };
     if (name === 'react/jsx-runtime') return { jsx: (type, props) => { context.value = props.value; return null; } };
-    if (name === './constants') return { DEPOSIT_PER_CONTAINER_CENTS: 300 };
+    if (name === './constants') return { GLASS_CONTAINER_DEPOSIT_CENTS: 5000 };
     if (name === './subscription-mix') return { getSubscriptionKind, subscriptionMix };
     throw new Error(name);
   } });
-  return () => { cursor = 0; exports.CartProvider({ children: null }); return exports.useCart(); };
+  return () => { cursor = 0; effectCursor = 0; exports.CartProvider({ children: null }); return exports.useCart(); };
 }
 const meal = (id, category) => ({ id, name: id, slug: id, tags: [category], is_available_for_subscription: true, is_available_for_one_time: true });
 const size = { id: 'regular', label: 'Regular', servings: 1, price_cents: 1200, is_active: true, is_available_for_subscription: true, is_available_for_one_time: true };
 const plan = { id: 'six', code: 'weekly-6', name: 'Six', included_credits: 6, price_cents: 8100, billing_interval: 'week', billing_interval_count: 1 };
-test('cart caps each category even for repeated additions before React renders', () => {
-  const render = cartHarness(); render().selectPlan(plan);
+test('cart caps each category even for repeated additions before React renders', async () => {
+  const render = cartHarness(); render(); await new Promise(setImmediate); render().selectPlan(plan);
   const side = meal('carrots', 'sides'), entree = meal('soup', 'soups');
   let cart = render();
   for (let i = 0; i < 7; i++) cart.addSubscription(side, size);
@@ -87,8 +89,8 @@ test('cart caps each category even for repeated additions before React renders',
   assert.equal(cart.subscriptionComplete, false);
   assert.equal(cart.canAddSubscription(side), true);
 });
-test('subscription desserts are rejected and one-time orders have no category cap', () => {
-  const render = cartHarness(); render().selectPlan(plan);
+test('subscription desserts are rejected and one-time orders have no category cap', async () => {
+  const render = cartHarness(); render(); await new Promise(setImmediate); render().selectPlan(plan);
   render().addSubscription(meal('pudding', 'desserts'), size);
   assert.equal(render().totalMeals, 0);
   render().changeMode('one_time');

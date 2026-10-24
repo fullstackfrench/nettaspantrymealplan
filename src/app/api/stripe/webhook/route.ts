@@ -196,6 +196,10 @@ export async function POST(request: Request) {
             .eq('id', session.metadata.order_change_id)
             .eq('stripe_checkout_session_id', session.id),
         );
+      } else if (session.metadata?.order_id) {
+        check(await admin.from('orders').update({ status: 'canceled', fulfillment_status: 'canceled' })
+          .eq('id', session.metadata.order_id).eq('stripe_checkout_session_id', session.id)
+          .eq('status', 'pending').eq('payment_status', 'unpaid'));
       }
     }
     check(

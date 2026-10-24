@@ -46,7 +46,7 @@ test('existing Stripe checkouts cannot bypass the server food minimum', async ()
    stripe_checkout_session_id: 'cs_existing', customer_change_id: null,
   } }) };
   const payments = load('src/lib/account/payments.ts', {
-   'server-only': {}, './plan-prices': {}, '@/lib/minimum-order': minimum,
+   'server-only': {}, './plan-prices': {}, '@/lib/minimum-order': minimum, './ordering-policy': { assertWeeklyOrderingOpen: async () => {} },
    '@/lib/supabase/server': { createAdminClient: () => ({ from: () => q }) },
    './server': { stripeClient: () => { stripeCalls++; return { checkout: { sessions: {
     retrieve: async () => ({ status: 'open', url: 'https://checkout.example.test' }),
