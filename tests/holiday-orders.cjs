@@ -42,7 +42,8 @@ function load(file, imports = {}, environment = {}) {
   );
   return output;
 }
-const menu = load("src/lib/holiday-menu.ts");
+const tax = load("src/lib/sales-tax.ts");
+const menu = load("src/lib/holiday-menu.ts", {"./sales-tax": tax});
 const deliveryConstants = load("src/lib/constants.ts");
 const validation = load("src/lib/holiday-checkout.ts", {
   "./holiday-menu": menu,
@@ -71,15 +72,15 @@ const valid = {
   occasion: "thanksgiving",
   eventDate: "",
   consent: true,
-  expectedTotal: 41669,
+  expectedTotal: 45107,
 };
 const now = new Date("2026-10-12T16:00:00Z");
 
 test("package minimum and per-person pricing determine full payment at checkout", () => {
-  assert.equal(menu.holidayQuote(settings, 18, false, false).totalCents, 30000);
+  assert.equal(menu.holidayQuote(settings, 18, false, false).totalCents, 32475);
   const quote = menu.holidayQuote(settings, 25, false, false);
-  assert.equal(quote.totalCents, 41669);
-  assert.equal(quote.depositCents, 41669);
+  assert.equal(quote.totalCents, 45107);
+  assert.equal(quote.depositCents, 45107);
   assert.equal(quote.balanceCents, 0);
 });
 test("second dessert and delivery are included in the full checkout payment", () => {
@@ -90,13 +91,13 @@ test("second dessert and delivery are included in the full checkout payment", ()
     true,
   );
   assert.equal(quote.extraCents, 4500);
-  assert.equal(quote.totalCents, 48669);
-  assert.equal(quote.depositCents, 48669);
+  assert.equal(quote.totalCents, 52684);
+  assert.equal(quote.depositCents, 52684);
   assert.equal(
     menu.holidayQuote(settings, 25, true, false).depositCents,
-    46169,
+    49978,
   );
-  assert.equal(menu.holidayQuote(settings, 18, true, false).totalCents, 34500);
+  assert.equal(menu.holidayQuote(settings, 18, true, false).totalCents, 37346);
 });
 test("admins can change the base package and additional-guest rates", () => {
   const quote = menu.holidayQuote(
@@ -111,7 +112,7 @@ test("admins can change the base package and additional-guest rates", () => {
     true,
     false,
   );
-  assert.equal(quote.totalCents, 51500);
+  assert.equal(quote.totalCents, 55749);
 });
 test("odd-cent totals are collected once in full", () => {
   const quote = menu.holidayQuote(
@@ -120,7 +121,7 @@ test("odd-cent totals are collected once in full", () => {
     false,
     true,
   );
-  assert.equal(quote.depositCents, 41670);
+  assert.equal(quote.depositCents, 45108);
   assert.equal(quote.balanceCents, 0);
   assert.equal(quote.depositCents + quote.balanceCents, quote.totalCents);
 });
@@ -141,7 +142,7 @@ test("invalid headcounts and unavailable upgrades are rejected", () => {
 test("checkout locks a verified price and records consent for the exact full payment", () => {
   const accepted = validation.validateHolidayCheckout(valid, settings, now);
   assert.equal(accepted.details.email, "test@example.com");
-  assert.match(accepted.consent, /payment of \$416.69/);
+  assert.match(accepted.consent, /payment of \$451.07/);
   assert.doesNotMatch(accepted.consent, /in full|remaining balance/);
 });
 test("checkout rejects stale pricing, forged totals, missing consent and menu substitutions", () => {
@@ -232,7 +233,7 @@ function fixture() {
     if(update)Object.assign(order,update);return {data:structuredClone(order),error:null};
    } }; return q;
  } };
- const payments = load('src/lib/holiday-payments.ts', { 'server-only': {}, stripe: class { constructor(){return stripe;} }, '@/lib/supabase/server': {} });
+ const payments = load('src/lib/holiday-payments.ts', { '@/lib/stripe-sales-tax': {ensureSalesTaxRate:async()=> 'txr_test'}, 'server-only': {}, stripe: class { constructor(){return stripe;} }, '@/lib/supabase/server': {} });
  const actions = load('src/app/admin/holidays/actions.ts', { '@/lib/constants': deliveryConstants, 'next/cache': { revalidatePath() {} }, '@/lib/auth/require-admin': { requireAdmin: async () => db } });
  return {order,calls,stripe,db,payments,actions};
 }
@@ -276,7 +277,7 @@ test('admin pricing and fulfillment actions reject unauthorized callers', async 
 
 test('holiday delivery accepts all NC ZIPs, including ZIP+4, and rejects other states', () => {
   for (const zip of ['27006', '28909', '27601-1234']) {
-    const result=validation.validateHolidayCheckout({...valid,expectedTotal:42669,fulfillment:'delivery',address:'1 NC Street',zip},settings,now);
+    const result=validation.validateHolidayCheckout({...valid,expectedTotal:46189,fulfillment:'delivery',address:'1 NC Street',zip},settings,now);
     assert.equal(result.details.zip,zip.slice(0,5));
   }
   assert.throws(()=>validation.validateHolidayCheckout({...valid,fulfillment:'delivery',address:'1 SC Street',zip:'29601'},settings,now),/North Carolina/);

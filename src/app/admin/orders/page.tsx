@@ -66,6 +66,7 @@ export default async function OrdersAdmin() {
 
                 <div className="text-left min-[420px]:text-right">
                   <div className="text-lg font-bold text-brand-plum">{formatCents(o.total_cents)}</div>
+                  {Boolean(o.tax_cents) && <div className="text-xs text-ink/55">Includes {formatCents(o.tax_cents!)} sales tax</div>}
                   <div className="mt-1 text-xs text-ink/50">
                     incl. {formatCents(o.deposit_cents)} deposit
                   </div>

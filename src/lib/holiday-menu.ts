@@ -1,3 +1,5 @@
+import { salesTaxCents } from './sales-tax';
+
 export const HOLIDAY_ENTREES = [
   "Turkey wings with gravy",
   "Turkey breast",
@@ -82,11 +84,15 @@ export function holidayQuote(
   const deliveryCents = delivery ? settings.delivery_fee_cents : 0;
   const foodCents = settings.minimum_order_cents +
     (people - settings.minimum_people) * settings.per_person_cents;
-  const totalCents = foodCents + extraCents + deliveryCents;
+  const subtotalCents = foodCents + extraCents + deliveryCents;
+  const taxCents = salesTaxCents(subtotalCents);
+  const totalCents = subtotalCents + taxCents;
   // Retain the legacy field name for database compatibility; checkout collects the full total.
   const depositCents = totalCents;
   return {
     foodCents,
+    taxCents,
+    subtotalCents,
     extraCents,
     deliveryCents,
     totalCents,

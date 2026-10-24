@@ -1,6 +1,7 @@
 'use client';
 
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { orderTaxCents } from './sales-tax';
 import { usePathname } from 'next/navigation';
 import { GLASS_CONTAINER_DEPOSIT_CENTS, DELIVERY_FEE_CENTS } from './constants';
 import type { Meal, MealSize, PublicSubscriptionPlan } from './types';
@@ -65,6 +66,7 @@ interface CartState {
   depositCents: number;
   glassFeeCents: number;
   deliveryFeeCents: number;
+  taxCents: number;
   orderingOpen: boolean;
   orderingDeadline: string | null;
   totalCents: number;
@@ -243,7 +245,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
       deliveryFeeCents: totalMeals > 0 ? DELIVERY_FEE_CENTS : 0,
       orderingOpen,
       orderingDeadline,
-      totalCents: subtotalCents + depositCents + (totalMeals > 0 ? DELIVERY_FEE_CENTS : 0),
+      taxCents: orderTaxCents([subtotalCents, depositCents, totalMeals > 0 ? DELIVERY_FEE_CENTS : 0]),
+      totalCents: subtotalCents + depositCents + (totalMeals > 0 ? DELIVERY_FEE_CENTS : 0) + orderTaxCents([subtotalCents, depositCents, totalMeals > 0 ? DELIVERY_FEE_CENTS : 0]),
       chargeDeposit,
       setChargeDeposit,
     };

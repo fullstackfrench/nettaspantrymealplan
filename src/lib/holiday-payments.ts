@@ -1,6 +1,7 @@
 import "server-only";
 import Stripe from "stripe";
 import { createAdminClient } from "@/lib/supabase/server";
+import { ensureSalesTaxRate } from '@/lib/stripe-sales-tax';
 
 type Database = ReturnType<typeof createAdminClient>;
 export type HolidayOrder = {
@@ -8,6 +9,8 @@ export type HolidayOrder = {
   full_name: string;
   email: string;
   total_cents: number;
+  tax_cents?: number;
+  tax_rate_bps?: number;
   deposit_cents: number;
   balance_cents: number;
   consent_text: string;
@@ -60,6 +63,7 @@ export async function startHolidayCheckout(db: Database, order: HolidayOrder) {
   if (order.deposit_cents !== order.total_cents || order.balance_cents !== 0)
     throw new Error("Holiday checkout is being updated. Reload the page before starting a new order.");
   const stripe = holidayStripe();
+  const taxRate = order.tax_rate_bps ? await ensureSalesTaxRate(stripe) : null;
   if (order.stripe_checkout_session_id) {
     const existing = await stripe.checkout.sessions.retrieve(
       order.stripe_checkout_session_id,
@@ -115,9 +119,11 @@ export async function startHolidayCheckout(db: Database, order: HolidayOrder) {
           line_items: [
             {
               quantity: 1,
+              ...(taxRate ? { tax_rates: [taxRate] } : {}),
               price_data: {
                 currency: "usd",
-                unit_amount: order.deposit_cents,
+                unit_amount: order.total_cents - (order.tax_cents ?? 0),
+                tax_behavior: 'exclusive',
                 product_data: {
                   name: "Hassle-free Holidays",
                   description: `Holiday order total: $${(order.total_cents / 100).toFixed(2)}.`,

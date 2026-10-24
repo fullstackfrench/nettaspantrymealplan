@@ -27,7 +27,7 @@ const items = (quantity) => [{ mealId: 'meal', mealSizeId: 'size', quantity }];
 test('subscription delivery repeats each week while the glass deposit is charged once', async () => {
  let request;
  const order = { id: 'order', status: 'pending', order_type: 'subscription', subtotal_cents: 10500,
-  total_cents: 16500, glass_fee_cents: 5000, delivery_fee_cents: 1000 };
+  tax_rate_bps:825, total_cents: 17862, glass_fee_cents: 5000, delivery_fee_cents: 1000 };
  const db = { from(table) {
   const q = { select() { return q; }, eq() { return q; }, update() { return q; },
    single: async () => ({ data: table === 'orders' ? order : { email: 'test@example.com' }, error: null }),
@@ -35,17 +35,19 @@ test('subscription delivery repeats each week while the glass deposit is charged
   return q;
  } };
  const payments = load('src/lib/account/payments.ts', {
-  'server-only': {}, './plan-prices': {}, '@/lib/minimum-order': minimum,
+  '@/lib/sales-tax': load('src/lib/sales-tax.ts'), '@/lib/stripe-sales-tax': { ensureSalesTaxRate: async () => 'txr_test' }, 'server-only': {}, './plan-prices': {}, '@/lib/minimum-order': minimum,
   './ordering-policy': { assertWeeklyOrderingOpen: async () => {} },
   '@/lib/supabase/server': { createAdminClient: () => db },
   './server': { siteOrigin: () => 'https://example.com', stripeClient: () => ({ checkout: { sessions: {
-   create: async (input) => { request=input; return { id:'session',url:'https://checkout.example.com',expires_at:1800000000 }; },
+   create: async (input) => { request=input; return { id:'session',url:'https://checkout.example.com',expires_at:1800000000, amount_subtotal:16500,amount_total:17862,total_details:{amount_tax:1362} }; },
   } } }) },
  });
  await payments.createOrderCheckout('order','customer');
  const delivery = request.line_items.find(line => line.price_data.product_data.name === 'Delivery');
  const glass = request.line_items.find(line => line.price_data.unit_amount === 5000);
  assert.equal(delivery.price_data.unit_amount,1000);
+ assert.equal(delivery.tax_rates[0],'txr_test');
+ assert.equal(request.subscription_data.default_tax_rates[0],'txr_test');
  assert.equal(delivery.price_data.recurring.interval,'week');
  assert.equal(glass.price_data.recurring,undefined);
 });
@@ -71,7 +73,7 @@ test('existing Stripe checkouts cannot bypass the server food minimum', async ()
    stripe_checkout_session_id: 'cs_existing', customer_change_id: null,
   } }) };
   const payments = load('src/lib/account/payments.ts', {
-   'server-only': {}, './plan-prices': {}, '@/lib/minimum-order': minimum, './ordering-policy': { assertWeeklyOrderingOpen: async () => {} },
+   '@/lib/sales-tax': load('src/lib/sales-tax.ts'), '@/lib/stripe-sales-tax': { ensureSalesTaxRate: async () => 'txr_test' }, 'server-only': {}, './plan-prices': {}, '@/lib/minimum-order': minimum, './ordering-policy': { assertWeeklyOrderingOpen: async () => {} },
    '@/lib/supabase/server': { createAdminClient: () => ({ from: () => q }) },
    './server': { stripeClient: () => { stripeCalls++; return { checkout: { sessions: {
     retrieve: async () => ({ status: 'open', url: 'https://checkout.example.test' }),

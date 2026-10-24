@@ -4,6 +4,7 @@ import { meetsOrderMinimum, MINIMUM_ORDER_MESSAGE } from '@/lib/minimum-order';
 import { assertSelectionMinimum } from '@/lib/account/minimum-order';
 import { assertWeeklyOrderingOpen } from '@/lib/account/ordering-policy';
 import { createHash } from 'crypto';
+import { SALES_TAX_BPS } from '@/lib/sales-tax';
 import { NextResponse } from 'next/server';
 import { createAdminClient, createSessionClient } from '@/lib/supabase/server';
 import {
@@ -184,6 +185,7 @@ export async function POST(request: Request) {
     await afterAuth(user);
   }
   const canonical = JSON.stringify({
+    taxRateBps: SALES_TAX_BPS,
     authUserId: user?.id ?? null,
     mode: parsed.mode,
     subscriptionPlanId: parsed.subscriptionPlanId,
@@ -219,6 +221,7 @@ export async function POST(request: Request) {
     })),
     p_deposit_per_container_cents: 0,
     p_delivery_fee_cents: DELIVERY_FEE_CENTS,
+    p_tax_rate_bps: SALES_TAX_BPS,
   });
 
   if (error) {
@@ -287,6 +290,8 @@ export async function POST(request: Request) {
       { status: 503 },
     );
   }
+  const finalOrder = await admin.from('orders').select('tax_cents,total_cents').eq('id', prepared.order_id).single();
+  if (finalOrder.error || !finalOrder.data) return NextResponse.json({error:'Unable to load payment total. Please retry.'}, {status:503});
   return NextResponse.json({
     url,
     orderId: prepared.order_id,
@@ -294,7 +299,8 @@ export async function POST(request: Request) {
     depositCents: prepared.deposit_cents,
     glassFeeCents: lookup.data.glass_fee_cents,
     deliveryFeeCents: prepared.delivery_fee_cents,
-    totalCents: prepared.total_cents,
+    taxCents: finalOrder.data.tax_cents,
+    totalCents: finalOrder.data.total_cents,
     containers: prepared.containers,
     paymentStatus: prepared.payment_status,
     fulfillmentStatus: prepared.fulfillment_status,

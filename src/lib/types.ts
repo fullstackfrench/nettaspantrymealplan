@@ -137,6 +137,8 @@ export interface Order {
   contact_email: string | null;
   delivery_zip: string | null;
   delivery_fee_cents: number;
+  tax_cents?: number;
+  tax_rate_bps?: number;
   subscription_plan_id: string | null;
   plan_code_snapshot: string | null;
   plan_name_snapshot: string | null;

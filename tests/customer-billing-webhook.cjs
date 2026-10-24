@@ -82,6 +82,12 @@ vm.runInNewContext(
       if (name.includes('account/server'))
         return {
           stripeClient: () => ({
+            subscriptions: { retrieve: async () => ({metadata:{sales_tax_bps:'825'}}) },
+            invoices: { listLineItems: async () => ({data:[
+              {amount:10500,price:{product:'prod_meal'}},
+              {amount:1000,price:{product:'prod_delivery'}},
+            ]}) },
+            products: { retrieve: async id => ({id,metadata:{charge_type:id==='prod_delivery'?'delivery':'food'}}) },
             webhooks: {
               constructEvent(_body, signature) {
                 if (signature === 'bad') throw new Error('Invalid signature');
@@ -140,4 +146,18 @@ test('paid adjustment applies once despite duplicate webhook delivery', async ()
   assert.equal(applied[0].name, 'finish_customer_order_change');
   assert.equal((await exportsObject.POST(request())).status, 200);
   assert.equal(applied.length, 1);
+});
+test('renewal saves Stripe tax and delivery separately and ignores duplicate events', async () => {
+  applied=[];
+  event={id:'evt_invoice_tax',type:'invoice.paid',data:{object:{id:'in_tax',subscription:'sub_tax',
+    billing_reason:'subscription_cycle',currency:'usd',payment_intent:'pi_tax',amount_paid:12449,
+    total_tax_amounts:[{amount:949}]}}};
+  assert.equal((await exportsObject.POST(request())).status,200);
+  assert.equal(applied.length,1);
+  assert.equal(applied[0].name,'record_customer_subscription_invoice');
+  assert.equal(applied[0].args.p_tax_cents,949);
+  assert.equal(applied[0].args.p_delivery_cents,1000);
+  assert.equal(applied[0].args.p_tax_rate_bps,825);
+  assert.equal((await exportsObject.POST(request())).status,200);
+  assert.equal(applied.length,1);
 });

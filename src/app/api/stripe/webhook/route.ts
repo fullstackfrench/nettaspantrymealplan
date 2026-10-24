@@ -126,15 +126,27 @@ export async function POST(request: Request) {
       if (
         invoice.subscription &&
         invoice.billing_reason !== 'subscription_create'
-      )
+      ) {
+        const remote = await stripe.subscriptions.retrieve(id(invoice.subscription)!);
+        let deliveryCents = 0;
+        const lines = await stripe.invoices.listLineItems(invoice.id, { limit: 100 });
+        for (const line of lines.data) {
+          const productRef = line.price?.product;
+          const product = typeof productRef === 'string' ? await stripe.products.retrieve(productRef) : productRef;
+          if (product && !product.deleted && product.metadata?.charge_type === 'delivery') deliveryCents += line.amount;
+        }
         check(
           await admin.rpc('record_customer_subscription_invoice', {
             p_invoice_id: invoice.id,
             p_stripe_subscription_id: id(invoice.subscription),
             p_payment_intent_id: id(invoice.payment_intent),
             p_amount: invoice.amount_paid,
+            p_tax_cents: invoice.total_tax_amounts.reduce((sum, tax) => sum + tax.amount, 0),
+            p_delivery_cents: deliveryCents,
+            p_tax_rate_bps: remote.metadata.sales_tax_bps === '825' ? 825 : 0,
           }),
         );
+      }
     } else if (
       event.type === 'customer.subscription.updated' ||
       event.type === 'customer.subscription.deleted'

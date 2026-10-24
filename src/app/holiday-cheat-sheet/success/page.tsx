@@ -13,6 +13,7 @@ export default async function HolidaySuccess({
   let confirmed = false;
   let amounts: {
     total_cents: number;
+    tax_cents: number;
     deposit_cents: number;
     balance_cents: number;
     balance_status: string;
@@ -34,7 +35,7 @@ export default async function HolidaySuccess({
         const { data } = await createAdminClient()
           .from("holiday_orders")
           .select(
-            "total_cents, deposit_cents, balance_cents, deposit_status, balance_status, invoice_url",
+            "total_cents, tax_cents, deposit_cents, balance_cents, deposit_status, balance_status, invoice_url",
           )
           .eq("id", session.metadata.holiday_order_id)
           .eq("stripe_checkout_session_id", session.id)
@@ -61,6 +62,7 @@ export default async function HolidaySuccess({
         </p>
         {amounts && (
           <dl className="mt-6 space-y-3 text-ink/75">
+            {amounts.tax_cents > 0 && <div><dt>Sales tax (8.25%)</dt><dd>{formatCents(amounts.tax_cents)}</dd></div>}
             <div>
               <dt>Order total</dt>
               <dd className="font-bold">{formatCents(amounts.total_cents)}</dd>

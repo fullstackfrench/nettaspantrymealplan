@@ -42,7 +42,7 @@ begin
  select count(*) into claims from public.claim_holiday_balance(o.id);
  if claims<>0 then raise exception 'Fulfillment allowed another charge'; end if;
  if has_table_privilege('anon','public.holiday_orders','select') or has_table_privilege('authenticated','public.holiday_settings','update') then raise exception 'Privacy regression'; end if;
- if has_function_privilege('authenticated','public.prepare_holiday_order(uuid,integer,jsonb,integer,text)','execute') then raise exception 'Public billing RPC'; end if;
+ if has_function_privilege('authenticated','public.prepare_holiday_order(uuid,integer,jsonb,integer,text,integer)','execute') then raise exception 'Public billing RPC'; end if;
  raise notice 'PASS: $300 package, $45 dessert, 18-person minimum, full payment, immutable snapshots, idempotency, no fulfillment charge and permissions';
 end $$;
 rollback;

@@ -57,6 +57,7 @@ export default async function HolidayAdmin() {
               <div className="text-sm leading-7 text-ink/75">
                 <p className="font-bold text-brand-plum">
                   Total {formatCents(order.total_cents)}
+                  {Boolean(order.tax_cents) && <span className="block text-xs">Includes {formatCents(order.tax_cents)} sales tax</span>}
                 </p>
                 <p>
                   Payment {formatCents(order.deposit_cents)} ·{" "}

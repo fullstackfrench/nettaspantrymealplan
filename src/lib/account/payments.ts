@@ -4,6 +4,8 @@ import { createAdminClient } from '@/lib/supabase/server';
 import { siteOrigin, stripeClient } from './server';
 import { assertWeeklyOrderingOpen } from './ordering-policy';
 import { assertOrderMinimum } from '@/lib/minimum-order';
+import { ensureSalesTaxRate } from '@/lib/stripe-sales-tax';
+import { orderTaxCents, salesTaxCents } from '@/lib/sales-tax';
 
 export async function createOrderCheckout(
   orderId: string,
@@ -23,6 +25,7 @@ export async function createOrderCheckout(
   assertOrderMinimum(order.subtotal_cents);
   await assertWeeklyOrderingOpen(admin, order.week_start);
   const stripe = stripeClient();
+  const taxRate = order.tax_rate_bps ? await ensureSalesTaxRate(stripe) : null;
   if (order.stripe_checkout_session_id) {
     const existing = await stripe.checkout.sessions.retrieve(
       order.stripe_checkout_session_id,
@@ -58,12 +61,14 @@ export async function createOrderCheckout(
       line_items: [
         {
           quantity: 1,
+          ...(taxRate ? { tax_rates: [taxRate] } : {}),
           ...(planPrice
             ? { price: planPrice }
             : {
                 price_data: {
                   currency: 'usd',
                   unit_amount: order.subtotal_cents,
+                  tax_behavior: 'exclusive' as const,
                   product_data: {
                     name: recurring
                       ? "Netta's Pantry weekly meal plan"
@@ -86,7 +91,7 @@ export async function createOrderCheckout(
           { amount: order.deposit_cents ?? 0, name: 'Legacy refundable glass-container deposit' },
           { amount: order.delivery_fee_cents ?? 0, name: 'Delivery' },
         ].filter((charge) => charge.amount > 0).map((charge) => ({
-          quantity: 1, price_data: { currency: 'usd', unit_amount: charge.amount, product_data: { name: charge.name },
+          quantity: 1, ...(taxRate ? { tax_rates: [taxRate] } : {}), price_data: { currency: 'usd', unit_amount: charge.amount, tax_behavior: 'exclusive' as const, product_data: { name: charge.name, metadata: { charge_type: charge.name === 'Delivery' ? 'delivery' : 'glass' } },
             ...(recurring && charge.name === 'Delivery' ? { recurring: {
               interval: order.billing_interval_snapshot || 'week',
               interval_count: order.billing_interval_count_snapshot || 1,
@@ -98,7 +103,8 @@ export async function createOrderCheckout(
       ...(recurring
         ? {
             subscription_data: {
-              metadata: { order_id: order.id, customer_id: customerId },
+              ...(taxRate ? { default_tax_rates: [taxRate] } : {}),
+              metadata: { order_id: order.id, customer_id: customerId, sales_tax_bps: String(order.tax_rate_bps ?? 0) },
             },
           }
         : {}),
@@ -109,11 +115,16 @@ export async function createOrderCheckout(
       idempotencyKey: `order-checkout:${order.id}:${order.total_cents}:${order.stripe_checkout_session_id || 'initial'}`,
     },
   );
+  const base = order.subtotal_cents + (order.glass_fee_cents ?? 0) + (order.deposit_cents ?? 0) + (order.delivery_fee_cents ?? 0);
+  const taxes = [salesTaxCents(base), orderTaxCents([order.subtotal_cents, order.glass_fee_cents ?? 0, order.deposit_cents ?? 0, order.delivery_fee_cents ?? 0])];
+  if (taxRate && (session.amount_subtotal !== base || session.amount_total == null || session.total_details?.amount_tax == null ||
+      !taxes.includes(session.total_details.amount_tax) || session.amount_total !== base + session.total_details.amount_tax)) throw new Error('Stripe tax total could not be verified.');
   const update = await admin
     .from('orders')
     .update({
       stripe_checkout_session_id: session.id,
       checkout_expires_at: new Date(session.expires_at * 1000).toISOString(),
+      ...(taxRate ? { tax_cents: session.total_details!.amount_tax, total_cents: session.amount_total } : {}),
     })
     .eq('id', order.id);
   if (update.error) throw update.error;
@@ -134,11 +145,12 @@ export async function settleOrderChange(changeId: string) {
   if (!['pending', 'waiting_payment'].includes(change.status))
     throw new Error('This order change is no longer available.');
   if (change.operation === 'edit') {
-    assertOrderMinimum(change.new_total_cents - Number(change.payload?.deposit_cents) - Number(change.orders.delivery_fee_cents ?? 0) - Number(change.orders.glass_fee_cents ?? 0));
+    assertOrderMinimum(change.new_total_cents - Number(change.payload?.tax_cents ?? 0) - Number(change.payload?.deposit_cents) - Number(change.orders.delivery_fee_cents ?? 0) - Number(change.orders.glass_fee_cents ?? 0));
   }
   const difference = change.new_total_cents - change.old_total_cents;
   if (change.paid && difference > 0) {
     const stripe = stripeClient();
+    const adjustmentTaxRate = change.orders.tax_rate_bps ? await ensureSalesTaxRate(stripe, true) : null;
     if (change.stripe_checkout_session_id) {
       const existing = await stripe.checkout.sessions.retrieve(
         change.stripe_checkout_session_id,
@@ -163,8 +175,10 @@ export async function settleOrderChange(changeId: string) {
             price_data: {
               currency: 'usd',
               unit_amount: difference,
+              ...(adjustmentTaxRate ? { tax_behavior: 'inclusive' as const } : {}),
               product_data: { name: 'Meal order adjustment' },
             },
+            ...(adjustmentTaxRate ? { tax_rates: [adjustmentTaxRate] } : {}),
           },
         ],
         metadata: { order_change_id: change.id },

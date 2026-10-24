@@ -3,6 +3,7 @@ import { createAdminClient } from "@/lib/supabase/server";
 import { getHolidaySettings } from "@/lib/holiday-settings";
 import { validateHolidayCheckout } from "@/lib/holiday-checkout";
 import { holidayOrigin, startHolidayCheckout } from "@/lib/holiday-payments";
+import { SALES_TAX_BPS } from '@/lib/sales-tax';
 
 export async function POST(request: Request) {
   if (request.headers.get("origin") !== holidayOrigin())
@@ -42,6 +43,7 @@ export async function POST(request: Request) {
       p_details: submission.details,
       p_total: submission.quote.totalCents,
       p_consent: submission.consent,
+      p_tax_rate_bps: SALES_TAX_BPS,
     });
     if (error)
       return NextResponse.json(

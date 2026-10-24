@@ -21,6 +21,7 @@ export default function CheckoutPage() {
     subtotalCents,
     glassFeeCents,
     deliveryFeeCents,
+    taxCents,
     orderingOpen,
     setChargeDeposit,
     totalCents,
@@ -276,6 +277,7 @@ export default function CheckoutPage() {
             value={formatCents(glassFeeCents)}
           />
           <Row label="Delivery" value={formatCents(deliveryFeeCents)} />
+          <Row label="Sales tax (8.25%)" value={formatCents(taxCents)} />
           <div className="border-t border-black/10 pt-3">
             <Row label="Preview total" value={formatCents(totalCents)} bold />
           </div>

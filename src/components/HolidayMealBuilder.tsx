@@ -331,6 +331,7 @@ export default function HolidayMealBuilder({
                 <Amount label="Holiday package" value={quote.foodCents} />
                 <Amount label="Second dessert" value={quote.extraCents} />
                 <Amount label="Delivery" value={quote.deliveryCents} />
+                <Amount label="Sales tax (8.25%)" value={quote.taxCents} />
                 <Amount
                   label="Order total"
                   value={quote.totalCents}

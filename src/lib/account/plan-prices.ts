@@ -16,6 +16,7 @@ export async function ensurePlanPrice(planId: string) {
     if (
       price.active &&
       price.currency === 'usd' &&
+      price.tax_behavior === 'exclusive' &&
       price.unit_amount === plan.price_cents &&
       price.recurring?.interval === plan.billing_interval &&
       price.recurring?.interval_count === plan.billing_interval_count
@@ -38,6 +39,7 @@ export async function ensurePlanPrice(planId: string) {
       product: productId,
       currency: 'usd',
       unit_amount: plan.price_cents,
+      tax_behavior: 'exclusive',
       recurring: {
         interval: plan.billing_interval,
         interval_count: plan.billing_interval_count,
@@ -45,7 +47,7 @@ export async function ensurePlanPrice(planId: string) {
       metadata: { subscription_plan_id: plan.id },
     },
     {
-      idempotencyKey: `plan-price:${plan.id}:${plan.price_cents}:${plan.billing_interval}:${plan.billing_interval_count}`,
+      idempotencyKey: `plan-price-exclusive:${plan.id}:${plan.price_cents}:${plan.billing_interval}:${plan.billing_interval_count}`,
     },
   );
   const update = await admin

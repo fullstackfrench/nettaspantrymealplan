@@ -223,6 +223,7 @@ export default function AccountDashboard({
                   <p className="font-bold">
                     {labels[order.status] || order.status} ·{' '}
                     {formatCents(order.total_cents)}
+                    {Boolean(order.tax_cents) && <span className="block text-xs font-normal">Includes {formatCents(order.tax_cents!)} sales tax</span>}
                   </p>
                 </div>
                 {order.needs_meal_selection && (

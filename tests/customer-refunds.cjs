@@ -109,6 +109,8 @@ function scenario({
     {
       exports,
       require(name) {
+        if (name === '@/lib/sales-tax') return { salesTaxCents: a => Math.round(a*0.0825), orderTaxCents: a => a.reduce((s,x)=>s+Math.round(x*0.0825),0) };
+        if (name === '@/lib/stripe-sales-tax') return { ensureSalesTaxRate: async () => 'txr_test' };
         if (name === 'server-only') return {};
         if (name === '@/lib/minimum-order') { const minimum = {}; vm.runInNewContext(ts.transpileModule(fs.readFileSync(path.join(__dirname, '../src/lib/minimum-order.ts'), 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS } }).outputText, { exports: minimum, Error, Number }); return minimum; }
         if (name.includes('supabase/server'))
