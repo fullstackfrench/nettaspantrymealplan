@@ -2,6 +2,8 @@ import CustomerMixChart from '@/components/admin/CustomerMixChart';
 import DashboardStatCards from '@/components/admin/DashboardStatCards';
 import OrdersTrendChart from '@/components/admin/OrdersTrendChart';
 import RecentOrders from '@/components/admin/RecentOrders';
+import Link from 'next/link';
+import { createAdminClient } from '@/lib/supabase/server';
 import TopMealsChart from '@/components/admin/TopMealsChart';
 import { DASHBOARD_RANGES, getAdminDashboardData, type DashboardRange } from '@/lib/admin-dashboard';
 
@@ -11,6 +13,8 @@ export default async function AdminHome({ searchParams }: { searchParams?: { ran
   const requestedRange = Number(searchParams?.range);
   const range: DashboardRange = DASHBOARD_RANGES.includes(requestedRange as DashboardRange) ? requestedRange as DashboardRange : 30;
   const dashboard = await getAdminDashboardData(range);
+  const credits = await createAdminClient().from('glass_deposit_credits').select('email', { count: 'exact', head: true });
+  if (credits.error) throw credits.error;
 
   return (
     <div className="space-y-7 sm:space-y-8">
@@ -22,6 +26,7 @@ export default async function AdminHome({ searchParams }: { searchParams?: { ran
         <div className="mt-5"><DashboardStatCards stats={dashboard.stats} range={dashboard.range} /></div>
       </section>
       <OrdersTrendChart trend={dashboard.trend} range={dashboard.range} />
+      {Boolean(credits.count) && <Link href="/admin/customers" className="admin-card block p-5 text-sm text-brand-plum"><span className="font-bold">{credits.count} prepaid glass-container deposits</span><span className="mt-1 block text-ink/65">View customers with a $50 deposit already paid, including those awaiting account registration.</span></Link>}
       <div className="grid gap-7 lg:grid-cols-2"><TopMealsChart meals={dashboard.topMeals} /><CustomerMixChart mix={dashboard.customerMix} /></div>
       <RecentOrders orders={dashboard.recentOrders} />
     </div>

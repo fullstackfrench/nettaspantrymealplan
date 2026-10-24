@@ -67,11 +67,7 @@ export default function HolidaySettingsForm({
             <option value="order">Per order</option>
           </select>
         </label>
-        <Field
-          name="delivery_fee"
-          label="Delivery fee per order ($)"
-          value={(settings.delivery_fee_cents / 100).toFixed(2)}
-        />
+        <p className="text-sm text-ink/65">Delivery: $10 per order. Pickup is free.</p>
         <Field
           name="thanksgiving_deadline"
           label="Thanksgiving order deadline (Eastern time)"

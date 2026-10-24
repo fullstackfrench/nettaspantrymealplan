@@ -45,7 +45,7 @@ export const HOLIDAY_DRAFT_SETTINGS: HolidaySettings = {
   minimum_order_cents: 30000,
   extra_dessert_cents: 4500,
   extra_dessert_basis: "order",
-  delivery_fee_cents: 0,
+  delivery_fee_cents: 1000,
   orders_open: false,
   thanksgiving_deadline: "2026-11-19",
   thanksgiving_fulfillment: "2026-11-25",

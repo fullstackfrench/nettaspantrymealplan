@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { usePathname } from 'next/navigation';
-import { GLASS_CONTAINER_DEPOSIT_CENTS } from './constants';
+import { GLASS_CONTAINER_DEPOSIT_CENTS, DELIVERY_FEE_CENTS } from './constants';
 import type { Meal, MealSize, PublicSubscriptionPlan } from './types';
 import { getSubscriptionKind, subscriptionMix, type SubscriptionKind } from './subscription-mix';
 
@@ -64,6 +64,7 @@ interface CartState {
   subtotalCents: number;
   depositCents: number;
   glassFeeCents: number;
+  deliveryFeeCents: number;
   orderingOpen: boolean;
   orderingDeadline: string | null;
   totalCents: number;
@@ -239,9 +240,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
       subtotalCents,
       depositCents,
       glassFeeCents: depositCents,
+      deliveryFeeCents: totalMeals > 0 ? DELIVERY_FEE_CENTS : 0,
       orderingOpen,
       orderingDeadline,
-      totalCents: subtotalCents + depositCents,
+      totalCents: subtotalCents + depositCents + (totalMeals > 0 ? DELIVERY_FEE_CENTS : 0),
       chargeDeposit,
       setChargeDeposit,
     };

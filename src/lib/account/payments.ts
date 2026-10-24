@@ -86,7 +86,12 @@ export async function createOrderCheckout(
           { amount: order.deposit_cents ?? 0, name: 'Legacy refundable glass-container deposit' },
           { amount: order.delivery_fee_cents ?? 0, name: 'Delivery' },
         ].filter((charge) => charge.amount > 0).map((charge) => ({
-          quantity: 1, price_data: { currency: 'usd', unit_amount: charge.amount, product_data: { name: charge.name } },
+          quantity: 1, price_data: { currency: 'usd', unit_amount: charge.amount, product_data: { name: charge.name },
+            ...(recurring && charge.name === 'Delivery' ? { recurring: {
+              interval: order.billing_interval_snapshot || 'week',
+              interval_count: order.billing_interval_count_snapshot || 1,
+            } } : {}),
+          },
         })),
       ],
       metadata: { order_id: order.id, customer_id: customerId },

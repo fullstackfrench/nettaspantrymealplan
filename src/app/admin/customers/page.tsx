@@ -7,12 +7,18 @@ export const dynamic = 'force-dynamic';
 
 export default async function CustomersAdmin() {
   const supabase = createAdminClient();
-  const { data } = await supabase
+  const [{ data, error }, creditResult] = await Promise.all([supabase
     .from('customers')
     .select('*')
-    .order('created_at', { ascending: false });
+    .order('created_at', { ascending: false }),
+    supabase.from('glass_deposit_credits').select('email,full_name').order('full_name'),
+  ]);
+  if (error) throw error;
+  if (creditResult.error) throw creditResult.error;
 
   const customers = (data ?? []) as Customer[];
+  const credits = creditResult.data ?? [];
+  const creditEmails = new Set(credits.map((credit) => credit.email));
   const totalOut = customers.reduce((s, c) => s + c.containers_out, 0);
 
   return (
@@ -23,6 +29,24 @@ export default async function CustomersAdmin() {
         {customers.length} customer{customers.length === 1 ? '' : 's'} · {totalOut} containers
         currently out. Log returns here as you collect them.
       </p>
+
+      {credits.length > 0 && (
+        <section className="admin-card mt-5 p-5 sm:p-6" aria-labelledby="glass-credits-heading">
+          <h3 id="glass-credits-heading" className="font-bold text-brand-plum">Prepaid glass-container deposits</h3>
+          <p className="mt-2 text-sm leading-6 text-ink/65">{credits.length} customers have a $50 deposit already paid before the website launched. Their credit applies when they register and verify the matching email.</p>
+          <ul className="mt-4 divide-y divide-brand-plum/10">
+            {credits.map((credit) => {
+              const account = customers.find((customer) => customer.auth_user_id && customer.email.trim().toLowerCase() === credit.email);
+              return (
+                <li key={credit.email} className="flex flex-wrap items-center justify-between gap-2 py-3">
+                  <div><p className="font-bold text-brand-plum">{credit.full_name}</p><p className="break-all text-sm text-ink/55">{credit.email}</p></div>
+                  <div className="text-sm sm:text-right"><p className="font-bold text-moss-700">$50 deposit already paid</p><p className="text-ink/55">{account?.glass_fee_paid_at ? 'Applied to account' : account ? 'Reserved · applies on next sign-in' : 'Reserved · awaiting account'}</p></div>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      )}
 
       <div className="mt-5 space-y-4">
         {customers.length === 0 && (
@@ -36,6 +60,9 @@ export default async function CustomersAdmin() {
               <div>
                 <div className="font-bold text-brand-plum">{c.full_name ?? c.email}</div>
                 <div className="mt-1 text-sm text-ink/55">{c.email}</div>
+                <div className="mt-2 text-sm font-medium text-moss-700">
+                  {c.glass_fee_paid_at ? '$50 glass-container deposit already paid' : creditEmails.has(c.email.trim().toLowerCase()) ? '$50 prepaid glass credit reserved for verified account' : '$50 glass-container deposit not yet paid'}
+                </div>
                 {(c.address_line1 || c.zip) && (
                   <div className="mt-2 text-sm leading-6 text-ink/55">
                     {[c.address_line1, c.city, c.state, c.zip].filter(Boolean).join(', ')}
@@ -52,9 +79,9 @@ export default async function CustomersAdmin() {
                 <div>
                   <span className="text-lg font-bold">{c.containers_out}</span> containers out
                 </div>
-                <div className="mt-1 text-xs font-medium">
+                {c.deposit_held_cents > 0 && <div className="mt-1 text-xs font-medium">
                   {formatCents(c.deposit_held_cents)} legacy refundable deposit held
-                </div>
+                </div>}
               </div>
             </div>
 

@@ -233,7 +233,7 @@ function fixture() {
    } }; return q;
  } };
  const payments = load('src/lib/holiday-payments.ts', { 'server-only': {}, stripe: class { constructor(){return stripe;} }, '@/lib/supabase/server': {} });
- const actions = load('src/app/admin/holidays/actions.ts', { 'next/cache': { revalidatePath() {} }, '@/lib/auth/require-admin': { requireAdmin: async () => db } });
+ const actions = load('src/app/admin/holidays/actions.ts', { '@/lib/constants': deliveryConstants, 'next/cache': { revalidatePath() {} }, '@/lib/auth/require-admin': { requireAdmin: async () => db } });
  return {order,calls,stripe,db,payments,actions};
 }
 test('checkout charges the full amount without authorizing a future card charge', async () => {
@@ -270,13 +270,13 @@ test('fulfillment is idempotent, requires full payment, and never contacts Strip
  assert.equal(f.order.fulfillment_status,'delivered');assert.equal(f.calls.checkout,0);
 });
 test('admin pricing and fulfillment actions reject unauthorized callers', async () => {
- const actions=load('src/app/admin/holidays/actions.ts',{'next/cache':{revalidatePath(){}},'@/lib/auth/require-admin':{requireAdmin:async()=>{throw new Error('Unauthorized');}}});
+ const actions=load('src/app/admin/holidays/actions.ts',{'@/lib/constants':deliveryConstants,'next/cache':{revalidatePath(){}},'@/lib/auth/require-admin':{requireAdmin:async()=>{throw new Error('Unauthorized');}}});
  for(const name of ['saveHolidaySettings','deliverHolidayOrder']) { const r=await actions[name](null,new FormData());assert.equal(r.saved,false);assert.match(r.error,/Unauthorized/); }
 });
 
 test('holiday delivery accepts all NC ZIPs, including ZIP+4, and rejects other states', () => {
   for (const zip of ['27006', '28909', '27601-1234']) {
-    const result=validation.validateHolidayCheckout({...valid,fulfillment:'delivery',address:'1 NC Street',zip},settings,now);
+    const result=validation.validateHolidayCheckout({...valid,expectedTotal:42669,fulfillment:'delivery',address:'1 NC Street',zip},settings,now);
     assert.equal(result.details.zip,zip.slice(0,5));
   }
   assert.throws(()=>validation.validateHolidayCheckout({...valid,fulfillment:'delivery',address:'1 SC Street',zip:'29601'},settings,now),/North Carolina/);

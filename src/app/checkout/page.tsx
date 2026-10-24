@@ -20,6 +20,7 @@ export default function CheckoutPage() {
     subscriptionComplete,
     subtotalCents,
     glassFeeCents,
+    deliveryFeeCents,
     orderingOpen,
     setChargeDeposit,
     totalCents,
@@ -274,6 +275,7 @@ export default function CheckoutPage() {
             label="One-time, non-refundable glass-container deposit"
             value={formatCents(glassFeeCents)}
           />
+          <Row label="Delivery" value={formatCents(deliveryFeeCents)} />
           <div className="border-t border-black/10 pt-3">
             <Row label="Preview total" value={formatCents(totalCents)} bold />
           </div>

@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/auth/require-admin";
+import { DELIVERY_FEE_CENTS } from "@/lib/constants";
 
 export type HolidayActionState = { error: string | null; saved: boolean };
 
@@ -72,7 +73,7 @@ export async function saveHolidaySettings(
         minimum_people: minimumPeople,
         extra_dessert_cents: money(form, "extra_dessert", true),
         extra_dessert_basis: basis,
-        delivery_fee_cents: money(form, "delivery_fee"),
+        delivery_fee_cents: DELIVERY_FEE_CENTS,
         pickup_location: pickupLocation,
         delivery_zips: Array.from(new Set(deliveryZips)),
         orders_open: open,

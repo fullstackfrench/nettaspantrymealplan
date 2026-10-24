@@ -24,6 +24,31 @@ function database({ price = 1000, original = [], fail = false } = {}) {
  } };
 }
 const items = (quantity) => [{ mealId: 'meal', mealSizeId: 'size', quantity }];
+test('subscription delivery repeats each week while the glass deposit is charged once', async () => {
+ let request;
+ const order = { id: 'order', status: 'pending', order_type: 'subscription', subtotal_cents: 10500,
+  total_cents: 16500, glass_fee_cents: 5000, delivery_fee_cents: 1000 };
+ const db = { from(table) {
+  const q = { select() { return q; }, eq() { return q; }, update() { return q; },
+   single: async () => ({ data: table === 'orders' ? order : { email: 'test@example.com' }, error: null }),
+   then(resolve) { return Promise.resolve({error:null}).then(resolve); } };
+  return q;
+ } };
+ const payments = load('src/lib/account/payments.ts', {
+  'server-only': {}, './plan-prices': {}, '@/lib/minimum-order': minimum,
+  './ordering-policy': { assertWeeklyOrderingOpen: async () => {} },
+  '@/lib/supabase/server': { createAdminClient: () => db },
+  './server': { siteOrigin: () => 'https://example.com', stripeClient: () => ({ checkout: { sessions: {
+   create: async (input) => { request=input; return { id:'session',url:'https://checkout.example.com',expires_at:1800000000 }; },
+  } } }) },
+ });
+ await payments.createOrderCheckout('order','customer');
+ const delivery = request.line_items.find(line => line.price_data.product_data.name === 'Delivery');
+ const glass = request.line_items.find(line => line.price_data.unit_amount === 5000);
+ assert.equal(delivery.price_data.unit_amount,1000);
+ assert.equal(delivery.price_data.recurring.interval,'week');
+ assert.equal(glass.price_data.recurring,undefined);
+});
 test('checkout minimum uses database prices instead of any browser amount', async () => {
  await assert.rejects(assertSelectionMinimum(database(), items(5)), /minimum food order/);
  await assertSelectionMinimum(database({ price: 1100 }), items(5));

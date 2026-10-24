@@ -61,7 +61,7 @@ function cartHarness() {
     if (name === 'react') return react;
     if (name === 'next/navigation') return { usePathname: () => '/menu' };
     if (name === 'react/jsx-runtime') return { jsx: (type, props) => { context.value = props.value; return null; } };
-    if (name === './constants') return { GLASS_CONTAINER_DEPOSIT_CENTS: 5000 };
+    if (name === './constants') return { GLASS_CONTAINER_DEPOSIT_CENTS: 5000, DELIVERY_FEE_CENTS: 1000 };
     if (name === './subscription-mix') return { getSubscriptionKind, subscriptionMix };
     throw new Error(name);
   } });
@@ -98,4 +98,8 @@ test('subscription desserts are rejected and one-time orders have no category ca
   for (let i = 0; i < 7; i++) cart.addOneTime(meal('pudding', 'desserts'), size);
   assert.equal(render().totalMeals, 7);
   assert.equal(render().subtotalCents, 8400);
+  assert.equal(render().deliveryFeeCents, 1000);
+  assert.equal(render().totalCents, 14400);
+  render().setChargeDeposit(false);
+  assert.equal(render().totalCents, 9400);
 });
