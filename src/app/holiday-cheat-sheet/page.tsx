@@ -78,8 +78,9 @@ export default async function HolidayPage() {
           Chef Netta’s Holiday Menu
         </h2>
         <p className="mt-4 max-w-2xl leading-7 text-ink/65">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut enim ad
-          minim veniam, quis nostrud exercitation ullamco laboris.
+          Spend less time in the kitchen and more time making memories. Chef
+          Netta is bringing the holiday favorites you love straight to your table,
+          so all you have to do is gather, give thanks, and dig in.
         </p>
         <div className="mt-9 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {menu.map((group) => (
