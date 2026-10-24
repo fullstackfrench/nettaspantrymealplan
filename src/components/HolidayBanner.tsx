@@ -37,7 +37,7 @@ export default function HolidayBanner() {
             sizes="(max-width: 1023px) 100vw, 45vw"
             className="h-auto w-full rounded-panel"
           />
-          <p className="mt-3 text-sm text-white/75">Pickup &amp; delivery · Meal drop-offs &amp; traditional catering</p>
+          <p className="mt-3 text-sm text-white/75">Holiday meal drop-offs</p>
         </div>
       </div>
     </section>

@@ -18,7 +18,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "Hassle-free Holidays | Netta's Pantry",
   description:
-    "Chef Netta’s Thanksgiving and Christmas menu for holiday meal drop-offs and catering. Pickup and delivery available for groups of 18 or more.",
+    "Chef Netta’s Thanksgiving and Christmas menu for holiday meal drop-offs. Available for groups of 18 or more throughout North Carolina.",
 };
 
 const menu = [
@@ -108,7 +108,7 @@ export default async function HolidayPage() {
         <div className="mx-auto grid max-w-7xl gap-10 px-4 py-16 sm:px-6 lg:grid-cols-2">
           <div>
             <h2 className="font-display text-3xl font-bold text-brand-plum">
-              Holiday catering &amp; drop-offs
+              Holiday meal drop-offs
             </h2>
             <dl className="mt-6 space-y-5 text-sm leading-6">
               <Detail
@@ -117,7 +117,7 @@ export default async function HolidayPage() {
               />
               <Detail
                 title="Service"
-                value="Meal drop-offs and traditional catering"
+                value="Prepared holiday meals for drop-off"
               />
               <Detail
                 title="Fulfillment"
