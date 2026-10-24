@@ -15,7 +15,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "Hassle-free Holidays | Netta's Pantry",
   description:
-    "Chef Netta’s Thanksgiving and Christmas menu for holiday meal drop-offs and catering. Pickup and delivery available for groups of 15 or more.",
+    "Chef Netta’s Thanksgiving and Christmas menu for holiday meal drop-offs and catering. Pickup and delivery available for groups of 18 or more.",
 };
 
 const menu = [
@@ -39,35 +39,23 @@ export default async function HolidayPage() {
     );
   return (
     <>
-      <section className="bg-black text-white">
-        <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 py-12 sm:px-6 sm:py-16 lg:grid-cols-2">
-          <div>
-          <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#d8c487]">
-            Thanksgiving · Christmas · Holiday parties
-          </p>
-          <h1 className="mt-5 max-w-3xl font-display text-5xl font-bold sm:text-6xl">
-            Hassle-free Holidays
-          </h1>
-          <p className="mt-6 max-w-xl text-lg leading-8 text-white/75">
-            You make the memories. We&apos;ll make the meal.
-          </p>
-          <a
-            href="#holiday-menu"
-            className="mt-8 inline-flex min-h-12 items-center justify-center rounded-full bg-[#d8c487] px-7 py-3 font-bold text-black hover:bg-[#e9d9a9]"
-          >
-            View Chef Netta’s menu
-          </a>
-          </div>
-          <Image
-            src="/hassle-free-holidays.png"
-            alt="Hassle-free Holidays: a glazed ham with holiday side dishes"
-            width={2880}
-            height={2304}
-            priority
-            sizes="(max-width: 1023px) 100vw, 50vw"
-            className="h-auto w-full rounded-panel"
-          />
-        </div>
+      <section
+        className="relative isolate aspect-[4/3] w-full overflow-hidden bg-black text-white sm:aspect-[2/1]"
+        aria-labelledby="holiday-page-title"
+      >
+        <h1 id="holiday-page-title" className="sr-only">Hassle-free Holidays</h1>
+        <Image
+          src="/hassle-free-holidays.png"
+          alt="Glazed holiday ham surrounded by festive side dishes"
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover object-[center_35%]"
+        />
+        <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/90 to-transparent" aria-hidden="true" />
+        <p className="absolute inset-x-0 bottom-0 px-4 pb-7 text-center text-xl font-medium leading-snug text-white drop-shadow-lg sm:pb-10 sm:text-3xl lg:pb-14 lg:text-4xl">
+          You make the memories. We&apos;ll make the meal.
+        </p>
       </section>
       <section
         id="holiday-menu"
