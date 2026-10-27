@@ -24,7 +24,7 @@ function database({ price = 1000, original = [], fail = false } = {}) {
  } };
 }
 const items = (quantity) => [{ mealId: 'meal', mealSizeId: 'size', quantity }];
-test('subscription delivery repeats each week while the glass deposit is charged once', async () => {
+test('historical subscriptions retain their saved recurring delivery and one-time glass charge', async () => {
  let request;
  const order = { id: 'order', status: 'pending', order_type: 'subscription', subtotal_cents: 10500,
   tax_rate_bps:825, total_cents: 17862, glass_fee_cents: 5000, delivery_fee_cents: 1000 };

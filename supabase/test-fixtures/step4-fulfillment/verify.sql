@@ -1,0 +1,10 @@
+begin read only;
+select jsonb_build_object(
+ 'customer',(select jsonb_build_object('id',id,'name',full_name,'email',email,'containers_out',containers_out,'deposit_held_cents',deposit_held_cents,'has_auth_account',auth_user_id is not null,'has_stripe_customer',stripe_customer_id is not null) from customers where id='7825c77e-1bcd-44bd-8b0e-a05d8c25d266'),
+ 'order',(select jsonb_build_object('id',id,'status',status,'payment_status',payment_status,'fulfillment_status',fulfillment_status,'confirmed_at',confirmed_at,'packed_at',packed_at,'delivered_at',delivered_at,'subtotal_cents',subtotal_cents,'glass_fee_cents',glass_fee_cents,'deposit_cents',deposit_cents,'delivery_fee_cents',delivery_fee_cents,'tax_cents',tax_cents,'total_cents',total_cents,'containers_issued',containers_issued,'has_stripe_references',stripe_checkout_session_id is not null or stripe_payment_intent_id is not null or stripe_invoice_id is not null) from orders where id='9e716037-4456-44dd-9f68-1cb6469eab95' and customer_id='7825c77e-1bcd-44bd-8b0e-a05d8c25d266'),
+ 'items',(select jsonb_agg(jsonb_build_object('meal',meal_name_snapshot,'portion',size_label_snapshot,'servings',servings_snapshot,'quantity',quantity,'unit_price_cents',unit_price_cents)) from order_items where order_id='9e716037-4456-44dd-9f68-1cb6469eab95'),
+ 'history',(select jsonb_agg(jsonb_build_object('stage',to_status,'occurred_at',occurred_at) order by recorded_at) from order_fulfillment_history where order_id='9e716037-4456-44dd-9f68-1cb6469eab95'),
+ 'containers',(select coalesce(jsonb_agg(jsonb_build_object('kind',kind,'quantity',quantity,'deposit_delta_cents',deposit_delta_cents)),'[]'::jsonb) from container_events where customer_id='7825c77e-1bcd-44bd-8b0e-a05d8c25d266'),
+ 'notifications',(select jsonb_agg(jsonb_build_object('kind',n.kind,'status',n.status,'attempts',n.attempts,'available_at',n.available_at,'sent_at',n.sent_at)) from order_notification_outbox n join order_fulfillment_history h on h.id=n.event_id where h.order_id='9e716037-4456-44dd-9f68-1cb6469eab95')
+) as fixture;
+commit;

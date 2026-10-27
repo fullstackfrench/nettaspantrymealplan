@@ -9,7 +9,7 @@ const UNAUTHORIZED_MESSAGE = 'You are not authorized to perform this action.';
  * a service-role client. Admin email configuration and client input are never
  * used as authorization evidence.
  */
-export async function requireAdmin() {
+export async function requireAdminContext() {
   const sessionClient = createSessionClient();
   const {
     data: { user },
@@ -30,5 +30,9 @@ export async function requireAdmin() {
     throw new Error(UNAUTHORIZED_MESSAGE);
   }
 
-  return createAdminClient();
+  return { supabase: createAdminClient(), userId: user.id };
+}
+
+export async function requireAdmin() {
+  return (await requireAdminContext()).supabase;
 }

@@ -1,0 +1,13 @@
+{
+  "project_ref": "bwamqfnsorygmnrtqjnm",
+  "label": "TEST ONLY \u2014 Step 4 Fulfillment 9e716037",
+  "customer_id": "7825c77e-1bcd-44bd-8b0e-a05d8c25d266",
+  "order_id": "9e716037-4456-44dd-9f68-1cb6469eab95",
+  "item_ids": [
+    "cde7dd3f-d014-459f-ab45-8e842166e028",
+    "27981cb9-3fdf-4993-834e-cfdb3b453e69"
+  ],
+  "email": "step4-fulfillment-9e716037@example.invalid",
+  "status": "manual_test_passed_cleanup_completed",
+  "confirmed_at": "2026-10-27T03:36:34.161381+00:00"
+}

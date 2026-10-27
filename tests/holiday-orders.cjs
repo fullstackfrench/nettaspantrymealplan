@@ -234,7 +234,7 @@ function fixture() {
    } }; return q;
  } };
  const payments = load('src/lib/holiday-payments.ts', { '@/lib/stripe-sales-tax': {ensureSalesTaxRate:async()=> 'txr_test'}, 'server-only': {}, stripe: class { constructor(){return stripe;} }, '@/lib/supabase/server': {} });
- const actions = load('src/app/admin/holidays/actions.ts', { '@/lib/constants': deliveryConstants, 'next/cache': { revalidatePath() {} }, '@/lib/auth/require-admin': { requireAdmin: async () => db } });
+ const actions = load('src/app/admin/holidays/actions.ts', { '@/lib/admin/fulfillment': { transitionAdminFulfillment: async (id,status,kind) => { calls.fulfillment=[id,status,kind]; return {}; } }, '@/lib/constants': deliveryConstants, 'next/cache': { revalidatePath() {} }, '@/lib/auth/require-admin': { requireAdmin: async () => db } });
  return {order,calls,stripe,db,payments,actions};
 }
 test('checkout charges the full amount without authorizing a future card charge', async () => {
@@ -262,16 +262,17 @@ test('the payment webhook requires the full amount and marks the order fully pai
  await f.payments.recordHolidayPayment(f.db,session);await f.payments.recordHolidayPayment(f.db,session);
  assert.equal(f.order.deposit_status,'paid');assert.equal(f.order.balance_status,'paid');assert.equal(f.order.stripe_payment_method_id,null);
 });
-test('fulfillment is idempotent, requires full payment, and never contacts Stripe', async () => {
+test('holiday fulfillment delegates both stages to the shared transaction without charging Stripe', async () => {
  const f=fixture();const form=new FormData();form.set('id',f.order.id);
- const unpaid=await f.actions.deliverHolidayOrder(null,form);assert.equal(unpaid.saved,false);
- Object.assign(f.order,{deposit_status:'paid',balance_status:'paid'});
- assert.equal((await f.actions.deliverHolidayOrder(null,form)).saved,true);
- assert.equal((await f.actions.deliverHolidayOrder(null,form)).saved,true);
- assert.equal(f.order.fulfillment_status,'delivered');assert.equal(f.calls.checkout,0);
+ for (const status of ['packed','delivered']) {
+  form.set('status',status);
+  assert.equal((await f.actions.deliverHolidayOrder(null,form)).saved,true);
+  assert.deepEqual(f.calls.fulfillment,[f.order.id,status,'holiday']);
+ }
+ assert.equal(f.calls.checkout,0);
 });
 test('admin pricing and fulfillment actions reject unauthorized callers', async () => {
- const actions=load('src/app/admin/holidays/actions.ts',{'@/lib/constants':deliveryConstants,'next/cache':{revalidatePath(){}},'@/lib/auth/require-admin':{requireAdmin:async()=>{throw new Error('Unauthorized');}}});
+ const actions=load('src/app/admin/holidays/actions.ts',{'@/lib/admin/fulfillment':{transitionAdminFulfillment:async()=>{throw new Error('Unauthorized');}},'@/lib/constants':deliveryConstants,'next/cache':{revalidatePath(){}},'@/lib/auth/require-admin':{requireAdmin:async()=>{throw new Error('Unauthorized');}}});
  for(const name of ['saveHolidaySettings','deliverHolidayOrder']) { const r=await actions[name](null,new FormData());assert.equal(r.saved,false);assert.match(r.error,/Unauthorized/); }
 });
 

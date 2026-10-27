@@ -4,6 +4,7 @@ import { randomUUID } from 'crypto';
 import { revalidatePath } from 'next/cache';
 import { createAdminClient } from '@/lib/supabase/server';
 import { requireAdmin } from '@/lib/auth/require-admin';
+import { transitionAdminFulfillment } from '@/lib/admin/fulfillment';
 import { DEPOSIT_PER_CONTAINER_CENTS } from '@/lib/constants';
 import { ADMIN_MEAL_CATEGORIES, isAdminMealCategoryTag } from '@/lib/admin-meal-categories';
 
@@ -442,45 +443,7 @@ export async function setMenuItem(formData: FormData) {
 // ---------------- ORDERS ----------------
 
 export async function setOrderStatus(formData: FormData) {
-  const supabase = await requireAdmin();
-  const id = formData.get('id') as string;
-  const status = formData.get('status') as string;
-
-  const { error: statusError } = await supabase.from('orders').update({ status }).eq('id', id);
-  throwIfError(statusError, 'Order status update');
-
-  // Marking an order delivered is the moment containers leave the kitchen, so
-  // that's when we log them against the customer.
-  if (status === 'delivered') {
-    const { data: order } = await supabase
-      .from('orders')
-      .select('id, customer_id, containers_issued, deposit_cents')
-      .eq('id', id)
-      .single();
-
-    if (order && order.containers_issued > 0) {
-      const { data: already } = await supabase
-        .from('container_events')
-        .select('id')
-        .eq('order_id', order.id)
-        .eq('kind', 'issued')
-        .maybeSingle();
-
-      if (!already) {
-        await supabase.from('container_events').insert({
-          customer_id: order.customer_id,
-          order_id: order.id,
-          kind: 'issued',
-          quantity: order.containers_issued,
-          deposit_delta_cents: order.deposit_cents,
-          note: 'Delivered',
-        });
-      }
-    }
-  }
-
-  revalidatePath('/admin/orders');
-  revalidatePath('/admin/customers');
+  await transitionAdminFulfillment(String(formData.get('id') ?? ''), String(formData.get('status') ?? ''));
 }
 
 // ---------------- CONTAINERS ----------------

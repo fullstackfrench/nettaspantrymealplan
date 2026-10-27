@@ -90,7 +90,7 @@ export async function getAdminDashboardData(range: DashboardRange): Promise<Admi
       .from('orders')
       .select('*', { count: 'exact', head: true })
       .eq('payment_status', 'paid')
-      .in('fulfillment_status', ['unfulfilled', 'packing', 'out_for_delivery']),
+      .in('fulfillment_status', ['unfulfilled', 'packed']),
     supabase
       .from('orders')
       .select('*', { count: 'exact', head: true })

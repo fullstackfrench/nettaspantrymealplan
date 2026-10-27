@@ -3,7 +3,7 @@ import { formatCents } from '@/lib/constants';
 import type { AdminDashboardData } from '@/lib/admin-dashboard';
 
 const PAYMENT_LABELS: Record<string, string> = { unpaid: 'Unpaid', processing: 'Processing', paid: 'Paid', failed: 'Failed', refunded: 'Refunded', partially_refunded: 'Partially refunded' };
-const FULFILLMENT_LABELS: Record<string, string> = { unfulfilled: 'Unfulfilled', packing: 'Packing', out_for_delivery: 'Out for delivery', delivered: 'Delivered', canceled: 'Canceled' };
+const FULFILLMENT_LABELS: Record<string, string> = { unfulfilled: 'Needs Packing', packed: 'Packed', delivered: 'Delivered', canceled: 'Canceled' };
 
 export default function RecentOrders({ orders }: { orders: AdminDashboardData['recentOrders'] }) {
   return <section aria-labelledby="recent-orders-heading">
@@ -31,6 +31,6 @@ function paymentTone(status: string) {
 function fulfillmentTone(status: string) {
   if (status === 'delivered') return 'bg-moss-50 text-moss-700 ring-1 ring-moss-600/15';
   if (status === 'canceled') return 'bg-[#fff1ed] text-[#8f3020]';
-  if (status === 'packing' || status === 'out_for_delivery') return 'bg-brand-plum/10 text-brand-plum';
+  if (status === 'packed') return 'bg-brand-plum/10 text-brand-plum';
   return 'bg-black/5 text-ink/65';
 }

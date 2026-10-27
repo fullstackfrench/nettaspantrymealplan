@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/auth/require-admin";
+import { transitionAdminFulfillment } from "@/lib/admin/fulfillment";
 import { DELIVERY_FEE_CENTS } from "@/lib/constants";
 
 export type HolidayActionState = { error: string | null; saved: boolean };
@@ -108,36 +109,7 @@ export async function deliverHolidayOrder(
   form: FormData,
 ): Promise<HolidayActionState> {
   try {
-    const db = await requireAdmin();
-    const id = String(form.get("id") ?? "");
-    if (!/^[0-9a-f-]{36}$/i.test(id)) throw new Error("Invalid order.");
-    const { data, error } = await db
-      .from("holiday_orders")
-      .update({
-        fulfillment_status: "delivered",
-        delivered_at: new Date().toISOString(),
-      })
-      .eq("id", id)
-      .eq("deposit_status", "paid")
-      .eq("balance_cents", 0)
-      .eq("balance_status", "paid")
-      .eq("fulfillment_status", "unfulfilled")
-      .select("id")
-      .maybeSingle();
-    if (error) throw new Error("The order could not be marked delivered.");
-    if (!data) {
-      const { data: current } = await db
-        .from("holiday_orders")
-        .select("deposit_status, balance_cents, balance_status, fulfillment_status")
-        .eq("id", id)
-        .maybeSingle();
-      if (
-        current?.deposit_status !== "paid" || current.balance_cents !== 0 || current.balance_status !== "paid" ||
-        current.fulfillment_status !== "delivered"
-      )
-        throw new Error("Full payment is required before fulfillment.");
-    }
-    revalidatePath("/admin/holidays");
+    await transitionAdminFulfillment(String(form.get("id") ?? ""), String(form.get("status") ?? "delivered"), "holiday");
     return { saved: true, error: null };
   } catch (error) {
     revalidatePath("/admin/holidays");

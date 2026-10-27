@@ -3,7 +3,7 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { orderTaxCents } from './sales-tax';
 import { usePathname } from 'next/navigation';
-import { GLASS_CONTAINER_DEPOSIT_CENTS, DELIVERY_FEE_CENTS } from './constants';
+import { GLASS_CONTAINER_DEPOSIT_CENTS, MEAL_DELIVERY_FEE_CENTS } from './constants';
 import type { Meal, MealSize, PublicSubscriptionPlan } from './types';
 import { getSubscriptionKind, subscriptionMix, type SubscriptionKind } from './subscription-mix';
 
@@ -217,6 +217,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
       ? selectedPlan?.priceCents ?? 0
       : lines.reduce((sum, line) => sum + (line.kind === 'one_time' ? line.quantity * line.display.unitPriceCents : 0), 0);
     const depositCents = totalMeals > 0 && chargeDeposit ? GLASS_CONTAINER_DEPOSIT_CENTS : 0;
+    const deliveryFeeCents = totalMeals > 0 ? MEAL_DELIVERY_FEE_CENTS : 0;
+    const taxCents = orderTaxCents([subtotalCents, depositCents, deliveryFeeCents]);
     return {
       mode,
       changeMode,
@@ -242,11 +244,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
       subtotalCents,
       depositCents,
       glassFeeCents: depositCents,
-      deliveryFeeCents: totalMeals > 0 ? DELIVERY_FEE_CENTS : 0,
+      deliveryFeeCents,
       orderingOpen,
       orderingDeadline,
-      taxCents: orderTaxCents([subtotalCents, depositCents, totalMeals > 0 ? DELIVERY_FEE_CENTS : 0]),
-      totalCents: subtotalCents + depositCents + (totalMeals > 0 ? DELIVERY_FEE_CENTS : 0) + orderTaxCents([subtotalCents, depositCents, totalMeals > 0 ? DELIVERY_FEE_CENTS : 0]),
+      taxCents,
+      totalCents: subtotalCents + depositCents + deliveryFeeCents + taxCents,
       chargeDeposit,
       setChargeDeposit,
     };

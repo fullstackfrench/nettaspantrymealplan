@@ -1,6 +1,8 @@
 \set ON_ERROR_STOP on
 begin;
 update public.holiday_settings set orders_open=true,pickup_location='Test pickup';
+insert into auth.users(id) values('a1000000-0000-4000-8000-000000000001');
+update profiles set role='admin' where id='a1000000-0000-4000-8000-000000000001';
 do $$
 declare
  s public.holiday_settings; o public.holiday_orders; repeated public.holiday_orders;
@@ -38,7 +40,9 @@ begin
   update public.holiday_orders set total_cents=95000 where id=o.id;
   raise exception 'Accepted order was mutable';
  exception when raise_exception then if sqlerrm='Accepted order was mutable' then raise; end if; end;
- update public.holiday_orders set deposit_status='paid',balance_status='paid',fulfillment_status='delivered' where id=o.id;
+ update public.holiday_orders set deposit_status='paid',balance_status='paid' where id=o.id;
+ perform public.transition_order_fulfillment(o.id,'packed','a1000000-0000-4000-8000-000000000001','holiday');
+ perform public.transition_order_fulfillment(o.id,'delivered','a1000000-0000-4000-8000-000000000001','holiday');
  select count(*) into claims from public.claim_holiday_balance(o.id);
  if claims<>0 then raise exception 'Fulfillment allowed another charge'; end if;
  if has_table_privilege('anon','public.holiday_orders','select') or has_table_privilege('authenticated','public.holiday_settings','update') then raise exception 'Privacy regression'; end if;

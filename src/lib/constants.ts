@@ -7,7 +7,9 @@ export const DEPOSIT_PER_CONTAINER_CENTS = 300;
 /** Non-refundable glass-container deposit, charged once per customer. */
 export const GLASS_CONTAINER_DEPOSIT_CENTS = 5000;
 
+/** Delivery is charged only on holiday-menu orders. */
 export const DELIVERY_FEE_CENTS = 1000;
+export const MEAL_DELIVERY_FEE_CENTS = 0;
 
 // ---------------------------------------------------------------
 // Filter chips — mirrors the CookUnity-style bar. `id` must match

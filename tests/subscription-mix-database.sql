@@ -1,5 +1,6 @@
 -- Isolated database only, after schema.sql and customer-account-rollout.sql.
 begin;
+update meal_ordering_settings set checkout_enabled=true where id=1;
 do $$
 declare
  side_id uuid:=gen_random_uuid(); entree_id uuid:=gen_random_uuid(); dessert_id uuid:=gen_random_uuid();
@@ -10,6 +11,7 @@ declare
 begin
  insert into auth.users(id) values(user_id);
  insert into customers(auth_user_id,email,full_name,address_line1,city,zip) values(user_id,'mix-test@example.test','Test','1 Test St','Raleigh','27601') returning id into customer;
+ update customers set glass_fee_paid_at=now() where id=customer;
  insert into meals(id,slug,name,price_cents,tags) values
   (side_id,'mix-side','Carrots',800,array['sides']),
   (entree_id,'mix-entree','Soup',1500,array['soups']),
@@ -56,7 +58,7 @@ begin
  -- One-time purchases remain free of subscription mix restrictions.
  select * into prepared from prepare_checkout_order(gen_random_uuid(),repeat('x',64),'one_time',null,'Test','mix-test@example.test','27601',user_id,'mix-test@example.test',jsonb_build_array(jsonb_build_object('meal_id',side_id,'meal_size_id',side_size,'quantity',1)),300,0);
  if prepared.subtotal_cents<>800 then raise exception 'One-time purchase changed'; end if;
- if has_function_privilege('anon','assert_subscription_mix(jsonb,integer)','execute') or has_function_privilege('authenticated','prepare_checkout_order(uuid,text,text,uuid,text,text,text,uuid,text,jsonb,integer,integer)','execute') then raise exception 'RPC privilege regression'; end if;
+ if has_function_privilege('anon','assert_subscription_mix(jsonb,integer)','execute') or has_function_privilege('authenticated','prepare_checkout_order(uuid,text,text,uuid,text,text,text,uuid,text,jsonb,integer,integer,integer)','execute') then raise exception 'RPC privilege regression'; end if;
  raise notice 'PASS: all tiers, authoritative prices, checkout, edits, saved choices, renewal validation, idempotency, one-time orders and privileges';
 end $$;
 rollback;

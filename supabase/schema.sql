@@ -196,8 +196,11 @@ create table if not exists orders (
   payment_status           text not null default 'unpaid'
                            check (payment_status in ('unpaid','processing','paid','failed','refunded','partially_refunded')),
   fulfillment_status       text not null default 'unfulfilled'
-                           check (fulfillment_status in ('unfulfilled','packing','out_for_delivery','delivered','canceled')),
+                           check (fulfillment_status in ('unfulfilled','packed','delivered','canceled')),
   paid_at                  timestamptz,
+  confirmed_at             timestamptz,
+  packed_at                timestamptz,
+  delivered_at             timestamptz,
   checkout_expires_at      timestamptz,
   checkout_preparation_key uuid,
   checkout_request_fingerprint text,
@@ -355,3 +358,27 @@ create policy "customer reads own order items" on order_items
 
 -- NOTE: the admin panel uses the service role key on the server, which bypasses
 -- RLS entirely. That is why admin routes must never be exposed to the browser.
+
+-- ---------- ADMIN-ONLY ORDER NOTES ----------
+create table if not exists public.admin_order_notes (
+  order_id uuid primary key references public.orders(id) on delete cascade,
+  note text not null default '' check (length(note) <= 5000),
+  updated_at timestamptz not null default now()
+);
+alter table public.admin_order_notes enable row level security;
+revoke all on public.admin_order_notes from public, anon, authenticated;
+grant all on public.admin_order_notes to service_role;
+
+create or replace function public.stamp_admin_order_note() returns trigger
+language plpgsql set search_path = public as $$
+begin
+  new.updated_at := now();
+  return new;
+end;
+$$;
+drop trigger if exists admin_order_note_updated on public.admin_order_notes;
+create trigger admin_order_note_updated before update on public.admin_order_notes
+for each row execute function public.stamp_admin_order_note();
+
+-- After account, billing, holiday, and pricing migrations, apply
+-- migrations/20261027_order_fulfillment.sql for transactional transitions, history, and queued notifications.

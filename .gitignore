@@ -12,3 +12,6 @@ next-env.d.ts
 
 # Private customer emails in the local rollout bundle.
 supabase/meal-ordering-policy-rollout.local.sql
+
+# Supabase CLI local project metadata.
+supabase/.temp/

@@ -1,6 +1,7 @@
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { getHolidaySettings } from "@/lib/holiday-settings";
 import { formatCents } from "@/lib/constants";
+import { ORDER_STATUS_LABEL, formatOrderDate } from "@/lib/admin/order-details";
 import { HOLIDAY_SIDES, otherHolidayDessert } from "@/lib/holiday-menu";
 import HolidaySettingsForm from "@/components/admin/HolidaySettingsForm";
 import HolidayDeliveryButton from "@/components/admin/HolidayDeliveryButton";
@@ -64,7 +65,7 @@ export default async function HolidayAdmin() {
                   {order.deposit_status}
                 </p>
                 {order.balance_cents > 0 && <p>Legacy unpaid balance: {formatCents(order.balance_cents)}</p>}
-                <p>Fulfillment · {order.fulfillment_status}</p>
+                <p>Fulfillment · {ORDER_STATUS_LABEL[order.fulfillment_status] ?? order.fulfillment_status}</p>
               </div>
             </div>
             <ul className="my-5 space-y-2 rounded-control bg-cream p-4 text-sm text-ink/70">
@@ -79,11 +80,14 @@ export default async function HolidayAdmin() {
               )}
             </ul>
             {order.deposit_status === "paid" &&
-              order.balance_status === "paid" && order.balance_cents === 0 && order.fulfillment_status !== "delivered" && (
+              order.balance_status === "paid" && order.balance_cents === 0 && !["delivered", "canceled"].includes(order.fulfillment_status) && (
                 <HolidayDeliveryButton
                   id={order.id}
+                  status={order.fulfillment_status}
                 />
               )}
+            {order.packed_at && <p className="mt-3 text-xs text-ink/65">Packed: {formatOrderDate(order.packed_at, true)}</p>}
+            {order.delivered_at && <p className="mt-3 text-xs text-ink/65">Delivered: {formatOrderDate(order.delivered_at, true)}</p>}
             {order.payment_error && (
               <p className="mt-4 text-sm text-brand-brick">
                 {order.payment_error}

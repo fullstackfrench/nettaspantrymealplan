@@ -109,7 +109,7 @@ export type PaymentStatus =
   | 'unpaid' | 'processing' | 'paid' | 'failed' | 'refunded' | 'partially_refunded';
 
 export type FulfillmentStatus =
-  | 'unfulfilled' | 'packing' | 'out_for_delivery' | 'delivered' | 'canceled';
+  | 'unfulfilled' | 'packed' | 'delivered' | 'canceled';
 
 export interface Order {
   id: string;
@@ -130,6 +130,9 @@ export interface Order {
   payment_status: PaymentStatus;
   fulfillment_status: FulfillmentStatus;
   paid_at: string | null;
+  confirmed_at?: string | null;
+  packed_at?: string | null;
+  delivered_at?: string | null;
   checkout_expires_at: string | null;
   checkout_preparation_key: string | null;
   checkout_request_fingerprint: string | null;

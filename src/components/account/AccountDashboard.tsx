@@ -21,6 +21,7 @@ import {
 import { getSubscriptionKind, subscriptionMix } from '@/lib/subscription-mix';
 import { getAvailableMealSizes } from '@/lib/meal-availability';
 import { formatCents } from '@/lib/constants';
+import { fulfillmentLabel } from '@/lib/admin/order-details';
 import type {
   Customer,
   Meal,
@@ -48,14 +49,6 @@ type Change = { id: string; order_id: string; status: string };
 type AccountSubscription = Subscription & {
   cancel_at_period_end?: boolean;
   resumes_at?: string | null;
-};
-const labels: Record<string, string> = {
-  pending: 'Awaiting payment',
-  paid: 'Paid',
-  packing: 'Being prepared',
-  out_for_delivery: 'Out for delivery',
-  delivered: 'Delivered',
-  canceled: 'Canceled',
 };
 
 export default function AccountDashboard({
@@ -221,7 +214,7 @@ export default function AccountDashboard({
                     </p>
                   </div>
                   <p className="font-bold">
-                    {labels[order.status] || order.status} ·{' '}
+                    {fulfillmentLabel(order)} ·{' '}
                     {formatCents(order.total_cents)}
                     {Boolean(order.tax_cents) && <span className="block text-xs font-normal">Includes {formatCents(order.tax_cents!)} sales tax</span>}
                   </p>

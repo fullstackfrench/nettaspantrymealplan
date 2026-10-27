@@ -1,122 +1,94 @@
-import { createAdminClient } from '@/lib/supabase/server';
-import { formatCents } from '@/lib/constants';
-import { setOrderStatus } from '../actions';
+import Link from 'next/link';
+import { requireAdmin } from '@/lib/auth/require-admin';
+import OrdersList from '@/components/admin/OrdersList';
 import type { Order } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
 
-const NEXT_STATUS: Record<string, string | null> = {
-  pending: 'paid',
-  paid: 'packing',
-  packing: 'out_for_delivery',
-  out_for_delivery: 'delivered',
-  delivered: null,
-  canceled: null,
-};
+const FILTERS = [
+  { id: 'active', label: 'Needs attention' },
+  { id: 'all', label: 'All orders' },
+  { id: 'paid', label: 'Needs Packing' },
+  { id: 'packing', label: 'Packed' },
+  { id: 'delivered', label: 'Delivered' },
+  { id: 'canceled', label: 'Canceled' },
+] as const;
+const PAGE_SIZE = 25;
+function ordersHref(view: string, type: string, page = 1) {
+  const params = new URLSearchParams({ view, type });
+  if (page > 1) params.set('page', String(page));
+  return `/admin/orders?${params}`;
+}
 
-const LABEL: Record<string, string> = {
-  pending: 'Awaiting payment',
-  paid: 'Paid — needs packing',
-  packing: 'Packing',
-  out_for_delivery: 'Out for delivery',
-  delivered: 'Delivered',
-  canceled: 'Canceled',
-};
-
-export default async function OrdersAdmin() {
-  const supabase = createAdminClient();
-  const { data } = await supabase
-    .from('orders')
-    .select('*, customers(*), order_items(*, meals(name))')
+export default async function OrdersAdmin({ searchParams }: {
+  searchParams: { view?: string; type?: string; page?: string };
+}) {
+  const view = FILTERS.some((filter) => filter.id === searchParams.view) ? searchParams.view! : 'active';
+  const type = ['one_time', 'subscription'].includes(searchParams.type ?? '') ? searchParams.type! : 'all';
+  const requestedPage = Number(searchParams.page ?? 1);
+  const page = Number.isSafeInteger(requestedPage) && requestedPage > 0 && requestedPage <= 100000 ? requestedPage : 1;
+  const supabase = await requireAdmin();
+  let query = supabase.from('orders')
+    .select('*, customers(*), order_items(*, meals(name))', { count: 'exact' });
+  if (view === 'active') query = query.not('fulfillment_status', 'in', '(delivered,canceled)');
+  else if (view === 'paid') query = query.eq('fulfillment_status', 'unfulfilled').in('payment_status', ['paid', 'partially_refunded']);
+  else if (view === 'packing') query = query.eq('fulfillment_status', 'packed');
+  else if (view !== 'all') query = query.eq('fulfillment_status', view);
+  if (type !== 'all') query = query.eq('order_type', type);
+  if (view === 'active') query = query.order('delivery_date', { ascending: true, nullsFirst: false });
+  const { data, error, count } = await query
     .order('created_at', { ascending: false })
-    .limit(100);
-
+    .order('id', { ascending: false })
+    .range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1);
+  if (error) throw new Error('Orders could not be loaded. Please refresh and try again.');
   const orders = (data ?? []) as Order[];
+  const total = count ?? 0;
+  const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
   return (
     <div>
       <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-gold">Fulfillment queue</p>
       <h2 className="mt-1 font-display text-2xl font-bold text-brand-plum">Orders</h2>
       <p className="mt-2 max-w-3xl text-sm leading-6 text-ink/55">
-        Move an order along as you work through it. Marking it delivered logs the glass
-        containers against that customer automatically.
+        Active orders appear first, with scheduled deliveries at the top. Select an order
+        to see its meals, saved delivery details, and fulfillment progress. Awaiting-payment orders are included.
       </p>
 
-      <div className="mt-5 space-y-4">
+      <nav aria-label="Filter orders by status" className="mt-5 flex flex-wrap gap-2">
+        {FILTERS.map((filter) => (
+          <Link key={filter.id} href={ordersHref(filter.id, type)}
+            aria-current={view === filter.id ? 'page' : undefined}
+            className={`inline-flex min-h-11 items-center rounded-full px-4 py-2.5 text-sm font-bold transition ${view === filter.id ? 'bg-brand-plum text-white shadow-soft' : 'border border-brand-plum/15 bg-white text-brand-plum hover:bg-brand-plum/5'}`}>
+            {filter.label}
+          </Link>
+        ))}
+      </nav>
+      <nav aria-label="Filter orders by type" className="mt-3 flex flex-wrap gap-2">
+        {([['all', 'All types'], ['one_time', 'One-time'], ['subscription', 'Subscription']] as const).map(([value, label]) => (
+          <Link key={value} href={ordersHref(view, value)} aria-current={type === value ? 'page' : undefined}
+            className={`admin-quiet-action ${type === value ? 'bg-brand-plum/10' : ''}`}>{label}</Link>
+        ))}
+        <Link href="/admin/holidays" className="admin-quiet-action">Holiday orders →</Link>
+      </nav>
+      <p className="mt-4 text-sm text-ink/55" role="status">
+        {total} matching order{total === 1 ? '' : 's'}{total > 0 && ` · Page ${page} of ${pages}`}
+      </p>
+
+      <div className="mt-3 space-y-3">
         {orders.length === 0 && (
-          <p className="admin-empty-state">No orders yet. New customer orders will appear here for fulfillment.</p>
+          <div className="admin-empty-state">
+            <p>{page > pages ? 'No orders on this page.' : view === 'active' ? 'No active orders need attention.' : 'No orders match these filters.'}</p>
+            <Link href={ordersHref('all', 'all')} className="admin-quiet-action mt-2">View all orders</Link>
+          </div>
         )}
 
-        {orders.map((o) => {
-          const next = NEXT_STATUS[o.status];
-          return (
-            <article key={o.id} className="admin-card overflow-hidden">
-              <div className="p-5 sm:p-6">
-              <div className="flex flex-wrap items-start justify-between gap-4">
-                <div>
-                  <div className="font-bold text-brand-plum">
-                    {o.customers?.full_name ?? o.customers?.email ?? 'Customer'}
-                  </div>
-                  <div className="mt-1 text-sm leading-6 text-ink/55">
-                    {o.customers?.zip && `ZIP ${o.customers.zip} · `}
-                    {o.order_type === 'subscription' ? 'Subscription' : 'One-time'} ·{' '}
-                    {new Date(o.created_at).toLocaleDateString()}
-                  </div>
-                </div>
-
-                <div className="text-left min-[420px]:text-right">
-                  <div className="text-lg font-bold text-brand-plum">{formatCents(o.total_cents)}</div>
-                  {Boolean(o.tax_cents) && <div className="text-xs text-ink/55">Includes {formatCents(o.tax_cents!)} sales tax</div>}
-                  <div className="mt-1 text-xs text-ink/50">
-                    incl. {formatCents(o.deposit_cents)} deposit
-                  </div>
-                </div>
-              </div>
-
-              <ul className="mt-5 space-y-2 rounded-control bg-cream/70 p-4 text-sm text-ink/70">
-                {o.order_items?.map((it) => (
-                  <li key={it.id}>
-                    <span className="mr-2 font-bold text-brand-gold">{it.quantity}×</span>{it.meals?.name ?? 'Meal'}
-                  </li>
-                ))}
-              </ul>
-
-              <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-brand-plum/10 pt-4">
-                <span className={`status-badge ${statusTone(o.status)}`}>
-                  {LABEL[o.status] ?? o.status}
-                </span>
-
-                {next && (
-                  <form action={setOrderStatus}>
-                    <input type="hidden" name="id" value={o.id} />
-                    <input type="hidden" name="status" value={next} />
-                    <button className="admin-primary-button px-4 text-xs">
-                      Mark {LABEL[next].toLowerCase()}
-                    </button>
-                  </form>
-                )}
-
-                {o.status !== 'delivered' && o.status !== 'canceled' && (
-                  <form action={setOrderStatus}>
-                    <input type="hidden" name="id" value={o.id} />
-                    <input type="hidden" name="status" value="canceled" />
-                    <button className="admin-danger-action text-xs">Cancel order</button>
-                  </form>
-                )}
-              </div>
-              </div>
-            </article>
-          );
-        })}
+        <OrdersList orders={orders} />
       </div>
+      {pages > 1 && <nav aria-label="Order pages" className="mt-5 flex flex-wrap items-center justify-between gap-3">
+        {page > 1 ? <Link href={ordersHref(view, type, page - 1)} className="admin-secondary-button">Previous</Link> : <span />}
+        <span className="text-sm text-ink/55">Page {page} of {pages}</span>
+        {page < pages ? <Link href={ordersHref(view, type, page + 1)} className="admin-secondary-button">Next</Link> : <span />}
+      </nav>}
     </div>
   );
-}
-
-function statusTone(status: string) {
-  if (status === 'delivered') return 'bg-moss-50 text-moss-700 ring-1 ring-moss-600/15';
-  if (status === 'canceled') return 'bg-[#fff1ed] text-[#8f3020]';
-  if (status === 'paid' || status === 'packing') return 'bg-brand-plum/10 text-brand-plum';
-  if (status === 'out_for_delivery') return 'bg-brand-gold/15 text-[#6e5925]';
-  return 'bg-black/5 text-ink/65';
 }
