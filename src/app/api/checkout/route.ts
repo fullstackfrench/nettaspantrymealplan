@@ -8,7 +8,7 @@ import { SALES_TAX_BPS } from '@/lib/sales-tax';
 import { NextResponse } from 'next/server';
 import { createAdminClient, createSessionClient } from '@/lib/supabase/server';
 import {
-  DELIVERY_FEE_CENTS,
+  MEAL_DELIVERY_FEE_CENTS,
   normalizeDeliveryZip,
   isInDeliveryArea,
 } from '@/lib/constants';
@@ -220,7 +220,7 @@ export async function POST(request: Request) {
       quantity: item.quantity,
     })),
     p_deposit_per_container_cents: 0,
-    p_delivery_fee_cents: DELIVERY_FEE_CENTS,
+    p_delivery_fee_cents: MEAL_DELIVERY_FEE_CENTS,
     p_tax_rate_bps: SALES_TAX_BPS,
   });
 

@@ -276,7 +276,7 @@ export default function CheckoutPage() {
             label="One-time, non-refundable glass-container deposit"
             value={formatCents(glassFeeCents)}
           />
-          <Row label="Delivery" value={formatCents(deliveryFeeCents)} />
+          <Row label="Delivery" value={deliveryFeeCents === 0 ? 'Free' : formatCents(deliveryFeeCents)} />
           <Row label="Sales tax (8.25%)" value={formatCents(taxCents)} />
           <div className="border-t border-black/10 pt-3">
             <Row label="Preview total" value={formatCents(totalCents)} bold />

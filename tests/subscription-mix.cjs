@@ -62,7 +62,7 @@ function cartHarness() {
     if (name === 'next/navigation') return { usePathname: () => '/menu' };
     if (name === 'react/jsx-runtime') return { jsx: (type, props) => { context.value = props.value; return null; } };
     if (name === './sales-tax') return load(path.resolve('src/lib/sales-tax.ts'));
-    if (name === './constants') return { GLASS_CONTAINER_DEPOSIT_CENTS: 5000, DELIVERY_FEE_CENTS: 1000 };
+    if (name === './constants') return load(path.resolve('src/lib/constants.ts'));
     if (name === './subscription-mix') return { getSubscriptionKind, subscriptionMix };
     throw new Error(name);
   } });
@@ -84,6 +84,9 @@ test('cart caps each category even for repeated additions before React renders',
   for (let i = 0; i < 7; i++) cart.addSubscription(entree, size);
   cart = render();
   assert.equal(cart.totalMeals, 6);
+  assert.equal(cart.deliveryFeeCents, 0);
+  assert.equal(cart.taxCents, 1081);
+  assert.equal(cart.totalCents, 14181);
   assert.equal(cart.subscriptionComplete, true);
   cart.remove(cart.lines[0].id);
   cart = render();
@@ -99,8 +102,8 @@ test('subscription desserts are rejected and one-time orders have no category ca
   for (let i = 0; i < 7; i++) cart.addOneTime(meal('pudding', 'desserts'), size);
   assert.equal(render().totalMeals, 7);
   assert.equal(render().subtotalCents, 8400);
-  assert.equal(render().deliveryFeeCents, 1000);
-  assert.equal(render().totalCents, 15589);
+  assert.equal(render().deliveryFeeCents, 0);
+  assert.equal(render().totalCents, 14506);
   render().setChargeDeposit(false);
-  assert.equal(render().totalCents, 10176);
+  assert.equal(render().totalCents, 9093);
 });
