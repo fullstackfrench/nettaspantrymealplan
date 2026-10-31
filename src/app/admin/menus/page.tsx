@@ -1,5 +1,6 @@
 import { createAdminClient } from '@/lib/supabase/server';
-import { createWeeklyMenu, setMenuItem, toggleMenuPublished } from '../actions';
+import { createWeeklyMenu, toggleMenuPublished } from '../actions';
+import WeeklyMenuMeals from '@/components/admin/WeeklyMenuMeals';
 import type { Meal, WeeklyMenu } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
@@ -21,7 +22,7 @@ export default async function MenusAdmin({
 
   const [{ data: menusData }, { data: mealsData }] = await Promise.all([
     supabase.from('weekly_menus').select('*').order('week_start', { ascending: false }),
-    supabase.from('meals').select('*').eq('is_active', true).order('name'),
+    supabase.from('meals').select('*, meal_sizes(*)').order('name'),
   ]);
 
   const menus = (menusData ?? []) as WeeklyMenu[];
@@ -107,36 +108,12 @@ export default async function MenusAdmin({
               Tick the meals you&apos;re cooking this week. {included.size} selected.
             </p>
 
-            <div className="admin-card mt-5 divide-y divide-brand-plum/10 overflow-hidden">
-              {meals.map((meal) => {
-                const isIn = included.has(meal.id);
-                return (
-                  <form
-                    key={meal.id}
-                    action={setMenuItem}
-                    className="flex flex-col gap-3 p-4 min-[420px]:flex-row min-[420px]:items-center"
-                  >
-                    <input type="hidden" name="menu_id" value={selected.id} />
-                    <input type="hidden" name="meal_id" value={meal.id} />
-                    <input type="hidden" name="include" value={String(!isIn)} />
-
-                    <div className="flex-1">
-                      <div className="font-bold text-brand-plum">{meal.name}</div>
-                      <div className="mt-1 text-sm text-ink/55">{meal.subtitle}</div>
-                    </div>
-
-                    <button
-                      className={[
-                        'min-h-11 w-full rounded-full px-4 py-2 text-sm font-bold transition min-[420px]:w-auto',
-                        isIn ? 'bg-moss-600 text-white' : 'text-brand-plum ring-1 ring-brand-plum/20 hover:bg-brand-plum/5',
-                      ].join(' ')}
-                    >
-                      {isIn ? 'On the menu' : 'Add'}
-                    </button>
-                  </form>
-                );
-              })}
-            </div>
+            <WeeklyMenuMeals
+              key={selected.id}
+              menuId={selected.id}
+              meals={meals}
+              includedIds={Array.from(included)}
+            />
           </>
         )}
       </div>

@@ -371,6 +371,7 @@ export async function saveMeal(formData: FormData) {
   }
 
   revalidatePath('/admin/meals');
+  revalidatePath('/admin/menus');
   revalidatePath('/menu');
 }
 

@@ -4,7 +4,11 @@ import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { saveMealWithFeedback } from '@/app/admin/actions';
 
-export default function MealSaveForm({ children }: { children: React.ReactNode }) {
+export default function MealSaveForm({ children, onSaved, onSavingChange }: {
+  children: React.ReactNode;
+  onSaved?: () => void;
+  onSavingChange?: (saving: boolean) => void;
+}) {
   const router = useRouter();
   const submitting = useRef(false);
   const errorRef = useRef<HTMLParagraphElement>(null);
@@ -18,6 +22,7 @@ export default function MealSaveForm({ children }: { children: React.ReactNode }
     const formData = new FormData(event.currentTarget);
     submitting.current = true;
     setSaving(true);
+    onSavingChange?.(true);
     setError(null);
     try {
       const result = await saveMealWithFeedback({ error: null, saved: false }, formData);
@@ -29,13 +34,15 @@ export default function MealSaveForm({ children }: { children: React.ReactNode }
         });
         return;
       }
-      router.replace(`/admin/meals?saved=${formData.get('id') ? 'updated' : 'created'}`);
+      if (onSaved) onSaved();
+      else router.replace(`/admin/meals?saved=${formData.get('id') ? 'updated' : 'created'}`);
       router.refresh();
     } catch {
       setError('Unable to reach the server. Your edits are still here; please try saving again.');
     } finally {
       submitting.current = false;
       setSaving(false);
+      onSavingChange?.(false);
     }
   }
 
