@@ -25,22 +25,26 @@ export default function WeeklyMenuMeals({ menuId, meals, includedIds }: {
           const isIn = included.has(meal.id);
           return (
             <div key={meal.id} className="flex flex-col gap-3 p-4 min-[420px]:flex-row min-[420px]:items-center">
-              <button type="button" aria-haspopup="dialog" aria-label={`Edit ${meal.name}`}
-                onClick={() => { setNotice(null); setEditingId(meal.id); }}
-                className="min-h-11 min-w-0 flex-1 rounded-control p-1 text-left transition hover:bg-brand-plum/5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-plum">
+              <div className="min-w-0 flex-1">
                 <span className="block font-bold text-brand-plum">{meal.name}</span>
                 {meal.subtitle && <span className="mt-1 block text-sm text-ink/55">{meal.subtitle}</span>}
-                <span className="mt-1 block text-xs font-medium text-brand-plum/70">Edit meal details</span>
                 {!meal.is_active && <span className="status-badge mt-2 bg-clay-100 text-brand-brick">Hidden from customers</span>}
-              </button>
-              <form action={setMenuItem}>
-                <input type="hidden" name="menu_id" value={menuId} />
-                <input type="hidden" name="meal_id" value={meal.id} />
-                <input type="hidden" name="include" value={String(!isIn)} />
-                <button className={`min-h-11 w-full rounded-full px-4 py-2 text-sm font-bold transition min-[420px]:w-auto ${isIn ? 'bg-moss-600 text-white' : 'text-brand-plum ring-1 ring-brand-plum/20 hover:bg-brand-plum/5'}`}>
-                  {isIn ? 'On the menu' : 'Add'}
+              </div>
+              <div className="flex shrink-0 items-center gap-2">
+                <button type="button" aria-haspopup="dialog" aria-label={`Edit ${meal.name}`}
+                  onClick={() => { setNotice(null); setEditingId(meal.id); }}
+                  className="min-h-11 flex-1 rounded-full px-4 py-2 text-sm font-bold text-brand-plum ring-1 ring-brand-plum/20 transition hover:bg-brand-plum/5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-plum min-[420px]:flex-none">
+                  Edit
                 </button>
-              </form>
+                <form action={setMenuItem} className="flex-1 min-[420px]:flex-none">
+                  <input type="hidden" name="menu_id" value={menuId} />
+                  <input type="hidden" name="meal_id" value={meal.id} />
+                  <input type="hidden" name="include" value={String(!isIn)} />
+                  <button className={`min-h-11 w-full rounded-full px-4 py-2 text-sm font-bold transition min-[420px]:w-auto ${isIn ? 'bg-moss-600 text-white' : 'text-brand-plum ring-1 ring-brand-plum/20 hover:bg-brand-plum/5'}`}>
+                    {isIn ? 'On the menu' : 'Add'}
+                  </button>
+                </form>
+              </div>
             </div>
           );
         })}
