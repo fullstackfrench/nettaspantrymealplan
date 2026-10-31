@@ -44,10 +44,7 @@ export default async function HolidayPage() {
         id="holiday-menu"
         className="mx-auto max-w-7xl scroll-mt-24 px-4 py-16 sm:px-6 sm:py-20"
       >
-        <p className="text-xs font-bold uppercase tracking-[0.18em] text-brand-gold">
-          Gather around the table
-        </p>
-        <h2 className="mt-3 font-display text-3xl font-bold text-brand-plum sm:text-4xl">
+        <h2 className="font-display text-3xl font-bold text-brand-plum sm:text-4xl">
           Chef Netta’s Holiday Menu
         </h2>
         <p className="mt-4 max-w-2xl leading-7 text-ink/65">

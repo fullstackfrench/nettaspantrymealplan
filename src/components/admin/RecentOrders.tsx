@@ -8,7 +8,7 @@ const FULFILLMENT_LABELS: Record<string, string> = { unfulfilled: 'Needs Packing
 export default function RecentOrders({ orders }: { orders: AdminDashboardData['recentOrders'] }) {
   return <section aria-labelledby="recent-orders-heading">
     <div className="flex flex-col gap-3 min-[420px]:flex-row min-[420px]:items-end min-[420px]:justify-between">
-      <div><p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-gold">What just came in</p><h3 id="recent-orders-heading" className="mt-1 font-display text-2xl font-bold text-brand-plum">Recent orders</h3><p className="mt-2 text-sm text-ink/55">The 10 newest orders across every payment and fulfillment status.</p></div>
+      <div><h3 id="recent-orders-heading" className="font-display text-2xl font-bold text-brand-plum">Recent orders</h3><p className="mt-2 text-sm text-ink/55">The 10 newest orders across every payment and fulfillment status.</p></div>
       <Link href="/admin/orders" className="admin-secondary-button self-start">View all orders <span aria-hidden className="ml-2">→</span></Link>
     </div>
     {orders.length === 0 ? <p className="admin-empty-state mt-5">No orders yet. New orders will appear here as soon as customers begin checkout.</p> :

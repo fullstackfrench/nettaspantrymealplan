@@ -5,8 +5,7 @@ export default function HowItWorksPage() {
   return (
     <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6 sm:py-14">
       <div className="rounded-[1.5rem] border border-brand-plum/10 bg-white p-6 shadow-soft sm:p-9">
-        <p className="text-xs font-bold uppercase tracking-[0.18em] text-brand-gold">From kitchen to doorstep</p>
-        <h1 className="mt-3 font-display text-4xl font-bold text-brand-plum sm:text-5xl">How it works</h1>
+        <h1 className="font-display text-4xl font-bold text-brand-plum sm:text-5xl">How it works</h1>
         <p className="mt-4 max-w-2xl leading-7 text-ink/65">A simple weekly rhythm built around fresh food, reusable glass, and the care you expect from Chef Netta.</p>
       </div>
 

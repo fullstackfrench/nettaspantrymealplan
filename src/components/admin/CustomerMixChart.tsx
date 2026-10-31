@@ -5,8 +5,7 @@ export default function CustomerMixChart({ mix }: { mix: AdminDashboardData['cus
   const repeatPercent = total ? Math.round((mix.repeatCustomers / total) * 100) : 0;
   return (
     <section className="admin-card p-5 sm:p-6" aria-labelledby="customer-mix-heading">
-      <p className="text-xs font-bold uppercase tracking-[0.16em] text-moss-600">Customer loyalty</p>
-      <h3 id="customer-mix-heading" className="mt-1 font-display text-xl font-bold text-brand-plum">New vs repeat</h3>
+      <h3 id="customer-mix-heading" className="font-display text-xl font-bold text-brand-plum">New vs repeat</h3>
       <p className="mt-2 text-sm leading-6 text-ink/55">Customers grouped by paid-order history, all time.</p>
       {total === 0 ? (
         <p className="mt-6 rounded-panel border border-dashed border-brand-plum/15 bg-cream/50 px-5 py-12 text-center text-sm leading-6 text-ink/55">Paid-order customer insights will appear after the first completed payment.</p>

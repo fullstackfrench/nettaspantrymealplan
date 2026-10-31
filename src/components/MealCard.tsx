@@ -39,9 +39,7 @@ export default function MealCard({ meal, mode, onSelect }: Props) {
     >
       <div className="relative aspect-[4/3] w-full overflow-hidden bg-[#eee9e2]">
         {meal.image_url ? <img src={meal.image_url} alt={meal.name} className="h-full w-full object-cover transition duration-300 group-hover:scale-105" /> : <div className="flex h-full items-center justify-center text-4xl">🍲</div>}
-        <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/40 to-transparent" aria-hidden />
         {!available ? <span className="absolute left-3 top-3 rounded-full bg-brand-plum px-3 py-1 text-xs font-semibold text-white">Unavailable</span> : meal.tags.slice(0, 1).map((tag) => <span key={tag} className="absolute left-3 top-3 rounded-full bg-white/95 px-3 py-1 text-[0.68rem] font-bold uppercase tracking-wide text-brand-plum shadow-sm">{tag.replace(/[-_]/g, ' ')}</span>)}
-        <span className="absolute bottom-3 left-3 text-xs font-medium text-white/90">by {meal.chef_name}</span>
       </div>
       <div className="flex flex-1 flex-col p-5">
         <h3 className="font-display text-xl font-bold leading-snug text-brand-plum">{meal.name}</h3>

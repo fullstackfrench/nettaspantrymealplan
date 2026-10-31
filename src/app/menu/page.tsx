@@ -20,8 +20,7 @@ export default async function MenuPage() {
       <div className="relative overflow-hidden border-b border-brand-plum/10 bg-white">
         <div className="absolute -right-20 -top-28 h-72 w-72 rounded-full bg-brand-gold/10 blur-3xl" aria-hidden />
         <div className="relative mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-14">
-          <p className="text-xs font-bold uppercase tracking-[0.18em] text-brand-gold">Fresh from Chef Netta&apos;s kitchen</p>
-          <h1 className="mt-3 font-display text-4xl font-bold tracking-tight text-brand-plum md:text-5xl">
+          <h1 className="font-display text-4xl font-bold tracking-tight text-brand-plum md:text-5xl">
             This week&apos;s menu
           </h1>
           <p className="mt-4 max-w-2xl leading-7 text-ink/65">

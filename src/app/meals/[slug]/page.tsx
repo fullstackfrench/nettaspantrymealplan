@@ -19,10 +19,8 @@ export default async function MealDetailPage({ params }: { params: { slug: strin
           {meal.image_url ? <img src={meal.image_url} alt={meal.name} className="h-full w-full object-cover" /> : <div className="flex h-full flex-col items-center justify-center bg-[radial-gradient(circle_at_top,#f6e9de,transparent_60%)] text-brand-plum/45"><span className="font-brand text-4xl">Made with care</span><span className="mt-3 text-xs font-bold uppercase tracking-wider">Photo coming soon</span></div>}
         </div>
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.18em] text-brand-gold">From this week&apos;s kitchen</p>
-          <h1 className="mt-3 font-display text-3xl font-bold leading-tight text-brand-plum md:text-4xl">{meal.name}</h1>
+          <h1 className="font-display text-3xl font-bold leading-tight text-brand-plum md:text-4xl">{meal.name}</h1>
           {meal.subtitle && <p className="mt-2 text-lg leading-7 text-ink/60">{meal.subtitle}</p>}
-          <p className="mt-4 text-sm font-bold text-brand-plum">Prepared by {meal.chef_name}</p>
           {meal.allergen_free.length > 0 && <div className="mt-6 flex flex-wrap gap-2">{meal.allergen_free.map((item) => <span key={item} className="rounded-full bg-moss-50 px-3 py-2 text-xs font-bold text-moss-700 ring-1 ring-moss-600/15">{item}</span>)}</div>}
           {meal.description && <p className="mt-6 leading-8 text-ink/70">{meal.description}</p>}
           {meal.ingredients.length > 0 && <div className="mt-8"><h2 className="font-display text-xl font-bold text-brand-plum">Ingredients</h2><p className="mt-2 leading-7 text-ink/65">{meal.ingredients.join(', ')}.</p></div>}

@@ -24,6 +24,14 @@ export const metadata: Metadata = {
   title: "Netta's Pantry — Chef-made meals delivered across North Carolina",
   description:
     'Southern comfort food from Chef Netta, delivered weekly in returnable glass containers. Made fresh in North Carolina.',
+  icons: {
+    icon: [
+      { url: '/favicon.ico?v=ysf', sizes: '32x32', type: 'image/x-icon' },
+      { url: '/favicon-32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+    ],
+    apple: [{ url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }],
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

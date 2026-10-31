@@ -107,12 +107,9 @@ export default function HolidayMealBuilder({
       className="mx-auto max-w-7xl scroll-mt-24 px-4 py-16 sm:px-6 sm:py-20"
       aria-labelledby="build-holiday-title"
     >
-      <p className="text-xs font-bold uppercase tracking-[0.18em] text-brand-gold">
-        Your holiday table
-      </p>
       <h2
         id="build-holiday-title"
-        className="mt-3 font-display text-3xl font-bold text-brand-plum"
+        className="font-display text-3xl font-bold text-brand-plum"
       >
         Build your holiday meal
       </h2>

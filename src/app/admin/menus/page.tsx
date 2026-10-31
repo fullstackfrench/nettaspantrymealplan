@@ -39,8 +39,7 @@ export default async function MenusAdmin({
   return (
     <div className="grid gap-8 lg:grid-cols-[320px_minmax(0,1fr)]">
       <div>
-        <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-gold">Menu calendar</p>
-        <h2 className="mt-1 font-display text-2xl font-bold text-brand-plum">Weeks</h2>
+        <h2 className="font-display text-2xl font-bold text-brand-plum">Weeks</h2>
 
         <form action={createWeeklyMenu} className="admin-card mt-4 p-4">
           <label htmlFor="week-start" className="admin-label">Start a new menu week</label>

@@ -14,8 +14,7 @@ export default function OrdersTrendChart({ trend, range }: Pick<AdminDashboardDa
     <section className="admin-card p-5 sm:p-6" aria-labelledby="orders-trend-heading">
       <div className="flex flex-col gap-4 min-[520px]:flex-row min-[520px]:items-start min-[520px]:justify-between">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-gold">Order activity</p>
-          <h3 id="orders-trend-heading" className="mt-1 font-display text-xl font-bold text-brand-plum">Orders over time</h3>
+          <h3 id="orders-trend-heading" className="font-display text-xl font-bold text-brand-plum">Orders over time</h3>
           <p className="mt-2 text-sm text-ink/55">All created orders, including pending and canceled orders.</p>
         </div>
         <nav className="flex gap-1 rounded-full bg-cream p-1" aria-label="Order trend range">

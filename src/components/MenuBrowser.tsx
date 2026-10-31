@@ -39,7 +39,7 @@ export default function MenuBrowser({ meals, plans }: { meals: Meal[]; plans: Pu
 
       <div className="mt-7 border-t border-brand-plum/10 pt-7">
         <div className="mb-4 flex items-end justify-between gap-4">
-          <div><p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-gold">Choose what sounds good</p><h2 className="mt-1 font-display text-2xl font-bold text-brand-plum">Meals from this week&apos;s kitchen</h2></div>
+          <div><h2 className="font-display text-2xl font-bold text-brand-plum">Meals from this week&apos;s kitchen</h2></div>
           <span className="hidden text-sm text-ink/55 sm:block">{filtered.length} dish{filtered.length === 1 ? '' : 'es'}</span>
         </div>
         <FilterBar active={active} onChange={setActive} counts={counts} />

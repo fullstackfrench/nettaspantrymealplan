@@ -58,10 +58,8 @@ export default function MealModal({ meal, onClose }: { meal: Meal | null; onClos
             {meal.image_url ? <img src={meal.image_url} alt={meal.name} className="h-full w-full object-cover" /> : <div className="flex h-full flex-col items-center justify-center bg-[radial-gradient(circle_at_top,#f6e9de,transparent_60%)] text-brand-plum/45"><span className="font-brand text-3xl">Made with care</span><span className="mt-2 text-xs font-bold uppercase tracking-wider">Photo coming soon</span></div>}
           </div>
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-gold">From this week&apos;s kitchen</p>
-            <h2 id={titleId} className="mt-2 pr-10 font-display text-2xl font-bold leading-tight text-brand-plum md:text-3xl">{meal.name}</h2>
+            <h2 id={titleId} className="pr-10 font-display text-2xl font-bold leading-tight text-brand-plum md:text-3xl">{meal.name}</h2>
             {meal.subtitle && <p className="mt-2 leading-6 text-ink/60">{meal.subtitle}</p>}
-            <p className="mt-4 text-sm font-bold text-brand-plum">Prepared by {meal.chef_name}</p>
             {meal.description && <p id={descriptionId} className="mt-4 text-sm leading-7 text-ink/70">{meal.description}</p>}
             {(meal.calories || meal.protein_g) && <div className="mt-5 grid grid-cols-2 gap-px overflow-hidden rounded-control bg-brand-plum/10 text-center text-xs min-[420px]:grid-cols-4"><Stat label="cal" value={meal.calories} /><Stat label="protein" value={meal.protein_g} suffix="g" /><Stat label="carbs" value={meal.carbs_g} suffix="g" /><Stat label="fat" value={meal.fat_g} suffix="g" /></div>}
             {meal.allergen_free.length > 0 && <div className="mt-5 flex flex-wrap gap-2">{meal.allergen_free.map((item) => <span key={item} className="rounded-full bg-moss-50 px-3 py-1.5 text-xs font-bold text-moss-700 ring-1 ring-moss-600/15">{item}</span>)}</div>}

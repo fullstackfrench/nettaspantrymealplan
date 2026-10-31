@@ -53,8 +53,7 @@ export default function WeeklyMenuMeals({ menuId, meals, includedIds }: {
         <Dialog titleId="weekly-meal-editor-title" onClose={() => { if (!saving) setEditingId(null); }}>
           <header className="flex shrink-0 items-start justify-between gap-4 border-b border-brand-plum/10 bg-white px-5 py-4 sm:px-6">
             <div className="min-w-0">
-              <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-gold">Meal details</p>
-              <h2 id="weekly-meal-editor-title" className="mt-1 font-display text-xl font-bold text-brand-plum">Edit {editing.name}</h2>
+              <h2 id="weekly-meal-editor-title" className="font-display text-xl font-bold text-brand-plum">Edit {editing.name}</h2>
               <p className="mt-1 text-sm text-ink/60">Changes update this meal in your library and any menus using it.</p>
             </div>
             <button type="button" disabled={saving} onClick={() => setEditingId(null)} aria-label="Close meal editor"

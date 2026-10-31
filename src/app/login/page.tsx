@@ -44,10 +44,7 @@ export default async function LoginPage({
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-brand-plum font-brand text-2xl text-white shadow-soft">
             N
           </div>
-          <p className="mt-4 text-xs font-bold uppercase tracking-[0.18em] text-brand-gold">
-            Netta&apos;s Pantry
-          </p>
-          <h1 className="mt-2 font-display text-3xl font-bold text-brand-plum">
+          <h1 className="font-display text-3xl font-bold text-brand-plum">
             Welcome to the table
           </h1>
           <p className="mt-3 text-sm leading-6 text-ink/60">

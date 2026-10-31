@@ -20,7 +20,7 @@ export default async function AdminHome({ searchParams }: { searchParams?: { ran
     <div className="space-y-7 sm:space-y-8">
       <section aria-labelledby="overview-heading">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-          <div><p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-gold">Business pulse</p><h2 id="overview-heading" className="mt-1 font-display text-2xl font-bold text-brand-plum">Kitchen overview</h2><p className="mt-2 text-sm leading-6 text-ink/55">Real order, revenue, and customer signals from the pantry.</p></div>
+          <div><h2 id="overview-heading" className="font-display text-2xl font-bold text-brand-plum">Kitchen overview</h2><p className="mt-2 text-sm leading-6 text-ink/55">Real order, revenue, and customer signals from the pantry.</p></div>
           <div className="flex flex-wrap gap-2 text-xs font-bold"><span className="rounded-full bg-brand-plum/10 px-3 py-2 text-brand-plum">{dashboard.stats.awaitingFulfillment} awaiting fulfillment</span><span className="rounded-full bg-brand-gold/15 px-3 py-2 text-[#6e5925]">{dashboard.stats.unpaidAttention} payment follow-up</span></div>
         </div>
         <div className="mt-5"><DashboardStatCards stats={dashboard.stats} range={dashboard.range} /></div>

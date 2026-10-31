@@ -22,10 +22,7 @@ export default async function HolidayAdmin() {
   return (
     <div className="space-y-8">
       <div>
-        <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-gold">
-          Hassle-Free Holidays
-        </p>
-        <h1 className="mt-2 font-display text-3xl font-bold text-brand-plum">
+        <h1 className="font-display text-3xl font-bold text-brand-plum">
           Holiday orders
         </h1>
       </div>

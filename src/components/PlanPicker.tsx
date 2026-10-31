@@ -20,7 +20,7 @@ export default function PlanPicker({ plans }: { plans: PublicSubscriptionPlan[] 
   return (
     <section className="rounded-panel border border-brand-plum/10 bg-white p-4 shadow-soft sm:p-6" aria-labelledby="order-style-heading">
       <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
-        <div><p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-gold">First, set your order style</p><h2 id="order-style-heading" className="mt-1 font-display text-xl font-bold text-brand-plum">How are you filling your table?</h2></div>
+        <div><h2 id="order-style-heading" className="font-display text-xl font-bold text-brand-plum">How are you filling your table?</h2></div>
         <div className="flex flex-wrap items-center gap-2">
         <ModeTab active={mode === 'subscription'} onClick={() => changeMode('subscription')}>Weekly subscription</ModeTab>
         <ModeTab active={mode === 'one_time'} onClick={() => changeMode('one_time')}>One-time box</ModeTab>

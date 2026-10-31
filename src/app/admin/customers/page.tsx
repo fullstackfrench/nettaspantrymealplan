@@ -23,8 +23,7 @@ export default async function CustomersAdmin() {
 
   return (
     <div>
-      <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-gold">Community &amp; container loop</p>
-      <h2 className="mt-1 font-display text-2xl font-bold text-brand-plum">Customers &amp; glass tracking</h2>
+      <h2 className="font-display text-2xl font-bold text-brand-plum">Customers &amp; glass tracking</h2>
       <p className="mt-2 text-sm leading-6 text-ink/55">
         {customers.length} customer{customers.length === 1 ? '' : 's'} · {totalOut} containers
         currently out. Log returns here as you collect them.

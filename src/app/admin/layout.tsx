@@ -22,8 +22,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       <header className="rounded-[1.5rem] border border-brand-plum/10 bg-white p-5 shadow-soft sm:p-7">
         <div className="flex flex-col gap-4 min-[420px]:flex-row min-[420px]:items-center min-[420px]:justify-between">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.18em] text-brand-gold">Netta&apos;s Pantry operations</p>
-            <h1 className="mt-2 font-display text-3xl font-bold text-brand-plum sm:text-4xl">Chef dashboard</h1>
+            <h1 className="font-display text-3xl font-bold text-brand-plum sm:text-4xl">Chef dashboard</h1>
             <p className="mt-2 text-sm text-ink/55">Meals, weekly menus, orders, customers, and reusable glass.</p>
           </div>
         <form action={signOut}>

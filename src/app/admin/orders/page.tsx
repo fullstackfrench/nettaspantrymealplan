@@ -47,8 +47,7 @@ export default async function OrdersAdmin({ searchParams }: {
 
   return (
     <div>
-      <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-gold">Fulfillment queue</p>
-      <h2 className="mt-1 font-display text-2xl font-bold text-brand-plum">Orders</h2>
+      <h2 className="font-display text-2xl font-bold text-brand-plum">Orders</h2>
       <p className="mt-2 max-w-3xl text-sm leading-6 text-ink/55">
         Active orders appear first, with scheduled deliveries at the top. Select an order
         to see its meals, saved delivery details, and fulfillment progress. Awaiting-payment orders are included.

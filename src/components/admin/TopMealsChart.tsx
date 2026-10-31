@@ -4,8 +4,7 @@ export default function TopMealsChart({ meals }: { meals: AdminDashboardData['to
   const max = Math.max(...meals.map((meal) => meal.quantity), 1);
   return (
     <section className="admin-card p-5 sm:p-6" aria-labelledby="top-meals-heading">
-      <p className="text-xs font-bold uppercase tracking-[0.16em] text-brand-brick">Kitchen favorites</p>
-      <h3 id="top-meals-heading" className="mt-1 font-display text-xl font-bold text-brand-plum">Top meals</h3>
+      <h3 id="top-meals-heading" className="font-display text-xl font-bold text-brand-plum">Top meals</h3>
       <p className="mt-2 text-sm leading-6 text-ink/55">Meal units from paid orders, all time. Historical names are preserved.</p>
       {meals.length === 0 ? (
         <p className="mt-6 rounded-panel border border-dashed border-brand-plum/15 bg-cream/50 px-5 py-12 text-center text-sm leading-6 text-ink/55">Paid-order analytics will appear here once orders are completed.</p>
