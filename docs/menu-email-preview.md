@@ -63,7 +63,8 @@ active in production until the migration and deployment are approved.
 
 ### Release, after explicit approval
 
-1. Apply `supabase/migrations/20261031_menu_announcements.sql` to Supabase. It adds
+1. Apply `supabase/migrations/20261031_menu_announcements.sql`, then
+   `supabase/migrations/20261031_menu_announcement_uuid_fix.sql` to Supabase. It adds
    a private ledger and service-only RPCs, with no sending triggers. Existing menu
    records, customers, order data and fulfillment are preserved.
 2. Deploy the application. Keep `RESEND_API_KEY` configured in Production with
@@ -83,7 +84,7 @@ The public ordering link continues to use `/menu`.
 The menu may remain published if Resend rejects or cannot confirm a send. Do not
 manually clear a reservation to bypass a warning. First check Resend for the
 saved broadcast ID, or the deterministic name
-`netta-menu-<menu ID>-<announcement ID>` when draft creation was unconfirmed.
+`netta-menu-<week start>-<announcement ID>` when draft creation was unconfirmed.
 A saved unsent draft can be handled in Resend; then use the status check to
 reconcile accepted sends. An operator may repair a failed reservation only after
 establishing that no duplicate draft/send is possible.
@@ -105,3 +106,13 @@ It never loads `.env.local` or connects to production.
 
 Rollback: reverting this feature removes preview/test controls; it does not
 change menu records, customers, orders, or Resend subscribers.
+
+
+## UUID compatibility repair
+
+The follow-up UUID migration uses `pg_catalog.gen_random_uuid()` for ledger
+identifiers and retry attempts. Supabase's `uuid-ossp` extension is in
+`extensions`, outside the RPC's restricted `public` search path. The local SQL
+runner now relocates that extension before exercising the fixed migration and
+retry tests, matching production. Broadcast names include the week date and
+announcement ID and stay below Resend's 70-character limit.

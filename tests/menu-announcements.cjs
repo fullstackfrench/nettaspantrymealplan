@@ -49,6 +49,7 @@ function harness(options = {}) {
     if (p === '/contacts') return { ok: true, json: async () => ({ data: structuredClone(state.list), has_more: false }) };
     if (p === '/suppressions') return { ok: true, json: async () => ({ data: state.suppressions, has_more: false }) };
     if (p === '/broadcasts') {
+      assert(state.calls.at(-1).body.name.length <= 70, 'Resend broadcast names must fit its 70-character limit');
       if (options.createTimeout) throw new TypeError('Network timeout after possible creation');
       if (options.rejectCreate) return { ok: false, status: 403 };
       return { ok: true, json: async () => ({ id: broadcastId }) };
@@ -107,6 +108,8 @@ test('confirmed sends publish once, save a draft before sending, and use the app
   assert.equal(h.state.context.announcement.status, 'queued');
   const create = h.state.calls.find(c => c.path === '/broadcasts');
   assert.equal(create.body.send, false);
+  assert.equal(create.body.name, `netta-menu-2099-01-05-${announcementId}`);
+  assert(create.body.name.length <= 70);
   assert.equal(create.body.segment_id, 'aa952e1a-0da7-4c8d-9455-041df327a843');
   assert(create.body.html.includes('{{{RESEND_UNSUBSCRIBE_URL}}}'));
   assert(!create.body.subject.includes('[TEST]'));

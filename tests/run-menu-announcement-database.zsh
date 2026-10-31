@@ -10,6 +10,8 @@ createdb -h /private/tmp -p 55443 -E UTF8 -T template0 "$test_db"
 psql -h /private/tmp -p 55443 -d "$test_db" -v ON_ERROR_STOP=1 \
  -f tests/menu-announcements-bootstrap.sql \
  -f supabase/migrations/20261031_menu_announcements.sql \
+ -f tests/menu-announcements-extension-schema.sql \
+ -f supabase/migrations/20261031_menu_announcement_uuid_fix.sql \
  -f tests/menu-announcements-database.sql
 RUN_MENU_ANNOUNCEMENT_DATABASE_TESTS=true MENU_ANNOUNCEMENT_TEST_DATABASE="$test_db" node --test tests/menu-announcements-concurrency.cjs
 print "Synthetic test database retained: $test_db"

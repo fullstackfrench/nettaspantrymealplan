@@ -154,7 +154,7 @@ export async function confirmAnnouncement(admin: Admin, menuId: string, token: s
     if (!broadcastId) {
       // Create only a draft. Its ID must be saved before a send can be attempted.
       const broadcast = await provider('/broadcasts', 'POST', {
-        name: `netta-menu-${menuId}-${claim.id}`, segment_id: config().segment,
+        name: `netta-menu-${ctx.snapshot.week_start}-${claim.id}`, segment_id: config().segment,
         from: MENU_EMAIL_FROM, reply_to: MENU_EMAIL_REPLY_TO, subject: preview.subject,
         html: preview.html, text: preview.text, send: false,
       });
