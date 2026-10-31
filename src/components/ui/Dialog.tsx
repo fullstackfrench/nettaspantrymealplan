@@ -30,6 +30,12 @@ export default function Dialog({ titleId, onClose, children }: {
     <dialog ref={ref} aria-labelledby={titleId} aria-modal="true"
       onCancel={(event) => { event.preventDefault(); onClose(); }}
       onKeyDown={(event) => {
+        if (event.key === 'Escape') {
+          event.preventDefault();
+          event.stopPropagation();
+          onClose();
+          return;
+        }
         if (event.key !== 'Tab') return;
         const controls = Array.from(event.currentTarget.querySelectorAll<HTMLElement>(
           'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',

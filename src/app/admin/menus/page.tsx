@@ -1,6 +1,7 @@
 import { createAdminClient } from '@/lib/supabase/server';
 import { createWeeklyMenu, toggleMenuPublished } from '../actions';
 import WeeklyMenuMeals from '@/components/admin/WeeklyMenuMeals';
+import MenuEmailPanel from '@/components/admin/MenuEmailPanel';
 import type { Meal, WeeklyMenu } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
@@ -107,6 +108,8 @@ export default async function MenusAdmin({
             <p className="mt-2 text-sm text-ink/55">
               Tick the meals you&apos;re cooking this week. {included.size} selected.
             </p>
+
+            <MenuEmailPanel key={`email-${selected.id}`} menuId={selected.id} resendConfigured={Boolean(process.env.RESEND_API_KEY)} />
 
             <WeeklyMenuMeals
               key={selected.id}
